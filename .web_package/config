@@ -1,0 +1,12 @@
+template = drupal
+master = "8.x-1.x"
+develop = "8.x-1.x"
+remote = origin
+create_tags = patch
+push_tags = auto
+push_master = auto
+push_develop = no
+patch_prefix = .
+preserve_patch_zero = true
+git_root = .
+info_file = field_tag.info.yml
