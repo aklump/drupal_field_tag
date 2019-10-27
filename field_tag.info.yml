@@ -1,0 +1,20 @@
+name: Field Tag
+description: Allows fields to be tagged with an extra arbitrary data column.
+package: In the Loft Studios
+
+type: module
+core: 8.x
+version: 8.x-0.0.1
+php: ">=7.0"
+
+dependencies:
+  - drupal:field
+#  - datetime:datetime
+#  - link:link
+#
+#test_dependencies:
+# - drupal:image
+
+#configure: field_tag.settings
+
+# read more at https://www.drupal.org/node/2000204

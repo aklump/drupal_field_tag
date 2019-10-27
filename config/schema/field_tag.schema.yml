@@ -1,0 +1,16 @@
+field.field.*.*.*.third_party.field_tag:
+  type: mapping
+  label: Field tag settings
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Enable field tag'
+    title:
+      type: string
+      label: 'Title'
+    description:
+      type: text
+      label: 'Description'
+    required:
+      type: boolean
+      label: 'Required'

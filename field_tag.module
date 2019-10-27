@@ -1,0 +1,119 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\field\Entity\FieldConfig;
+use Drupal\field_tag\Entity\FieldTag;
+
+/**
+ * Implements hook_form_FORM_ID_form_alter().
+ */
+function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInterface $form_state) {
+  /** @var \Drupal\Core\Field\FieldConfigInterface $field */
+  $field = $form_state->getFormObject()->getEntity();
+
+  $settings = $field->getThirdPartySettings('field_tag') + [
+      'enabled' => FALSE,
+      'title' => t('Tag'),
+      'description' => '',
+      'required' => FALSE,
+    ];
+  $form['third_party_settings']['field_tag'] = [
+    '#type' => 'details',
+    '#title' => t('Field tag'),
+    '#description' => t('Enabling tagging for this field adds a textfield to the widget form that allows the admin to tag the value entered in this field with an arbitrary string of text, which can be used by developers to manipulate the field.'),
+    '#open' => $settings['enabled'],
+  ];
+
+  $form['third_party_settings']['field_tag']['enabled'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Enable tagging for this field?'),
+    '#default_value' => $settings['enabled'],
+  ];
+  $states = array(
+    'visible' => array(
+      ':input[name="third_party_settings[field_tag][enabled]"]' => array(
+        'checked' => TRUE,
+      ),
+    ),
+  );
+  $form['third_party_settings']['field_tag']['title'] = [
+    '#type' => 'textfield',
+    '#title' => t('Widget field label'),
+    '#default_value' => $settings['title'],
+    '#required' => TRUE,
+    '#states' => $states,
+  ];
+  $form['third_party_settings']['field_tag']['description'] = [
+    '#type' => 'textfield',
+    '#title' => t('Widget field description'),
+    '#default_value' => $settings['description'],
+    '#states' => $states,
+  ];
+  $form['third_party_settings']['field_tag']['required'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Make the field required in the widget form.'),
+    '#default_value' => $settings['required'],
+    '#states' => $states,
+  ];
+
+}
+
+
+/**
+ * Implements hook_field_widget_form_alter().
+ */
+function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
+  // Add a css class to widget form elements for all fields of type mytype.
+  $field_definition = $context['items']->getFieldDefinition();
+
+  // Base fields are not configurable.
+  if (!$field_definition instanceof FieldConfig) {
+    return;
+  }
+
+  $settings = $field_definition->getThirdPartySettings('field_tag');
+  if ($settings) {
+    $field_tag = (string) FieldTag::loadFromParent($context['items']->getParent()
+        ->getEntity(), $field_definition->getName(), $context['delta']) ?? '';
+    $element['field_tag'] = [
+      '#weight' => -100,
+      '#type' => 'textfield',
+      '#required' => $settings['required'],
+      '#title' => $settings['title'],
+      '#description' => $settings['description'],
+      '#default_value' => (string) $field_tag,
+    ];
+  }
+}
+
+/**
+ * Implements hook_entity_insert().
+ */
+function field_tag_entity_insert(EntityInterface $entity) {
+  field_tag_entity_update($entity);
+}
+
+/**
+ * Implements hook_entity_update().
+ *
+ * Saves the focal point value for the image file entity about to be saved.
+ */
+function field_tag_entity_update(EntityInterface $entity) {
+  // Only worry about entities that are fieldable.
+  if ($entity instanceof FieldableEntityInterface) {
+    foreach ($entity->getFieldDefinitions() as $field_name => $field_definition) {
+      if ($field_definition instanceof FieldConfig
+        && ($field_definition->getThirdPartySettings('field_tag'))) {
+        foreach ($entity->{$field_name} as $delta => $item) {
+          if ($entity->isNew() || !($field_tag = FieldTag::loadFromParent($entity, $field_name, $delta))) {
+            $field_tag = FieldTag::createFromParent($entity, $field_name, $delta);
+          }
+          $field_tag->get('tag')->value = $item->field_tag;
+          $field_tag->save();
+        }
+      }
+    }
+  }
+}

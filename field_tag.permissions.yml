@@ -1,0 +1,31 @@
+add field tag entities:
+  title: 'Create new Field tag entities'
+
+administer field tag entities:
+  title: 'Administer Field tag entities'
+  description: 'Allow to access the administration form to configure Field tag entities.'
+  restrict access: true
+
+delete field tag entities:
+  title: 'Delete Field tag entities'
+
+edit field tag entities:
+  title: 'Edit Field tag entities'
+
+view published field tag entities:
+  title: 'View published Field tag entities'
+
+view unpublished field tag entities:
+  title: 'View unpublished Field tag entities'
+
+view all field tag revisions:
+  title: 'View all Field tag revisions'
+
+revert all field tag revisions:
+  title: 'Revert all Field tag revisions'
+  description: 'Role requires permission <em>view Field tag revisions</em> and <em>edit rights</em> for field tag entities in question or <em>administer field tag entities</em>.'
+
+delete all field tag revisions:
+  title: 'Delete all revisions'
+  description: 'Role requires permission to <em>view Field tag revisions</em> and <em>delete rights</em> for field tag entities in question or <em>administer field tag entities</em>.'
+
