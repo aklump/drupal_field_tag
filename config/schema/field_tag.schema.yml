@@ -8,6 +8,9 @@ field.field.*.*.*.third_party.field_tag:
     title:
       type: string
       label: 'Title'
+    weight:
+      type: integer
+      label: 'Weight'
     description:
       type: text
       label: 'Description'

@@ -19,9 +19,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  *   id = "field_tag",
  *   label = @Translation("Field tag"),
  *   handlers = {
- *     "storage" = "Drupal\field_tag\FieldTagStorage",
- *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "access" = "Drupal\field_tag\FieldTagAccessControlHandler",
+ *     "storage" = "Drupal\Core\Entity\Sql\SqlContentEntityStorage",
  *   },
  *   base_table = "field_tag",
  *   data_table = "field_tag_field_data",

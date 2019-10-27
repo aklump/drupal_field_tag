@@ -17,6 +17,7 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
       'enabled' => FALSE,
       'title' => t('Tag'),
       'description' => '',
+      'weight' => 0,
       'required' => FALSE,
     ];
   $form['third_party_settings']['field_tag'] = [
@@ -51,6 +52,12 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
     '#default_value' => $settings['description'],
     '#states' => $states,
   ];
+  $form['third_party_settings']['field_tag']['weight'] = array(
+    '#type' => 'weight',
+    '#title' => t('Weight'),
+    '#default_value' => $settings['weight'],
+    '#delta' => 50,
+  );
   $form['third_party_settings']['field_tag']['required'] = [
     '#type' => 'checkbox',
     '#title' => t('Make the field required in the widget form.'),
@@ -65,25 +72,20 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
  * Implements hook_field_widget_form_alter().
  */
 function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
-  // Add a css class to widget form elements for all fields of type mytype.
-  $field_definition = $context['items']->getFieldDefinition();
-
-  // Base fields are not configurable.
-  if (!$field_definition instanceof FieldConfig) {
-    return;
-  }
-
-  $settings = $field_definition->getThirdPartySettings('field_tag');
-  if ($settings) {
-    $field_tag = (string) FieldTag::loadFromParent($context['items']->getParent()
+  if (($field_definition = $context['items']->getFieldDefinition()) instanceof FieldConfig
+    && ($settings = $field_definition->getThirdPartySettings('field_tag'))) {
+    $default_value = (string) FieldTag::loadFromParent($context['items']->getParent()
         ->getEntity(), $field_definition->getName(), $context['delta']) ?? '';
     $element['field_tag'] = [
-      '#weight' => -100,
+      '#weight' => $settings['weight'],
       '#type' => 'textfield',
       '#required' => $settings['required'],
       '#title' => $settings['title'],
       '#description' => $settings['description'],
-      '#default_value' => (string) $field_tag,
+      '#default_value' => $default_value,
+      '#attributes' => ['class' => ['field-tag']],
+      '#access' => \Drupal::currentUser()
+        ->hasPermission('access field tag inputs'),
     ];
   }
 }

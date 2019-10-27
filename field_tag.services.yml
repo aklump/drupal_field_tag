@@ -1,8 +1,0 @@
-#services:
-#  field_tag:
-#    class: Drupal\field_tag\Service\FieldTag
-#    arguments: ['@config.factory']
-#  field_tag.route_subscriber:
-#    class: Drupal\field_tag\Routing\RouteSubscriber
-#    tags:
-#      - {name: event_subscriber}
