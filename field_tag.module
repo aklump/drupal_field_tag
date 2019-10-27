@@ -58,6 +58,7 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
     '#title' => t('Weight'),
     '#default_value' => $settings['weight'],
     '#delta' => 50,
+    '#states' => $states,
   );
   $form['third_party_settings']['field_tag']['required'] = [
     '#type' => 'checkbox',
