@@ -1,0 +1,3 @@
+services:
+  field_tag:
+    class: Drupal\field_tag\FieldTagService

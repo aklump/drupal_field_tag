@@ -129,3 +129,16 @@ function field_tag_entity_update(EntityInterface $entity) {
     }
   }
 }
+
+/**
+ * Implements hook_entity_delete().
+ *
+ * Deletes tags on entities that get deleted.
+ */
+function field_tag_entity_delete(EntityInterface $entity) {
+  if (($field_tags = \Drupal::service('field_tag')
+    ->getAllFieldTagsByParent($entity))) {
+    \Drupal::entityTypeManager()
+      ->getStorage('field_tag')->delete($field_tags);
+  }
+}
