@@ -20,3 +20,21 @@ The use case for which this was written is this.  Allow the tagging of images on
 ## Developers
 
 This provides the UI and storage mechanism for field content tagging.  It creates a new entity type _field_tag_.  It's up to you to implement use cases for the data.  See _field_tag.api.php_ for example code.
+
+## Tagging During Migration
+
+Here's an example of how you might tag an image field during a migration, this assumes field_images is already set up with field tagging.
+
+    process:
+      field_images:
+        plugin: sub_process
+        source: field_hero_images
+        process:
+          target_id: fid
+          alt: alt
+          title: title
+          width: width
+          height: height
+          field_tag:
+            plugin: default_value
+            default_value: hero
