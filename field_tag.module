@@ -5,6 +5,7 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field_tag\Entity\FieldTag;
+use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
 
 /**
  * Implements hook_form_FORM_ID_form_alter().
@@ -76,6 +77,15 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
     && ($settings = $field_definition->getThirdPartySettings('field_tag'))) {
     $default_value = (string) FieldTag::loadFromParent($context['items']->getParent()
         ->getEntity(), $field_definition->getName(), $context['delta']) ?? '';
+
+    // In some widgets this should not be shown under certain circumstances,
+    // e.g., a file field that has no files attached yet, should be seeing the
+    // tagging input yet.  Only after it has a file.
+    $access = TRUE;
+    if ($is_file = $context['items'] instanceof FileFieldItemList) {
+      $access = !empty($element['#default_value']['fids']);
+    }
+
     $element['field_tag'] = [
       '#weight' => $settings['weight'],
       '#type' => 'textfield',
@@ -84,8 +94,8 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
       '#description' => $settings['description'],
       '#default_value' => $default_value,
       '#attributes' => ['class' => ['field-tag']],
-      '#access' => \Drupal::currentUser()
-        ->hasPermission('access field tag inputs'),
+      '#access' => $access && \Drupal::currentUser()
+          ->hasPermission('access field tag inputs'),
     ];
   }
 }
