@@ -28,6 +28,25 @@ interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterfa
    * @return string
    *   The arbitrary tag value.
    */
-  public function getTag(): string;
+  public function getValue(): string;
+
+  /**
+   * Return an array by splitting the value of the field_tag.
+   *
+   * @return array
+   *   The split value of field_tag.
+   */
+  public function getTags(): array;
+
+  /**
+   * Determine if a tag exists in the current value.
+   *
+   * @param string $tag
+   *   The tag value to search for in getTags().
+   *
+   * @return bool
+   *   true if the tag exists.
+   */
+  public function hasTag(string $tag): bool;
 
 }

@@ -37,36 +37,24 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
   use EntityChangedTrait;
 
   /**
-   * Create a new instance from context.
+   * Load or create a FieldTag entity by context.
    *
-   * @param \Drupal\Core\Entity\EntityInterface $parent
-   * @param string $field_name
-   * @param int $delta
-   *
-   * @return \Drupal\Core\Entity\EntityInterface
-   */
-  public static function createFromParent(EntityInterface $parent, string $field_name, $delta = 0): EntityInterface {
-    return static::create([
-      'parent_entity' => $parent->getEntityTypeId(),
-      'parent_id' => $parent->id(),
-      'field_name' => $field_name,
-      'delta' => $delta,
-    ]);
-  }
-
-  /**
-   * Attempt to load a FieldTag entity by context.
+   * If the field_tag entity does not exist then a new instance will be
+   * returned with the $parent context already applied.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    * @param string $field_name
    * @param int $delta
+   *   Optional, defaults to 0.
    *
-   * @return EntityInterface|null
+   * @return \Drupal\field_tag\Entity\FieldTagInterface
+   *   An existing (in the db) or new instance with supplied context.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public static function loadFromParent(EntityInterface $entity, string $field_name, $delta = 0) {
+  public static function loadFromParent(EntityInterface $entity, string $field_name, $delta = 0): FieldTagInterface {
+    // TODO Static cache optimize?
     $query = \Drupal::entityTypeManager()
       ->getStorage('field_tag')
       ->getQuery()
@@ -80,7 +68,16 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
       throw new \RuntimeException("Too many instances exist in the entity table for parent entity.");
     }
 
-    return $ids && ($id = array_first($ids)) ? static::load($id) : NULL;
+    if ($id = array_first($ids)) {
+      return static::load($id);
+    }
+
+    return static::create([
+      'parent_entity' => $entity->getEntityTypeId(),
+      'parent_id' => $entity->id(),
+      'field_name' => $field_name,
+      'delta' => $delta,
+    ]);
   }
 
   /**
@@ -111,8 +108,22 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
   /**
    * {@inheritdoc}
    */
-  public function getTag(): string {
+  public function getValue(): string {
     return (string) $this->tag->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getTags(): array {
+    return array_map('trim', explode(',', $this->getValue()));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function hasTag(string $tag): bool {
+    return in_array($tag, $this->getTags());
   }
 
   /**
@@ -149,7 +160,7 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    * {@inheritdoc}
    */
   public function __toString() {
-    return $this->getTag();
+    return (string) $this->tag->value;
   }
 
 }
