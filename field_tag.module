@@ -14,7 +14,7 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
   $field = $form_state->getFormObject()->getEntity();
   $settings = $field->getThirdPartySettings('field_tag') + [
       'enabled' => FALSE,
-      'title' => t('Tag'),
+      'title' => t('Tags'),
       'description' => 'Separate multiple tags with a comma.',
       'weight' => 0,
       'required' => FALSE,

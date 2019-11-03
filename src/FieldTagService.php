@@ -42,7 +42,7 @@ class FieldTagService {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function getAllFieldTagsByParent(EntityInterface $parent, string $field_name = NULL) {
-    $storage = $this->entityTypeManager()
+    $storage = $this->entityTypeManager
       ->getStorage('field_tag');
     $query = $storage
       ->getQuery()
