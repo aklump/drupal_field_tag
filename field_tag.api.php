@@ -60,14 +60,23 @@ foreach ($entity->get('field_images') as $item) {
 }
 
 /**
- * Real world example: plucking out an image.
+ * Pluck out a single image tagged by 'cover'.
+ */
+$cover_image = \Drupal::service('field_tag')
+  ->attachTags($entity)
+  ->getItemsTaggedBy('field_images', 'cover');
+if ($cover_image) {
+  $uri = $cover_image[0]->uri;
+}
+
+/**
+ * Another version, more verbose.
  *
  * Get the image entity and URI of the first image tagged with 'hero'.  It is
  * assumed that $entity has an image reference field: field_images, and field
  * tagging has been configured for that field, and at least one field has been
  * tagged with 'hero'.
  */
-\Drupal::service('field_tag')->attachTags($entity);
 $hero_image_entity = NULL;
 $hero_image_uri = NULL;
 foreach ($entity->get('field_images') as $image_item) {

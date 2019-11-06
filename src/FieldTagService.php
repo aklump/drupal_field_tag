@@ -17,6 +17,8 @@ class FieldTagService {
    */
   protected $entityTypeManager;
 
+  protected $entity;
+
   /**
    * FieldTagService constructor.
    *
@@ -78,6 +80,7 @@ class FieldTagService {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function attachTags(EntityInterface $entity) {
+    $this->entity = $entity;
     if (empty($entity->field_tag_attached)) {
       $tags = $this->getAllFieldTagsByParent($entity);
       foreach ($tags as $tag) {
@@ -88,6 +91,35 @@ class FieldTagService {
     }
 
     return $this;
+  }
+
+  /**
+   * Return the field item tagged by $tag if it exists.
+   *
+   * You must call ::attachTags first to set the entity.
+   *
+   * @param string $field_name
+   *   The field name on the $entity passed to :attachTags().
+   * @param string $tag
+   *   The tag to look for.
+   *
+   * @return \Drupal\Core\Field\FieldItemInterface[]
+   *   The items in $field_name tagged by $tag or [].
+   */
+  public function getItemsTaggedBy(string $field_name, string $tag) {
+    if (is_null($this->entity)) {
+      throw new \RuntimeException("Missing $this->entity; did you call ::attachTags() first?");
+    }
+    $items = [];
+    if ($this->entity->hasField($field_name)) {
+      foreach ($this->entity->get($field_name) as $item) {
+        if ($item->field_tag && $item->field_tag->hasTag($tag)) {
+          $items[] = $item;
+        }
+      }
+    }
+
+    return $items;
   }
 
 }
