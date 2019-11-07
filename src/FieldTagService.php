@@ -98,15 +98,15 @@ class FieldTagService {
    *
    * You must call ::attachTags first to set the entity.
    *
-   * @param string $field_name
-   *   The field name on the $entity passed to :attachTags().
    * @param string $tag
    *   The tag to look for.
+   * @param string $field_name
+   *   The field name on the $entity passed to :attachTags().
    *
    * @return \Drupal\Core\Field\FieldItemInterface[]
    *   The items in $field_name tagged by $tag or [].
    */
-  public function getItemsTaggedBy(string $field_name, string $tag) {
+  public function getItemsTaggedBy(string $tag, string $field_name) {
     if (is_null($this->entity)) {
       throw new \RuntimeException("Missing $this->entity; did you call ::attachTags() first?");
     }

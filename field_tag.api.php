@@ -64,7 +64,7 @@ foreach ($entity->get('field_images') as $item) {
  */
 $cover_image = \Drupal::service('field_tag')
   ->attachTags($entity)
-  ->getItemsTaggedBy('field_images', 'cover');
+  ->getItemsTaggedBy('cover', 'field_images');
 if ($cover_image) {
   $uri = $cover_image[0]->uri;
 }
