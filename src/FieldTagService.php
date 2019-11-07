@@ -64,14 +64,14 @@ class FieldTagService {
    *
    * If called a second time, nothing happens because
    * $entity->field_tag_attached is set to true when the field_tags are first
-   * attached.  To force a reattachement you must apply
+   * attached.  To force a reattachment you must apply
    * $entity->field_tag_attached = false before calling this method.
    *
    * If you want to have tags attached automatically to entities on load then
    * you should implement hook_entity_load and call this method as desired.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
-   *   The parent entity to attache to.
+   *   The parent entity to attach to.
    *
    * @return $this
    *   Self for chaining.
@@ -101,7 +101,7 @@ class FieldTagService {
    * @param string $tag
    *   The tag to look for.
    * @param string $field_name
-   *   The field name on the $entity passed to :attachTags().
+   *   The field name on, the $entity passed to :attachTags().
    *
    * @return \Drupal\Core\Field\FieldItemInterface[]
    *   The items in $field_name tagged by $tag or [].

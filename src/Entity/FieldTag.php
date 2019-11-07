@@ -123,7 +123,7 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    * {@inheritdoc}
    */
   public function hasTag(string $tag): bool {
-    return in_array($tag, $this->getTags());
+    return in_array(strtolower($tag), array_map('strtolower', $this->getTags()));
   }
 
   /**

@@ -8,6 +8,12 @@ Provides a means to attach a tag-style input box to any entity field, which allo
 
 The use case for which this was written is this.  Allow the tagging of images on an multiple value image field to indicate which image is the `hero` image, which image is the `thumb` image, and untagged images are just that.  It allows the content managers to indicate the role the image is playing for that given entity.
 
+## About Tags
+
+* Takes are not case-sensitive
+* Tags may contain inner spaces, but neither leading nor trailing spaces.
+* Multiple tags must separated by a comma or "comma+space", e.g. 'foo,bar' or 'foo, bar'.
+
 ## Configuration
 
 1. Enable this module.
