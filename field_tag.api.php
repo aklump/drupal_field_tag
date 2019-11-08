@@ -86,3 +86,22 @@ foreach ($entity->get('field_images') as $image_item) {
     break;
   }
 }
+
+/**
+ * A complex Paragraphs example.
+ *
+ * In this example, a node has a paragraph reference as field_paragraphs, which
+ * allows multiple items.  Tagging is set up on field_paragraphs.  (That is, on
+ * the node, not the paragraph entity.)  When given the paragraph, we check to
+ * see if it is tagged on the parent by a given tag and then do something to it.
+ */
+$parent = $paragraph->getParentEntity();
+$parent_field = $paragraph->get('parent_field_name')->get(0)->value;
+$items = \Drupal::service('field_tag')
+  ->attachTags($parent)
+  ->getItemsTaggedBy('golden', $parent_field);
+foreach ($items as $item) {
+  if ($item->target_id == $paragraph->id()) {
+    // React to the fact that this paragraph is tagged by 'golden'.
+  }
+}
