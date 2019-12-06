@@ -84,8 +84,11 @@ class FieldTagService {
     if (empty($entity->field_tag_attached)) {
       $tags = $this->getAllFieldTagsByParent($entity);
       foreach ($tags as $tag) {
-        $entity->get($tag->get('field_name')->value)
-          ->get($tag->get('delta')->value)->field_tag = $tag;
+        $field_name = $tag->get('field_name')->value;
+        $delta = $tag->get('delta')->value;
+        if (($item = $entity->get($field_name)->get($delta))) {
+          $item->field_tag = $tag;
+        }
       }
       $entity->field_tag_attached = TRUE;
     }
@@ -106,7 +109,7 @@ class FieldTagService {
    * @return \Drupal\Core\Field\FieldItemInterface[]
    *   The items in $field_name tagged by $tag or [].
    */
-  public function getItemsTaggedBy(string $tag, string $field_name) {
+  public function getItemsTaggedBy(string $tag, string $field_name): array {
     if (is_null($this->entity)) {
       throw new \RuntimeException("Missing $this->entity; did you call ::attachTags() first?");
     }

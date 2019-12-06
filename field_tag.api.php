@@ -60,13 +60,15 @@ foreach ($entity->get('field_images') as $item) {
 }
 
 /**
- * Pluck out a single image tagged by 'cover'.
+ * Pluck out a single image tagged by 'hero'.
  */
-$cover_image = \Drupal::service('field_tag')
-  ->attachTags($entity)
-  ->getItemsTaggedBy('cover', 'field_images');
-if ($cover_image) {
-  $uri = $cover_image[0]->uri;
+$hero_image_references = \Drupal::service('field_tag')
+  ->attachTags($node)
+  ->getItemsTaggedBy('hero', 'field_images');
+if ($hero_image_references && ($image_file = $hero_images[0]->get('entity')
+    ->getTarget()
+    ->getEntity())) {
+  $uri = $image_file->getFileUri();
 }
 
 /**
@@ -86,6 +88,7 @@ foreach ($entity->get('field_images') as $image_item) {
     break;
   }
 }
+
 
 /**
  * A complex Paragraphs example.
