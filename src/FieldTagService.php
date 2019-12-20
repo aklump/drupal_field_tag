@@ -107,7 +107,8 @@ class FieldTagService {
    *   The field name on, the $entity passed to :attachTags().
    *
    * @return \Drupal\Core\Field\FieldItemInterface[]
-   *   The items in $field_name tagged by $tag or [].
+   *   The items in $field_name tagged by $tag or [].  The keys are going to
+   *   match the item list delta.
    */
   public function getItemsTaggedBy(string $tag, string $field_name): array {
     if (is_null($this->entity)) {
@@ -115,9 +116,9 @@ class FieldTagService {
     }
     $items = [];
     if ($this->entity->hasField($field_name)) {
-      foreach ($this->entity->get($field_name) as $item) {
+      foreach ($this->entity->get($field_name) as $delta => $item) {
         if ($item->field_tag && $item->field_tag->hasTag($tag)) {
-          $items[] = $item;
+          $items[$delta] = $item;
         }
       }
     }
