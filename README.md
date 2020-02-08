@@ -10,7 +10,7 @@ The use case for which this was written is this.  Allow the tagging of images on
 
 ## About Tags
 
-* Takes are not case-sensitive
+* Tags are not case-sensitive.
 * Tags may contain inner spaces, but neither leading nor trailing spaces.
 * Multiple tags must separated by a comma or "comma+space", e.g. 'foo,bar' or 'foo, bar'.
 
