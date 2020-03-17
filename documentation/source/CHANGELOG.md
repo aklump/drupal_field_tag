@@ -8,5 +8,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [8.x-0.0.13] - 2020-03-16
 ### Changed
-- `loadFromParent` has been replaced by `loadByParent`.
+- `loadFromParent` has been replaced by `loadByParentField`.
 - `\Drupal\field_tag\FieldTagService::attachTags` now sets the FieldTag instance as `$item->fieldTag` instead of `$item->field_tag`.  The latter should only be used when you are setting the value, as this is what will be saved when the entity is saved.

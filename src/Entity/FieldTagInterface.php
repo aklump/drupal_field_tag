@@ -13,9 +13,7 @@ use Drupal\Core\Entity\EntityChangedInterface;
 interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterface {
 
   /**
-   * Gets the parent entity of the paragraph.
-   *
-   * Preserves language context with translated entities.
+   * Gets the parent entity of the field tag.
    *
    * @return \Drupal\Core\Entity\EntityInterface||null
    *   The parent entity.

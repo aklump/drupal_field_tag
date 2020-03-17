@@ -11,7 +11,7 @@
 
   Changed
 
-     * loadFromParent has been replaced by loadByParent.
+     * loadFromParent has been replaced by loadByParentField.
      * \Drupal\field_tag\FieldTagService::attachTags now sets the FieldTag
        instance as $item->fieldTag instead of $item->field_tag. The latter
        should only be used when you are setting the value, as this is what

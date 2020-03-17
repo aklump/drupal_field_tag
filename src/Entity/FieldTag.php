@@ -37,15 +37,17 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
   use EntityChangedTrait;
 
   /**
-   * Load or create a FieldTag entity instance by parent entity/field.
+   * Load FieldTag entity instance by parent entity/field/delta.
    *
    * If the field_tag entity does not exist then a new instance will be
    * returned with the $parent context already applied.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   This is the entity where the field exists to which the tag is attached.
    * @param string $field_name
+   *   The name of the field the tag is attached to.
    * @param int $delta
-   *   Optional, defaults to 0.
+   *   Optional item index, defaults to 0.
    *
    * @return \Drupal\field_tag\Entity\FieldTagInterface
    *   An existing (in the db) or new instance with supplied context.
@@ -53,7 +55,7 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public static function loadByParent(EntityInterface $entity, string $field_name, $delta = 0): FieldTagInterface {
+  public static function loadByParentField(EntityInterface $entity, string $field_name, $delta = 0): FieldTagInterface {
     // TODO Static cache optimize?
     $query = \Drupal::entityTypeManager()
       ->getStorage('field_tag')
