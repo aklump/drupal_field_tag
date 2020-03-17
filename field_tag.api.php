@@ -52,7 +52,7 @@ $tags = $field_tag_entity->getTags();
  */
 \Drupal::service('field_tag')->attachTags($entity);
 foreach ($entity->get('field_images') as $item) {
-  if ($field_tag_entity = $item->field_tag) {
+  if ($field_tag_entity = $item->fieldTag) {
     $has_tag = $field_tag_entity->hasTag();
     $tags = $field_tag_entity->getTags();
     $value = $field_tag_entity->getValue();

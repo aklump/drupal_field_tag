@@ -62,6 +62,10 @@ class FieldTagService {
   /**
    * Attach any existing field_tags to a parent entity.
    *
+   * This function sets the value of $item->fieldTag as an entity instance.
+   * Don't confuse with $item->field_tag, which holds the value during entity
+   * CRUD operations.
+   *
    * If called a second time, nothing happens because
    * $entity->field_tag_attached is set to true when the field_tags are first
    * attached.  To force a reattachment you must apply
@@ -80,18 +84,21 @@ class FieldTagService {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public function attachTags(EntityInterface $entity) {
+    // We have to set this because this method may be chained and followed by
+    // ::getItemsTaggedBy.
     $this->entity = $entity;
-    if (empty($entity->field_tag_attached)) {
-      $tags = $this->getAllFieldTagsByParent($entity);
-      foreach ($tags as $tag) {
-        $field_name = $tag->get('field_name')->value;
-        $delta = $tag->get('delta')->value;
-        if (($item = $entity->get($field_name)->get($delta))) {
-          $item->field_tag = $tag;
-        }
-      }
-      $entity->field_tag_attached = TRUE;
+    if (isset($this->entity->field_item_attached)) {
+      return $this;
     }
+    $tags = $this->getAllFieldTagsByParent($this->entity);
+    foreach ($tags as $tag) {
+      $field_name = $tag->get('field_name')->value;
+      $delta = $tag->get('delta')->value;
+      if (($item = $this->entity->get($field_name)->get($delta))) {
+        $item->fieldTag = $tag;
+      }
+    }
+    $this->entity->field_tag_attached = TRUE;
 
     return $this;
   }
@@ -117,7 +124,7 @@ class FieldTagService {
     $items = [];
     if ($this->entity->hasField($field_name)) {
       foreach ($this->entity->get($field_name) as $delta => $item) {
-        if ($item->field_tag && $item->field_tag->hasTag($tag)) {
+        if ($item->fieldTag && $item->fieldTag->hasTag($tag)) {
           $items[$delta] = $item;
         }
       }

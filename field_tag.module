@@ -111,31 +111,36 @@ function field_tag_entity_insert(EntityInterface $entity) {
  * Saves the focal point value for the image file entity about to be saved.
  */
 function field_tag_entity_update(EntityInterface $entity) {
-  // Only worry about entities that are fieldable.
-  if ($entity instanceof FieldableEntityInterface) {
-    foreach ($entity->getFieldDefinitions() as $field_name => $field_definition) {
-      if ($field_definition instanceof FieldConfig
-        && ($field_definition->getThirdPartySettings('field_tag'))) {
-        foreach ($entity->{$field_name} as $delta => $item) {
+  if (!$entity instanceof FieldableEntityInterface) {
+    return;
+  }
 
-          // Load or create a new fieldTag instance.
-          $field_tag = FieldTag::loadFromParent($entity, $field_name, $delta);
+  if ($entity->getEntityTypeId() === 'field_tag') {
+    return;
+  }
 
-          // Get the value as it's been set on the entity.
-          $tag_value = trim($item->field_tag ?? '');
-          if (!$tag_value) {
-            if ($field_tag->id()) {
+  foreach ($entity->getFieldDefinitions() as $field_name => $field_definition) {
+    if ($field_definition instanceof FieldConfig
+      && ($field_definition->getThirdPartySettings('field_tag'))) {
+      foreach ($entity->{$field_name} as $delta => $item) {
 
-              // Purge empty values from the database.
-              $field_tag->delete();
-            }
+        // Load or create a new fieldTag instance.
+        $field_tag = FieldTag::loadFromParent($entity, $field_name, $delta);
+
+        // Get the value as it's been set on the entity.
+        $tag_value = trim($item->field_tag ?? '');
+        if (!$tag_value) {
+          if ($field_tag->id()) {
+
+            // Purge empty values from the database.
+            $field_tag->delete();
           }
-          else {
+        }
+        else {
 
-            // Only save a value if it's not empty.
-            $field_tag->get('tag')->value = $tag_value;
-            $field_tag->save();
-          }
+          // Only save a value if it's not empty.
+          $field_tag->get('tag')->value = $tag_value;
+          $field_tag->save();
         }
       }
     }
