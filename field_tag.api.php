@@ -32,7 +32,7 @@ $entity->save();
  * In both methods, once the field_tag entity is provided, you work with it the
  * same, using on it's own methods.
  */
-$field_tag_entity = FieldTag::loadFromParent($entity, 'field_images', 0);
+$field_tag_entity = FieldTag::loadByParent($entity, 'field_images', 0);
 
 // Check if a tag exists based on the CSV split.
 $has_tag = $field_tag_entity->hasTag('hero');

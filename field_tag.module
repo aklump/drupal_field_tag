@@ -73,7 +73,7 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
     && ($settings = $field_definition->getThirdPartySettings('field_tag'))
     && ($settings['enabled'] ?? FALSE)) {
 
-    $default_value = (string) FieldTag::loadFromParent($context['items']->getParent()
+    $default_value = (string) FieldTag::loadByParent($context['items']->getParent()
       ->getEntity(), $field_definition->getName(), $context['delta']);
 
     // In some widgets this should not be shown under certain circumstances,
@@ -125,7 +125,7 @@ function field_tag_entity_update(EntityInterface $entity) {
       foreach ($entity->{$field_name} as $delta => $item) {
 
         // Load or create a new fieldTag instance.
-        $field_tag = FieldTag::loadFromParent($entity, $field_name, $delta);
+        $field_tag = FieldTag::loadByParent($entity, $field_name, $delta);
 
         // Get the value as it's been set on the entity.
         $tag_value = trim($item->field_tag ?? '');
