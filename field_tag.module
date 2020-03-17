@@ -71,7 +71,7 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
 function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
   if (($field_definition = $context['items']->getFieldDefinition()) instanceof FieldConfig
     && ($settings = $field_definition->getThirdPartySettings('field_tag'))
-    && $settings['enabled'] ?? FALSE) {
+    && ($settings['enabled'] ?? FALSE)) {
 
     $default_value = (string) FieldTag::loadFromParent($context['items']->getParent()
       ->getEntity(), $field_definition->getName(), $context['delta']);
@@ -117,7 +117,11 @@ function field_tag_entity_update(EntityInterface $entity) {
       if ($field_definition instanceof FieldConfig
         && ($field_definition->getThirdPartySettings('field_tag'))) {
         foreach ($entity->{$field_name} as $delta => $item) {
+
+          // Load or create a new fieldTag instance.
           $field_tag = FieldTag::loadFromParent($entity, $field_name, $delta);
+
+          // Get the value as it's been set on the entity.
           $tag_value = trim($item->field_tag ?? '');
           if (!$tag_value) {
             if ($field_tag->id()) {
