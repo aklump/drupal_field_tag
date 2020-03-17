@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>Drupal Project Page.twig</title>
+  <link href="search/tipuesearch.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body class="page--drupal_project_page">
+<header>
+  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title"></a><a href="README.html" class="next readme">Field Tag Drupal Module&raquo;</a></div></header>
+<section class="sub-header">
+  <div class="breadcrumbs"><a href="index.html">Index</a>
+         &raquo
+      </div>      <div class="search__wrapper">
+  <form action="search--results.html">
+    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
+  </form>
+</div>
+  </section>
+
+
+<h1>Drupal Project Page.twig</h1>
+
+<section><p><img src="images/implementation.jpg" alt="Implementation" /></p>
+
+<h2>Summary</h2>
+
+<p>Provides a means to attach a tag-style input box to any entity field, which allows content managers to tag the field content.  Developers may take advantage of this additional metadata when manipulating fields.</p>
+
+<p>The use case for which this was written is this.  Allow the tagging of images on an multiple value image field to indicate which image is the <code>hero</code> image, which image is the <code>thumb</code> image, and untagged images are just that.  It allows the content managers to indicate the role the image is playing for that given entity.</p>
+
+<p><strong>Visit <a href="https://aklump.github.io/field_tag">https://aklump.github.io/field_tag</a> for full documentation.</strong></p>
+
+<h2>About Tags</h2>
+
+<ul>
+<li>Tags are not case-sensitive.</li>
+<li>Tags may contain inner spaces, but neither leading nor trailing spaces.</li>
+<li>Multiple tags must separated by a comma or "comma+space", e.g. 'foo,bar' or 'foo, bar'.</li>
+</ul>
+
+<h2>Configuration</h2>
+
+<ol>
+<li>Enable this module.</li>
+<li>Visit the <em>Manage fields</em> page for the entity you've picked.</li>
+<li>Click on the <em>Edit</em> button for the given field.</li>
+<li>Enable the <em>Field Tag</em>, and adjust settings as necessary.  <img src="images/settings.jpg" alt="Settings" /></li>
+<li>Give the permission <em>Use field tagging</em> to the correct user roles.</li>
+<li>Visit an entity edit page and make sure you see the tag field as configured.</li>
+</ol>
+
+<h2>Developers</h2>
+
+<p>This provides the UI and storage mechanism for field content tagging.  It creates a new entity type <em>field_tag</em>.  It's up to you to implement use cases for the data.  See <em>field_tag.api.php</em> for example code.</p>
+
+<h2>Tagging During Migration</h2>
+
+<p>Here's an example of how you might tag an image field during a migration, this assumes field_images is already set up with field tagging.</p>
+
+<pre><code>process:
+  field_images:
+    plugin: sub_process
+    source: field_hero_images
+    process:
+      target_id: fid
+      alt: alt
+      title: title
+      width: width
+      height: height
+      field_tag:
+        plugin: default_value
+        default_value: hero
+</code></pre>
+
+<h2>Contributing</h2>
+
+<p>If you find this project useful... please consider <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=4E5KZHDQCEUV8&amp;item_name=Gratitude%20for%20aklump%2Ffield_tag">making a donation</a>.</p>
+</section>
+
+<div class="search__results">
+  <div id="tipue_search_content"></div>
+</div>
+
+<footer>
+  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title"></a><a href="README.html" class="next readme">Field Tag Drupal Module&raquo;</a></div>  
+  <div id="footer-legaleeze">
+    <p class="legaleeze center">Version: 8.x-0.0.12 &bull; Last Updated: Mon, 16 Mar 2020 21:25:50 -0700</p>
+  </div>
+</footer>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src="search/tipuesearch_content.js"></script>
+  <script src="search/tipuesearch_set.js"></script>
+  <script src="search/tipuesearch.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('#tipue_search_input').tipuesearch()
+    })
+  </script>
+<script src="js/core.js"></script>
+</body>
+</html>
+

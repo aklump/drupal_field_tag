@@ -1,0 +1,23 @@
+                                   Changelog
+
+   All notable changes to this project will be documented in this file.
+
+   The format is based on [1]Keep a Changelog, and this project adheres to
+   [2]Semantic Versioning.
+
+[Unreleased]
+
+[8.x-0.0.13] - 2020-03-16
+
+  Changed
+
+     * loadFromParent has been replaced by loadByParent.
+     * \Drupal\field_tag\FieldTagService::attachTags now sets the FieldTag
+       instance as $item->fieldTag instead of $item->field_tag. The latter
+       should only be used when you are setting the value, as this is what
+       will be saved when the entity is saved.
+
+References
+
+   1. https://keepachangelog.com/en/1.0.0/
+   2. https://semver.org/spec/v2.0.0.html
