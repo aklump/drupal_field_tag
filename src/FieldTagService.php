@@ -87,7 +87,7 @@ class FieldTagService {
     // We have to set this because this method may be chained and followed by
     // ::getItemsTaggedBy.
     $this->entity = $entity;
-    if (isset($this->entity->field_item_attached)) {
+    if (isset($this->entity->field_tag_attached)) {
       return $this;
     }
     $tags = $this->getAllFieldTagsByParent($this->entity);
