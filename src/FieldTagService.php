@@ -4,6 +4,8 @@ namespace Drupal\field_tag;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\field_tag\Entity\FieldTag;
+use Drupal\paragraphs\ParagraphInterface;
 
 /**
  * Service class supporting the use of field_tag module.
@@ -131,6 +133,43 @@ class FieldTagService {
     }
 
     return $items;
+  }
+
+  /**
+   * Get the parent tags for a referenced paragraph.
+   *
+   * Because field tags for paragraphs are stored in the referencing parent
+   * field and not in the paragraph entity, you may call this method with a
+   * paragraph to get the field tags associated with it.
+   *
+   * @param \Drupal\paragraphs\ParagraphInterface $paragraph
+   *   The paragraph entity, for which you want to get the tags that are
+   *   attached to the parent's referencing field.
+   *
+   * @return \Drupal\field_tag\Entity\FieldTag[]
+   *   In the case that the parent references the same paragraph more than once
+   *   on the same field, you will receive more than one result in the return
+   *   array from this; this should be an edge case, so in most cases
+   *   array_first() should be used.
+   *
+   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
+   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   */
+  public function getFieldTagsByParagraph(ParagraphInterface $paragraph): array {
+    $parent = $paragraph->getParentEntity();
+    $parent_field = $paragraph->parent_field_name->value ?? NULL;
+    $target_id = $paragraph->id();
+    $field_tags = [];
+    foreach ($parent->{$parent_field} as $delta => $item) {
+      if ($item->target_id == $target_id) {
+        $field_tag = FieldTag::loadByParentField($parent, $parent_field, $delta);
+        if ((string) $field_tag) {
+          $field_tags[] = $field_tag;
+        }
+      }
+    }
+
+    return $field_tags;
   }
 
 }

@@ -108,3 +108,25 @@ foreach ($items as $item) {
     // React to the fact that this paragraph is tagged by 'golden'.
   }
 }
+
+/**
+ * Getting tags for a referenced paragraph.
+ *
+ * In this example we want to find the first tag that begins with '#' to use as
+ * an id.  We're assuming that a tag such as "#foo" has been entered on the
+ * parent's reference field.
+ */
+// First get an array of FieldTag entities.
+$field_tag_entities = $this->service('field_tag')
+  ->getFieldTagsByParagraph($paragraph);
+
+// Then merge them into a single array of single tag strings.
+$tags = array_flatten(array_map(function ($field_tag) {
+  return $field_tag->getTags();
+}, $field_tag_entities));
+
+// Now we want to get the first tag that begins with '#', so we can use that to
+// render an id attribute.
+$id = array_first(array_filter($tags, function ($tag) {
+  return strpos($tag, '#') === 0;
+}));
