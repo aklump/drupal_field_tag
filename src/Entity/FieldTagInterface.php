@@ -47,4 +47,15 @@ interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterfa
    */
   public function hasTag(string $tag): bool;
 
+  /**
+   * Add a new tag if it doesn't already exist.
+   *
+   * @param string $tag
+   *   A new tag to add to the existing list.
+   *
+   * @return $this
+   *   Self for chaining.
+   */
+  public function addTag(string $tag): self;
+
 }

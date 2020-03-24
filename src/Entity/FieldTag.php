@@ -111,14 +111,19 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    * {@inheritdoc}
    */
   public function getValue(): string {
-    return (string) $this->tag->value;
+    return trim($this->tag->value, ', ');
   }
 
   /**
    * {@inheritdoc}
    */
   public function getTags(): array {
-    return array_map('trim', explode(',', $this->getValue()));
+    $value = $this->getValue();
+    if (empty($value)) {
+      return [];
+    }
+
+    return array_filter(array_map('trim', explode(',', $this->getValue() . ',')));
   }
 
   /**
@@ -163,6 +168,17 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    */
   public function __toString() {
     return (string) $this->tag->value;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function addTag(string $tag): FieldTagInterface {
+    $tags = $this->getTags();
+    $tags[] = $tag;
+    $this->tag->value = implode(',', array_unique($tags));
+
+    return $this;
   }
 
 }
