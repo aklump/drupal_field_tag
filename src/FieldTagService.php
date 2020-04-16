@@ -74,7 +74,7 @@ class FieldTagService {
    * $entity->field_tag_attached = false before calling this method.
    *
    * If you want to have tags attached automatically to entities on load then
-   * you should implement hook_entity_load and call this method as desired.
+   * you should implement hook_entity_load and call this method as desired.a
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The parent entity to attach to.
@@ -126,7 +126,19 @@ class FieldTagService {
     $items = [];
     if ($this->entity->hasField($field_name)) {
       foreach ($this->entity->get($field_name) as $delta => $item) {
-        if ($item->fieldTag && $item->fieldTag->hasTag($tag)) {
+
+        // During entity inserts we will have ->field_tag, and that should be
+        // used.  During entity updates we might have both, and we should assume
+        // that the unsaved version is more correct, so we should also use
+        // field_tag.  In effect, we should use 'field_tag' over using
+        // 'fieldTag', when it's present.
+        if (array_key_exists('field_tag', $item->getValue())) {
+          if (($tags = $item->field_tag)
+            && FieldTag::create(['tag' => $tags])->hasTag($tag)) {
+            $items[$delta] = $item;
+          }
+        }
+        elseif ($item->fieldTag && $item->fieldTag->hasTag($tag)) {
           $items[$delta] = $item;
         }
       }
