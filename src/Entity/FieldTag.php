@@ -67,7 +67,7 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
     $ids = $query->execute();
 
     if (count($ids) > 1) {
-      throw new \RuntimeException("Too many instances exist in the entity table for parent entity.");
+      throw new \RuntimeException(sprintf('Too many instances (%d) for field: %s exist in the entity table for parent entity (%s %d).', count($ids), $field_name, $entity->getEntityTypeId(), $entity->id()));
     }
 
     if ($id = array_first($ids)) {
