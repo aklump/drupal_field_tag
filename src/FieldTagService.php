@@ -4,6 +4,7 @@ namespace Drupal\field_tag;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Field\FieldItemInterface;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\paragraphs\ParagraphInterface;
 
@@ -123,7 +124,16 @@ class FieldTagService {
     if (is_null($this->entity)) {
       throw new \RuntimeException("Missing $this->entity; did you call ::attachTags() first?");
     }
+    if (empty($field_name)) {
+      throw new \InvalidArgumentException("\$field_name may not be empty.");
+    }
     $items = [];
+
+    // I'm allowing $tag to be empty without an exception because it feels more
+    // appropriate, and we'll just quietly return no items.
+    if (empty(trim($tag))) {
+      return $items;
+    }
     if ($this->entity->hasField($field_name)) {
       foreach ($this->entity->get($field_name) as $delta => $item) {
 
@@ -133,8 +143,10 @@ class FieldTagService {
         // field_tag.  In effect, we should use 'field_tag' over using
         // 'fieldTag', when it's present.
         if (array_key_exists('field_tag', $item->getValue())) {
-          if (($tags = $item->field_tag)
-            && FieldTag::create(['tag' => $tags])->hasTag($tag)) {
+          $data = $this->normalizeItemFieldTag($item);
+          if ($data
+            && $data['tag']
+            && FieldTag::create(['tag' => $data['tag']])->hasTag($tag)) {
             $items[$delta] = $item;
           }
         }
@@ -145,6 +157,33 @@ class FieldTagService {
     }
 
     return $items;
+  }
+
+  /**
+   * Return the target_id and value for an unsaved field tag field item.
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $item
+   *   The single item from a FieldItemList.
+   *
+   * @return array|null
+   *   If the item does not have field_tag, NULL will be returned, otherwise
+   *   field_tag will be returned as an array (string values will be converted)
+   *   with the following keys ensured.
+   *   - target_id
+   *   - tag
+   */
+  public function normalizeItemFieldTag(FieldItemInterface $item) {
+    $item = $item->getValue();
+    if (!array_key_exists('field_tag', $item)) {
+      return NULL;
+    }
+    $data = $item['field_tag'];
+    if (!is_array($data)) {
+      $data = ['tag' => $data];
+    }
+    $data += ['target_id' => NULL, 'tag' => ''];
+
+    return $data;
   }
 
   /**

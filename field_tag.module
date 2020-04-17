@@ -153,17 +153,21 @@ function field_tag_entity_update(EntityInterface $entity) {
         // on the delta, but it may also be an array with the target_id
         // indicated, in which case the delta is ignored.  We normalize scalars
         // at this point to unify subsequent code.
-        $data = $item->field_tag;
-        if (!is_array($data)) {
-          $data = [
-            'target_id' => NULL,
-            'tag' => $data,
-          ];
-        }
+        $data = \Drupal::service('field_tag')->normalizeItemFieldTag($item);
 
         // Get an object instance using whatever reference we have.
-        if (!empty($data['target_id'])) {
-          $field_tag = FieldTag::load($data['target_id']);
+        if ($data
+          && $data['target_id']
+          && ($field_tag = FieldTag::load($data['target_id']))
+        ) {
+
+          // The reason for all this repeat, is that it's very possible that the
+          // delta has changed, but we might as well make sure that the other
+          // values are updated as well.
+          $field_tag->parent_entity = $entity->getEntityTypeId();
+          $field_tag->parent_id = $entity->id();
+          $field_tag->field_name = $field_name;
+          $field_tag->delta = $delta;
         }
         else {
           $field_tag = FieldTag::loadByParentField($entity, $field_name, $delta);
