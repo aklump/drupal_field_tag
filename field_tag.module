@@ -73,8 +73,27 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
     && ($settings = $field_definition->getThirdPartySettings('field_tag'))
     && ($settings['enabled'] ?? FALSE)) {
 
-    $default_value = (string) FieldTag::loadByParentField($context['items']->getParent()
-      ->getEntity(), $field_definition->getName(), $context['delta']);
+    // On subsequent submissions, such as an AJAX remove of an item in a item
+    // list, the field tag entity id will be present in context, we have to use
+    // this because the delta is no longer reliable (due to list modification
+    // via AJAX in the form).
+    $data = $context['items']->get($context['delta'])->field_tag;
+    $field_tag_id = NULL;
+    if (isset($data['target_id'])) {
+      $field_tag_id = $data['target_id'];
+      $default_value = $data['tag'] ?? '';
+    }
+
+    // The first time the form is loaded we have to rely on the delta value to
+    // locate the correct tag for this item.
+    else {
+      $field_tag = FieldTag::loadByParentField($context['items']->getParent()
+        ->getEntity(), $field_definition->getName(), $context['delta']);
+      if ($field_tag->id()) {
+        $field_tag_id = (int) $field_tag->id();
+      }
+      $default_value = (string) $field_tag;
+    }
 
     // In some widgets this should not be shown under certain circumstances,
     // e.g., a file field that has no files attached yet, should be seeing the
@@ -84,7 +103,13 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
       $access = !empty($element['#default_value']['fids']);
     }
 
-    $element['field_tag'] = [
+    // Store the target_id of the field tag for proper reference if the delta
+    // become irrelevant (see above).
+    $element['field_tag']['target_id'] = [
+      '#type' => 'value',
+      '#value' => $field_tag_id,
+    ];
+    $element['field_tag']['tag'] = [
       '#weight' => $settings['weight'],
       '#type' => 'textfield',
       '#required' => $settings['required'],
@@ -124,11 +149,28 @@ function field_tag_entity_update(EntityInterface $entity) {
       && ($field_definition->getThirdPartySettings('field_tag'))) {
       foreach ($entity->{$field_name} as $delta => $item) {
 
-        // Load or create a new fieldTag instance.
-        $field_tag = FieldTag::loadByParentField($entity, $field_name, $delta);
+        // field_tag may be a string value, in which case it will be saved based
+        // on the delta, but it may also be an array with the target_id
+        // indicated, in which case the delta is ignored.  We normalize scalars
+        // at this point to unify subsequent code.
+        $data = $item->field_tag;
+        if (!is_array($data)) {
+          $data = [
+            'target_id' => NULL,
+            'tag' => $data,
+          ];
+        }
+
+        // Get an object instance using whatever reference we have.
+        if (!empty($data['target_id'])) {
+          $field_tag = FieldTag::load($data['target_id']);
+        }
+        else {
+          $field_tag = FieldTag::loadByParentField($entity, $field_name, $delta);
+        }
 
         // Get the value as it's been set on the entity.
-        $tag_value = trim($item->field_tag ?? '');
+        $tag_value = trim($data['tag'] ?? '');
         if (!$tag_value) {
           if ($field_tag->id()) {
 

@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [Unreleased]
+- lorem
+
+## [0.0.17] - 2020-04-16
+  
+### Fixed
+- A bug that might loose the field tags for an field item, on multiple item fields, if items with lower deltas were removed via AJAX.
+   
 ## [8.x-0.0.13] - 2020-03-16
 ### Changed
 - `loadFromParent` has been replaced by `loadByParentField`.
