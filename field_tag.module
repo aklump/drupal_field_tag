@@ -73,26 +73,24 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
     && ($settings = $field_definition->getThirdPartySettings('field_tag'))
     && ($settings['enabled'] ?? FALSE)) {
 
+    $data = $context['items']->get($context['delta'])->getValue();
+
+    // The first time the form is loaded we have to rely on the delta value to
+    // locate the correct tag for this item.
+    if (!array_key_exists('field_tag', $data)) {
+      $field_tag = FieldTag::loadByParentField($context['items']->getParent()
+        ->getEntity(), $field_definition->getName(), $context['delta']);
+      $default_value = (string) $field_tag;
+      $field_tag_id = $field_tag->id() ?? NULL;
+    }
+
     // On subsequent submissions, such as an AJAX remove of an item in a item
     // list, the field tag entity id will be present in context, we have to use
     // this because the delta is no longer reliable (due to list modification
     // via AJAX in the form).
-    $data = $context['items']->get($context['delta'])->field_tag;
-    $field_tag_id = NULL;
-    if (isset($data['target_id'])) {
-      $field_tag_id = $data['target_id'];
-      $default_value = $data['tag'] ?? '';
-    }
-
-    // The first time the form is loaded we have to rely on the delta value to
-    // locate the correct tag for this item.
     else {
-      $field_tag = FieldTag::loadByParentField($context['items']->getParent()
-        ->getEntity(), $field_definition->getName(), $context['delta']);
-      if ($field_tag->id()) {
-        $field_tag_id = (int) $field_tag->id();
-      }
-      $default_value = (string) $field_tag;
+      $default_value = $data['field_tag']['tag'] ?? '';
+      $field_tag_id = $data['field_tag']['target_id'] ?? NULL;
     }
 
     // In some widgets this should not be shown under certain circumstances,
