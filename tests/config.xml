@@ -1,0 +1,11 @@
+<config>
+    <manualtests>
+        <title>Example Manual Test</title>
+        <tester>Aaron Klump</tester>
+        <assert>passfail</assert>
+        <output>manual-tests.pdf</output>
+        <testsuite name="Default">
+            <directory>./src/Manual/</directory>
+        </testsuite>
+    </manualtests>
+</config>

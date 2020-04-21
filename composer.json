@@ -1,3 +1,6 @@
 {
-    "license": "GPL-2.0-or-later"
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "aklump/manual-test": "^1.2"
+    }
 }

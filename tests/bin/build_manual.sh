@@ -1,0 +1,1 @@
+export TEST_BASE_URL=http://d8-globalonenessproject.local.loft/; ../vendor/bin/generate --configuration=config.xml
