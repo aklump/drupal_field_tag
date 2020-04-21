@@ -56,22 +56,27 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   public static function loadByParentField(EntityInterface $entity, string $field_name, $delta = 0): FieldTagInterface {
-    // TODO Static cache optimize?
-    $query = \Drupal::entityTypeManager()
-      ->getStorage('field_tag')
-      ->getQuery()
-      ->condition('parent_entity', $entity->getEntityTypeId())
-      ->condition('parent_id', $entity->id())
-      ->condition('field_name', $field_name)
-      ->condition('delta', $delta);
-    $ids = $query->execute();
 
-    if (count($ids) > 1) {
-      throw new \RuntimeException(sprintf('Too many instances (%d) for field: %s exist in the entity table for parent entity (%s %d).', count($ids), $field_name, $entity->getEntityTypeId(), $entity->id()));
-    }
+    // Field tags can only exist in the database, after the parent exists.
+    if (!$entity->isNew()) {
 
-    if ($id = array_first($ids)) {
-      return static::load($id);
+      // TODO Static cache optimize?
+      $query = \Drupal::entityTypeManager()
+        ->getStorage('field_tag')
+        ->getQuery()
+        ->condition('parent_entity', $entity->getEntityTypeId())
+        ->condition('parent_id', $entity->id())
+        ->condition('field_name', $field_name)
+        ->condition('delta', $delta);
+      $ids = $query->execute();
+
+      if (count($ids) > 1) {
+        throw new \RuntimeException(sprintf('Too many instances (%d) for field: %s exist in the entity table for parent entity (%s %d).', count($ids), $field_name, $entity->getEntityTypeId(), $entity->id()));
+      }
+
+      if ($id = array_first($ids)) {
+        return static::load($id);
+      }
     }
 
     return static::create([
