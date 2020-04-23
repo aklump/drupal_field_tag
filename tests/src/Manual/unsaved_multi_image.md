@@ -17,11 +17,10 @@ Tagging more than one image in a filefield works.
 ## Test Data
 
     tag1: alpha
-    tag2: bravo
 
 ## Test Execution
 
 1. Begin adding new entity.
 1. Upload your first image and tag it {{ tag1 }}
-1. Upload your second image and tag it {{ tag2 }}
-    - Assert both tags are present in the UI.
+1. Upload your second image
+    - Assert {{ tag1 }} is still present in the first image's text field.
