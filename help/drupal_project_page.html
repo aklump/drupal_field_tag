@@ -31,6 +31,8 @@
 
 <p>This provides the UI and storage mechanism for field content tagging.  It creates a new entity type <em>field_tag</em>.  It's up to you to implement use cases for the data.  See <em>field_tag.api.php</em> for example code.</p>
 
+<p><strong>Do not rely on the id of a Field tag entity beyond the scope of a single request. The ids should be considered ephemeral.</strong></p>
+
 <h2>Tagging During Migration</h2>
 
 <p>Here's an example of how you might tag an image field during a migration, this assumes field_images is already set up with field tagging.</p>
