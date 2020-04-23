@@ -214,3 +214,19 @@ function field_tag_entity_delete(EntityInterface $entity) {
       ->getStorage('field_tag')->delete($field_tags);
   }
 }
+
+//function field_tag_form_alter(&$form, FormStateInterface $form_state) {
+//  if (empty($form['#entity_type']) || !isset($form['meta'])) {
+//    return;
+//  }
+//  $form['field_tag_visibility'] = [
+//    '#type' => 'details',
+//    '#title' => t('Tags'),
+//    '#attributes' => ['class' => ['node-form-field-tags']],
+//    '#group' => 'advanced',
+//    [
+//      '#markup' => \Drupal\Core\Render\Markup::create(t('<input type="checkbox" class="js-field-tag-visibility"/> Reveal tags')),
+//    ],
+//  ];
+//}
+
