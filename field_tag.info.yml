@@ -3,7 +3,7 @@ description: 'Allows arbitrary tagging of entity field content instances.'
 package: 'In the Loft Studios'
 type: module
 core: 8.x
-version: 8.x-0.0.20
+version: 8.x-0.0.21
 php: '>=7.0'
 dependencies:
   - 'drupal:field'
