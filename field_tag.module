@@ -73,13 +73,22 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
     && ($settings = $field_definition->getThirdPartySettings('field_tag'))
     && ($settings['enabled'] ?? FALSE)) {
 
-    $data = $context['items']->get($context['delta'])->getValue();
+    $item = $context['items']->get($context['delta']);
+    $data = \Drupal::service('field_tag')
+      ->normalizeItemFieldTag($item);
 
     // The first time the form is loaded we have to rely on the delta value to
     // locate the correct tag for this item.
-    if (!array_key_exists('field_tag', $data)) {
-      $field_tag = FieldTag::loadByParentField($context['items']->getParent()
-        ->getEntity(), $field_definition->getName(), $context['delta']);
+    if (is_null($data)) {
+      $entity = $context['items']->getParent()->getEntity();
+      $field_name = $field_definition->getName();
+
+      // This is important to make sure that we do not leave orphaned field tag
+      // entities in the database.
+      $entity->field_tag_sync[] = $field_name;
+      $entity->field_tag_sync = array_unique($entity->field_tag_sync);
+
+      $field_tag = FieldTag::loadByParentField($entity, $field_name, $context['delta']);
       $default_value = (string) $field_tag;
       $field_tag_id = $field_tag->id() ?? NULL;
     }
@@ -89,9 +98,16 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
     // this because the delta is no longer reliable (due to list modification
     // via AJAX in the form).
     else {
-      $default_value = $data['field_tag']['tag'] ?? '';
-      $field_tag_id = $data['field_tag']['target_id'] ?? NULL;
+      $default_value = $data['tag'] ?? '';
+      $field_tag_id = $data['target_id'] ?? NULL;
     }
+
+    // We have to attach this also to the item so it passes through correctly in
+    // all situations.
+    $context['items']->get($context['delta'])->field_tag = [
+      'tag' => $default_value,
+      'target_id' => $field_tag_id,
+    ];
 
     // In some widgets this should not be shown under certain circumstances,
     // e.g., a file field that has no files attached yet, should be seeing the
@@ -131,7 +147,9 @@ function field_tag_entity_insert(EntityInterface $entity) {
 /**
  * Implements hook_entity_update().
  *
- * Saves the focal point value for the image file entity about to be saved.
+ * This may synchronize field tags for the entity.  This will only happen under
+ * certain conditions:
+ *  - if $entity->field_tag_sync contains the field name.
  */
 function field_tag_entity_update(EntityInterface $entity) {
   if (!$entity instanceof FieldableEntityInterface) {
@@ -143,48 +161,38 @@ function field_tag_entity_update(EntityInterface $entity) {
   }
 
   foreach ($entity->getFieldDefinitions() as $field_name => $field_definition) {
+
     if ($field_definition instanceof FieldConfig
       && ($field_definition->getThirdPartySettings('field_tag'))) {
+
+      $field_tag_service = \Drupal::service('field_tag');
+
+      // Determine if we should remove all tags for all items on this field first.
+      $should_sync = in_array($field_name, $entity->field_tag_sync ?? []);
+      if ($should_sync) {
+        $field_tag_instances_to_delete = $field_tag_service
+          ->getAllFieldTagsByParent($entity, $field_name);
+        foreach ($field_tag_instances_to_delete as $field_tag) {
+          $field_tag->delete();
+        }
+      }
+
+      // Now go through and save any data that is present as `field_tag`.
       foreach ($entity->{$field_name} as $delta => $item) {
 
-        // field_tag may be a string value, in which case it will be saved based
-        // on the delta, but it may also be an array with the target_id
-        // indicated, in which case the delta is ignored.  We normalize scalars
-        // at this point to unify subsequent code.
-        $data = \Drupal::service('field_tag')->normalizeItemFieldTag($item);
+        // We will only perform a field tag entity save if `field_tag` is
+        // present on this field item.
+        $data = $field_tag_service->normalizeItemFieldTag($item);
+        if (!is_null($data)) {
 
-        // Get an object instance using whatever reference we have.
-        if ($data
-          && $data['target_id']
-          && ($field_tag = FieldTag::load($data['target_id']))
-        ) {
-
-          // The reason for all this repeat, is that it's very possible that the
-          // delta has changed, but we might as well make sure that the other
-          // values are updated as well.
-          $field_tag->parent_entity = $entity->getEntityTypeId();
-          $field_tag->parent_id = $entity->id();
-          $field_tag->field_name = $field_name;
-          $field_tag->delta = $delta;
-        }
-        else {
           $field_tag = FieldTag::loadByParentField($entity, $field_name, $delta);
-        }
+          if ($field_tag->isNew() || $field_tag->getValue() !== $data['tag']) {
+            $field_tag->get('tag')->value = $data['tag'];
+            $field_tag->save();
 
-        // Get the value as it's been set on the entity.
-        $tag_value = trim($data['tag'] ?? '');
-        if (!$tag_value) {
-          if ($field_tag->id()) {
-
-            // Purge empty values from the database.
-            $field_tag->delete();
+            // fieldTag instances get detached if the field tag is saved.
+            unset($item->fieldTag);
           }
-        }
-        else {
-
-          // Only save a value if it's not empty.
-          $field_tag->get('tag')->value = $tag_value;
-          $field_tag->save();
         }
       }
     }
@@ -197,9 +205,11 @@ function field_tag_entity_update(EntityInterface $entity) {
  * Deletes tags on entities that get deleted.
  */
 function field_tag_entity_delete(EntityInterface $entity) {
-  if (($field_tags = \Drupal::service('field_tag')
-    ->getAllFieldTagsByParent($entity))) {
+  if ($entity instanceof FieldableEntityInterface
+    && (($field_tags = \Drupal::service('field_tag')
+      ->getAllFieldTagsByParent($entity)))) {
     \Drupal::entityTypeManager()
       ->getStorage('field_tag')->delete($field_tags);
   }
+
 }
