@@ -143,10 +143,9 @@ class FieldTagService {
         // field_tag.  In effect, we should use 'field_tag' over using
         // 'fieldTag', when it's present.
         if (array_key_exists('field_tag', $item->getValue())) {
-          $data = $this->normalizeItemFieldTag($item);
-          if ($data
-            && $data['tag']
-            && FieldTag::create(['tag' => $data['tag']])->hasTag($tag)) {
+          $item_tag = $this->normalizeItemFieldTag($item);
+          if ($item_tag !== NULL
+            && FieldTag::create(['tag' => $item_tag])->hasTag($tag)) {
             $items[$delta] = $item;
           }
         }
@@ -165,25 +164,18 @@ class FieldTagService {
    * @param \Drupal\Core\Field\FieldItemListInterface $item
    *   The single item from a FieldItemList.
    *
-   * @return array|null
-   *   If the item does not have field_tag, NULL will be returned, otherwise
-   *   field_tag will be returned as an array (string values will be converted)
-   *   with the following keys ensured.
-   *   - target_id
-   *   - tag
+   * @return string|null
+   *   If the item does not have field_tag as a key, meaning there is no CRUD
+   *   indication, then NULL will be returned.  Otherwise a trimmed string
+   *   value will be returned which is the tags value, possible a CSV string.
    */
   public function normalizeItemFieldTag(FieldItemInterface $item) {
     $item = $item->getValue();
     if (!array_key_exists('field_tag', $item)) {
       return NULL;
     }
-    $data = $item['field_tag'];
-    if (!is_array($data)) {
-      $data = ['tag' => $data];
-    }
-    $data += ['target_id' => NULL, 'tag' => ''];
 
-    return $data;
+    return (string) trim($item['field_tag'], ', ');
   }
 
   /**
