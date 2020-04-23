@@ -5,15 +5,31 @@
    The format is based on [1]Keep a Changelog, and this project adheres to
    [2]Semantic Versioning.
 
-[Unreleased]
+## [Unreleased]
+- lorem
 
-[Unreleased]
+## [N.N.N] - YYYY-MM-DD
+### Added
+- lorem
 
-     * lorem
+### Changed
+- lorem
+
+### Deprecated
+- lorem
+
+### Removed
+- lorem
+
+### Fixed
+- lorem
+
+### Security
+- lorem
 
 [0.0.17] - 2020-04-16
 
-  Fixed
+### Fixed
 
      * A bug that might loose the field tags for an field item, on
        multiple item fields, if items with lower deltas were removed via

@@ -20,7 +20,7 @@ It is possible to tag a field when creating and updating an entity programmatica
 
 ## Test Data
 
-    _nid: 18734
+    _nid: $nid
     _i_field: field_images
     _p_field: field_main_copy
     _banner: banner
@@ -40,21 +40,21 @@ It is possible to tag a field when creating and updating an entity programmatica
 1. Create another copy paragraph with {{ ptag2 }} as the value and tag it with {{ ptag2 }}.
 1. Create a third copy paragraph with any value and DO NOT tag it.
 1. Save the entity.
-1. Run _Snippet A_ replacing `$nid` with the node ID of the entity you created.
+1. Run _Snippet A_ replacing {{ _nid }} with the node ID of the entity you created.
     - Assert the output is 'passed'
-1. Run _Snippet B_ replacing `$nid` with the node ID of the entity you created.
+1. Run _Snippet B_ replacing {{ _nid }} with the node ID of the entity you created.
     - Assert the output is 'passed'; snippet B will fail on subsequent executions.
 1. Reload the edit form for the entity.
     - Assert the image is tagged with {{ tag3 }}.
     - Assert {{ _p_field }} has the correct tags in place.
 1. Save the form.
-1. Run _Snippet C_ replacing `$nid` with the node ID of the entity you created.
+1. Run _Snippet C_ replacing {{ _nid }} with the node ID of the entity you created.
     - Assert the output is 'passed'; snippet C will fail on subsequent executions. 
 1. Reload the edit form for the entity.
     - Assert the first image has the tag {{ tag1 }}
     - Assert there is no second image.
 1. Delete the entity.
-1. Run _Snippet D_ replacing `$nid` with the node ID of the entity you created.
+1. Run _Snippet D_ replacing {{ _nid }} with the node ID of the entity you created.
     - Assert the output is 'passed'     
 
 ## Code Snippets

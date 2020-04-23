@@ -11,7 +11,7 @@ The use case for which this was written is this.  Allow the tagging of images on
 ## About Tags
 
 * Tags are not case-sensitive.
-* Tags may contain inner spaces, but neither leading nor trailing spaces.
+* Tags may contain inner spaces, but neither leading nor trailing spaces nor commas.
 * Multiple tags must separated by a comma or "comma+space", e.g. 'foo,bar' or 'foo, bar'.
 
 ## Configuration
@@ -25,9 +25,7 @@ The use case for which this was written is this.  Allow the tagging of images on
 
 ## Developers
 
-This provides the UI and storage mechanism for field content tagging.  It creates a new entity type _field_tag_.  It's up to you to implement use cases for the data.  See _field_tag.api.php_ for example code.
-
-**Do not rely on the id of a Field tag entity beyond the scope of a single request. The ids should be considered ephemeral.**
+{% include('developers.md') %}
 
 ## Tagging During Migration
 

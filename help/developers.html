@@ -1,29 +1,3 @@
-<!DOCTYPE html>
-
-<html>
-<head>
-  <title>Developers</title>
-  <link href="search/tipuesearch.css" rel="stylesheet">
-  <link href="style.css" rel="stylesheet">
-</head>
-
-<body class="page--developers">
-<header>
-  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Field Tags Module</a><a href="README.html" class="next readme">Field Tag Drupal Module&raquo;</a></div></header>
-<section class="sub-header">
-  <div class="breadcrumbs"><a href="index.html">Index</a>
-         &raquo
-      </div>      <div class="search__wrapper">
-  <form action="search--results.html">
-    <input type="text" class="search-input" name="q" id="tipue_search_input" autocomplete="off" required>
-  </form>
-</div>
-  </section>
-
-
-<h1>Developers</h1>
-
-<section>
 
 <ul>
 <li>This provides the UI and storage mechanism for field content tagging.  It creates a new entity type <em>field_tag</em>.  It's up to you to implement use cases for the data.</li>
@@ -52,29 +26,3 @@ $node-&gt;save();
 </code></pre></li>
 <li><p>There is a PDF of manual tests which must suffice until other tests can be written.</p></li>
 </ul>
-</section>
-
-<div class="search__results">
-  <div id="tipue_search_content"></div>
-</div>
-
-<footer>
-  <div class="pager"><a href="CHANGELOG.html" class="prev CHANGELOG">&laquo;Changelog</a><a href="index.html" class="index pager__book-title">Field Tags Module</a><a href="README.html" class="next readme">Field Tag Drupal Module&raquo;</a></div>  
-  <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 8.x-0.0.19 &bull; Last Updated: Wed, 22 Apr 2020 21:03:45 -0700</p>
-  </div>
-</footer>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-  <script src="search/tipuesearch_content.js"></script>
-  <script src="search/tipuesearch_set.js"></script>
-  <script src="search/tipuesearch.min.js"></script>
-  <script>
-    $(document).ready(function() {
-      $('#tipue_search_input').tipuesearch()
-    })
-  </script>
-<script src="js/core.js"></script>
-</body>
-</html>
-
