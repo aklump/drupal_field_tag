@@ -41,11 +41,24 @@ interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterfa
    *
    * @param string $tag
    *   The tag value to search for in getTags().
+   * @param bool $use_regex
+   *   Treat $tag as a regex expression to match.  Defaults false.
    *
    * @return bool
    *   true if the tag exists.
    */
-  public function hasTag(string $tag): bool;
+  public function hasTag(string $tag, bool $use_regex = FALSE): bool;
+
+  /**
+   * Return all tags that match a given regex expression.
+   *
+   * @param string $regex
+   *   The regex expression including delimiters/modifers, e.g. "/.+/i".
+   *
+   * @return array
+   *   Any tags that match the expression $regex.
+   */
+  public function matchTags(string $regex): array;
 
   /**
    * Add a new tag if it doesn't already exist.

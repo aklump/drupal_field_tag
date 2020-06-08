@@ -134,8 +134,31 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
   /**
    * {@inheritdoc}
    */
-  public function hasTag(string $tag): bool {
+  public function hasTag(string $tag, bool $use_regex = FALSE): bool {
+    if ($use_regex) {
+      foreach ($this->getTags() as $tag_value) {
+        if (preg_match($tag, $tag_value)) {
+          return TRUE;
+        }
+      }
+
+      return FALSE;
+    }
+
     return in_array(strtolower($tag), array_map('strtolower', $this->getTags()));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function matchTags(string $regex): array {
+    return array_filter(array_map(function ($tag_value) use ($regex) {
+      if (!preg_match($regex, $tag_value, $matches)) {
+        return NULL;
+      }
+
+      return $matches;
+    }, $this->getTags()));
   }
 
   /**
