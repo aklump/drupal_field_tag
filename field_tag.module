@@ -7,6 +7,22 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
 
+
+/**
+ * Provide information about field tags and their groups.
+ *
+ * @return array
+ */
+function field_tag_tags_info() {
+  $data = \Drupal::moduleHandler()->invokeAll('field_tag_tags_info');
+
+  // TODO Add in any tags that are found in the database and describe as
+  // "undocumented.".
+
+  return $data;
+}
+
+
 /**
  * Implements hook_form_FORM_ID_form_alter().
  */
@@ -229,4 +245,3 @@ function field_tag_entity_delete(EntityInterface $entity) {
 //    ],
 //  ];
 //}
-

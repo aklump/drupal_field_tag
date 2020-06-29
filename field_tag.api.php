@@ -8,6 +8,64 @@
 use Drupal\field_tag\Entity\FieldTag;
 
 /**
+ * Implements hook_field_tag_tags_info().
+ *
+ * Provides information about the available field tags and facilitates grouping.
+ *
+ * @return array
+ *   An array with these keys:
+ *   - types
+ *   - tags
+ *   Types should be keyed by the machine name that is used to key the tags
+ *   array.  Each value in types should contain:
+ *   - name string|\Drupal\Core\StringTranslation\TranslatableMarkup The name
+ *   of the group.
+ *   - description string|\Drupal\Core\StringTranslation\TranslatableMarkup The
+ *   description of the group. Tags should be keyed by the type and each type
+ *   array is an array of tags with the following keys:
+ *   - tag string|\Drupal\Core\StringTranslation\TranslatableMarkup The
+ *   lowercase tag value.
+ *   - description string|\Drupal\Core\StringTranslation\TranslatableMarkup A
+ *   description of the tag, how it is used, examples, links, etc.
+ */
+function hook_field_tag_tags_info() {
+  return [
+    'types' => [
+      'visibility' => [
+        'name' => t('Visibility'),
+        'description' => t('Affect the visibility and/or device visibility.'),
+      ],
+      'image' => [
+        'name' => t('Image'),
+        'description' => t('Field tags that apply to images.'),
+      ],
+    ],
+    'tags' => [
+      'layout' => [
+        [
+          'tag' => '1 of foo',
+          'description' => t('Tags that follow this pattern define a group that is sequenced every page load; only one item is loaded per HTTP request.  You can see this at work on Sanctuaries of Silence (/node/9146), it\'s how we get a different VR experience to show up on each load.  The group `{id}` can be any arbitrary value, e.g. "vr", "foo", "bar".'),
+        ],
+        [
+          'tag' => '#foo',
+          'description' => t('Where <code>foo</code> is an HTML ID, e.g., <code>#downloads</code>.  See _Creating HTML Anchors Using Tags_.'),
+        ],
+      ],
+      'language' => [
+        [
+          'tag' => 'english',
+          'description' => t('Indicates the tagged item is in the English language.  Used for downloads and resources.'),
+        ],
+        [
+          'tag' => 'spanish',
+          'description' => t('Indicates the tagged item is in the Spanish language.  Used for downloads and resources.'),
+        ],
+      ],
+    ],
+  ];
+}
+
+/**
  * Programmatically tagging fields.
  *
  * This should look very familiar and simple.
