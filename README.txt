@@ -18,11 +18,11 @@ Summary
 
 About Tags
 
+     * The field tag input box is a CSV string separating one or more
+       tags, e.g. foo or foo, bar.
      * Tags are not case-sensitive.
-     * Tags may contain inner spaces, but neither leading nor trailing
-       spaces nor commas.
-     * Multiple tags must separated by a comma or "comma+space", e.g.
-       'foo,bar' or 'foo, bar'.
+     * Tags may contain spaces.
+     * Tags must be unique; duplicates will be removed.
 
 Configuration
 
@@ -80,11 +80,12 @@ $node->save();
      * There is a PDF of manual tests which must suffice until other tests
        can be written.
 
-Tagging During Migration
+Migrations
 
    Here's an example of how you might tag an image field during a
-   migration, this assumes field_images is already set up with field
-   tagging.
+   migration, this assumes field_images has field tagging enabled and that
+   1) your source has no field tags or 2) you wish to replace those
+   existing field tags.
 process:
   field_images:
     plugin: sub_process
@@ -98,6 +99,18 @@ process:
       field_tag:
         plugin: default_value
         default_value: hero
+
+   And here is a migration where source has field tags and you wish to
+   merge in new ones.
+process:
+    # First copy over as is from source.
+    field_images: field_images
+
+    # Then add two tags to the first element only.
+    field_images/0/field_tag:
+      - plugin: field_tag_add
+        source: field_images/0/field_tag
+        field_tag: cover, card
 
 Contributing
 
