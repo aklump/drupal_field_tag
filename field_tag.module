@@ -5,6 +5,7 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field_tag\Entity\FieldTag;
+use Drupal\field_tag\Plugin\migrate\source\FieldTagContentEntity;
 use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
 
 
@@ -245,3 +246,28 @@ function field_tag_entity_delete(EntityInterface $entity) {
 //    ],
 //  ];
 //}
+
+
+/**
+ * Implements hook_migrate_source_info_alter().
+ */
+function field_tag_migrate_source_info_alter(&$info) {
+
+  // We working with the "content_entity:*" source plugins, we are talking about
+  // content in the current datbase, therefore we look to the current database
+  // to see what entities have tags and then we modify only those classes in the
+  // source plugins, so that when those entity types are loaded, the field tags
+  // are automatically attached.
+  $entity_types = \Drupal::database()
+    ->select('field_tag', 'ft')
+    ->fields('ft', ['parent_entity'])
+    ->distinct('parent_entity')
+    ->execute()
+    ->fetchAllAssoc('parent_entity');
+  foreach (array_keys($entity_types) as $entity_type) {
+    $key = "content_entity:{$entity_type}";
+    if (isset($info[$key]) && $info[$key]['requirements_met']) {
+      $info[$key]['class'] = FieldTagContentEntity::class;
+    }
+  }
+}

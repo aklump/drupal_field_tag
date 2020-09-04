@@ -11,12 +11,10 @@ use Drupal\migrate_drupal\Plugin\migrate\source\ContentEntity;
  * field tags to source entities.  It should be used anytime field tags are
  * involved.
  *
- * @MigrateSource(
- *   id = "field_tag_content_entity",
- *   source_module = "field_tag",
- *   deriver =
- *   "\Drupal\migrate_drupal\Plugin\migrate\source\ContentEntityDeriver",
- * )
+ * This is not a true plugin--there is no plugin annotation--as the class is
+ * merely swapped out in \field_tag_migrate_source_info_alter() so that the
+ * developer doesn't have to do anything special in their migration
+ * configurations.
  */
 class FieldTagContentEntity extends ContentEntity {
 
