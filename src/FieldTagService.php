@@ -4,7 +4,7 @@ namespace Drupal\field_tag;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
-use Drupal\Core\Field\FieldItemInterface;
+use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\paragraphs\ParagraphInterface;
 
@@ -161,21 +161,44 @@ class FieldTagService {
   /**
    * Return the target_id and value for an unsaved field tag field item.
    *
-   * @param \Drupal\Core\Field\FieldItemListInterface $item
-   *   The single item from a FieldItemList.
+   * @param \Drupal\Core\TypedData\TypedDataInterface|array $item
+   *   The single item from a FieldItemList, or an array with the key
+   *   'field_tag'.
    *
    * @return string|null
    *   If the item does not have field_tag as a key, meaning there is no CRUD
    *   indication, then NULL will be returned.  Otherwise a trimmed string
-   *   value will be returned which is the tags value, possible a CSV string.
+   *   value will be returned which is the tags value, possibly a CSV string.
+   *   Any duplicated tags will be removed.  Commas not followed by a space
+   *   will be replaced with ', '.
    */
-  public function normalizeItemFieldTag(FieldItemInterface $item) {
+  public function normalizeItemFieldTag(TypedDataInterface $item) {
     $item = $item->getValue();
     if (!array_key_exists('field_tag', $item)) {
       return NULL;
     }
 
-    return (string) trim($item['field_tag'], ', ');
+    return $this->normalizeFieldTagValue($item['field_tag']);
+  }
+
+  /**
+   * Normalize a field tag CSV list.
+   *
+   * @param string $value
+   *   The field tag value, a CSV string.
+   *
+   * @return string
+   *   The normalized string with duplicate tags removed; leading/trailing
+   *   commas removed, and spaces inserted after each comma.
+   */
+  public function normalizeFieldTagValue(string $value) {
+    // Remove duplicates and align the commas.
+    $value = explode(',', $value);
+    $value = array_map('trim', $value);
+    $value = array_filter(array_unique($value));
+    $value = implode(', ', $value);
+
+    return $value;
   }
 
   /**
