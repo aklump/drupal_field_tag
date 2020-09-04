@@ -13,6 +13,7 @@ The use case for which this was written is this.  Allow the tagging of images on
 * Tags are not case-sensitive.
 * Tags may contain inner spaces, but neither leading nor trailing spaces nor commas.
 * Multiple tags must separated by a comma or "comma+space", e.g. 'foo,bar' or 'foo, bar'.
+* When tags are saved, duplicates will be removed and spaces will be added after each comma if they were not already present.
 
 ## Configuration
 
@@ -29,7 +30,7 @@ The use case for which this was written is this.  Allow the tagging of images on
 
 ## Tagging During Migration
 
-Here's an example of how you might tag an image field during a migration, this assumes field_images is already set up with field tagging.
+Here's an example of how you might tag an image field during a migration, this assumes field_images is already set up with field tagging and that 1) your source has no field tags or 2) you wish to replace those existing field tags.
 
     process:
       field_images:
@@ -45,6 +46,18 @@ Here's an example of how you might tag an image field during a migration, this a
             plugin: default_value
             default_value: hero
 
+And here is a migration where source has field tags and you wish to merge in new ones.
+    
+    process:
+        # First copy over as is from source.
+        field_images: field_images
+        
+        # Then add two tags to the first element only.
+        field_images/0/field_tag:
+          - plugin: field_tag_add
+            source: field_images/0/field_tag
+            field_tag: cover, card
+          
 ## Contributing
 
 If you find this project useful... please consider [making a donation](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=4E5KZHDQCEUV8&item_name=Gratitude%20for%20aklump%2Ffield_tag).
