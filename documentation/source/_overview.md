@@ -10,10 +10,10 @@ The use case for which this was written is this.  Allow the tagging of images on
 
 ## About Tags
 
+* The field tag input box is a CSV string separating one or more tags, e.g. `foo` or `foo, bar`.
 * Tags are not case-sensitive.
-* Tags may contain inner spaces, but neither leading nor trailing spaces nor commas.
-* Multiple tags must separated by a comma or "comma+space", e.g. 'foo,bar' or 'foo, bar'.
-* When tags are saved, duplicates will be removed and spaces will be added after each comma if they were not already present.
+* Tags may contain spaces.
+* Tags must be unique; duplicates will be removed.
 
 ## Configuration
 
@@ -28,9 +28,9 @@ The use case for which this was written is this.  Allow the tagging of images on
 
 {% include('developers.md') %}
 
-## Tagging During Migration
+## Migrations
 
-Here's an example of how you might tag an image field during a migration, this assumes field_images is already set up with field tagging and that 1) your source has no field tags or 2) you wish to replace those existing field tags.
+Here's an example of how you might tag an image field during a migration, this assumes `field_images` has field tagging enabled and that 1) your source has no field tags or 2) you wish to replace those existing field tags.
 
     process:
       field_images:

@@ -39,13 +39,13 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
   $form['third_party_settings']['field_tag'] = [
     '#type' => 'details',
     '#title' => t('Field tag'),
-    '#description' => t('Enabling tagging for this field adds a textfield to the widget form that allows the admin to tag the value entered in this field with an arbitrary string of text, which can be used by developers to manipulate the field.'),
     '#open' => $settings['enabled'],
   ];
   $form['third_party_settings']['field_tag']['enabled'] = [
     '#type' => 'checkbox',
     '#title' => t('Enable tagging for this field?'),
     '#default_value' => $settings['enabled'],
+    '#description' => t('Adds a textfield to the widget that allows content managers to tag instances of this field with an arbitrary string of CSV text, which can be used by developers for special handling.'),
   ];
   $states = array(
     'visible' => array(
@@ -56,27 +56,27 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
   );
   $form['third_party_settings']['field_tag']['title'] = [
     '#type' => 'textfield',
-    '#title' => t('Widget field label'),
+    '#title' => t('Tag form input label'),
     '#default_value' => $settings['title'],
     '#required' => TRUE,
     '#states' => $states,
   ];
   $form['third_party_settings']['field_tag']['description'] = [
     '#type' => 'textfield',
-    '#title' => t('Widget field description'),
+    '#title' => t('Tag form input description'),
     '#default_value' => $settings['description'],
     '#states' => $states,
   ];
   $form['third_party_settings']['field_tag']['weight'] = array(
     '#type' => 'weight',
-    '#title' => t('Weight'),
+    '#title' => t('Tag form input Weight'),
     '#default_value' => $settings['weight'],
     '#delta' => 50,
     '#states' => $states,
   );
   $form['third_party_settings']['field_tag']['required'] = [
     '#type' => 'checkbox',
-    '#title' => t('Make the field required in the widget form.'),
+    '#title' => t('Make the tag input field required.'),
     '#default_value' => $settings['required'],
     '#states' => $states,
   ];
