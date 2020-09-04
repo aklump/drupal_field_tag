@@ -38,9 +38,10 @@
 <h2>About Tags</h2>
 
 <ul>
+<li>The field tag input box is a CSV string separating one or more tags, e.g. <code>foo</code> or <code>foo, bar</code>.</li>
 <li>Tags are not case-sensitive.</li>
-<li>Tags may contain inner spaces, but neither leading nor trailing spaces nor commas.</li>
-<li>Multiple tags must separated by a comma or "comma+space", e.g. 'foo,bar' or 'foo, bar'.</li>
+<li>Tags may contain spaces.</li>
+<li>Tags must be unique; duplicates will be removed.</li>
 </ul>
 
 <h2>Configuration</h2>
@@ -85,9 +86,9 @@ $node-&gt;save();
 <li><p>There is a PDF of manual tests which must suffice until other tests can be written.</p></li>
 </ul>
 
-<h2>Tagging During Migration</h2>
+<h2>Migrations</h2>
 
-<p>Here's an example of how you might tag an image field during a migration, this assumes field_images is already set up with field tagging.</p>
+<p>Here's an example of how you might tag an image field during a migration, this assumes <code>field_images</code> has field tagging enabled and that 1) your source has no field tags or 2) you wish to replace those existing field tags.</p>
 
 <pre><code>process:
   field_images:
@@ -102,6 +103,19 @@ $node-&gt;save();
       field_tag:
         plugin: default_value
         default_value: hero
+</code></pre>
+
+<p>And here is a migration where source has field tags and you wish to merge in new ones.</p>
+
+<pre><code>process:
+    # First copy over as is from source.
+    field_images: field_images
+
+    # Then add two tags to the first element only.
+    field_images/0/field_tag:
+      - plugin: field_tag_add
+        source: field_images/0/field_tag
+        field_tag: cover, card
 </code></pre>
 
 <h2>Contributing</h2>
@@ -127,7 +141,7 @@ PO Box 29294 Bellingham, WA 98228-1294</p>
 <footer>
   <div class="pager"><a href="developers.html" class="prev developers">&laquo;Developers</a><a href="index.html" class="index pager__book-title">Field Tags Module</a><a href="index.html" class="next index">Index&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 8.x-0.0.23 &bull; Last Updated: Mon, 29 Jun 2020 13:31:16 -0700</p>
+    <p class="legaleeze center">Version: 8.x-0.0.24 &bull; Last Updated: Fri, 04 Sep 2020 11:25:19 -0700</p>
   </div>
 </footer>
 
