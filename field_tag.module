@@ -232,6 +232,19 @@ function field_tag_entity_delete(EntityInterface $entity) {
   }
 }
 
+/**
+ * Implements hook_ENTITY_TYPE_delete().
+ */
+function field_tag_field_config_delete(Drupal\Core\Entity\EntityInterface $entity) {
+  // When a field is deleted, we mark any tags associated with that field as deleted.
+  \Drupal::database()->update('field_tag')
+    ->fields(['deleted' => TRUE])
+    ->condition('parent_entity', $entity->get('entity_type'))
+    ->condition('field_name', $entity->getName())
+    ->execute();
+}
+
+
 //function field_tag_form_alter(&$form, FormStateInterface $form_state) {
 //  if (empty($form['#entity_type']) || !isset($form['meta'])) {
 //    return;
@@ -254,7 +267,7 @@ function field_tag_entity_delete(EntityInterface $entity) {
 function field_tag_migrate_source_info_alter(&$info) {
 
   // We working with the "content_entity:*" source plugins, we are talking about
-  // content in the current datbase, therefore we look to the current database
+  // content in the current database, therefore we look to the current database
   // to see what entities have tags and then we modify only those classes in the
   // source plugins, so that when those entity types are loaded, the field tags
   // are automatically attached.

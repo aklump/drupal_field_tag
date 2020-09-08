@@ -24,6 +24,10 @@ The use case for which this was written is this.  Allow the tagging of images on
 1. Give the permission _Use field tagging_ to the correct user roles.
 1. Visit an entity edit page and make sure you see the tag field as configured.
 
+### What Happens When a Field is Deleted
+
+The field tags themselves exist as `FieldTag` entity instances.  When a field which is _field tag enabled_ on an entity type is deleted, all field tags that are associated with that entity type/field are marked with a `1` in the `deleted` column in the `field_tag` table.  They still exist in the database but are not going to load via the normal field tag API, attach methods, etc.  You can still load them using `FieldTag::load()` if necessary, or access them via the database for reference.
+
 ## Developers
 
 {% include('developers.md') %}

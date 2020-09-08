@@ -64,6 +64,7 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
       $query = \Drupal::entityTypeManager()
         ->getStorage('field_tag')
         ->getQuery()
+        ->condition('deleted', 0)
         ->condition('parent_entity', $entity->getEntityTypeId())
         ->condition('parent_id', $entity->id())
         ->condition('field_name', $field_name)
@@ -187,6 +188,10 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
 
     $fields['tag'] = BaseFieldDefinition::create('string')
       ->setLabel(t('Tag'));
+
+    $fields['deleted'] = BaseFieldDefinition::create('boolean')
+      ->setDefaultValue(FALSE)
+      ->setLabel(t('Deleted'));
 
     return $fields;
   }

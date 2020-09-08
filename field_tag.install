@@ -1,0 +1,23 @@
+<?php
+
+use Drupal\Core\Field\BaseFieldDefinition;
+
+/**
+ * Add new 'deleted' field to field_tags.
+ */
+function field_tag_update_8001() {
+
+  // Create the new column `deleted`.
+  $definition = BaseFieldDefinition::create('boolean')
+    ->setLabel(t('Deleted'));
+  Drupal::service('entity.definition_update_manager')
+    ->installFieldStorageDefinition('deleted', 'field_tag', 'field_tag', $definition);
+
+  // Set all values to 0, which means nothing is deleted.
+  \Drupal::database()
+    ->update('field_tag')
+    ->fields(['deleted' => 0])
+    ->execute();
+
+  return t('FieldTag: `deleted` field was installed.');
+}

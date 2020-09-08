@@ -51,6 +51,7 @@ class FieldTagService {
       ->getStorage('field_tag');
     $query = $storage
       ->getQuery()
+      ->condition('deleted', 0)
       ->condition('parent_entity', $parent->getEntityTypeId())
       ->condition('parent_id', $parent->id());
     if ($field_name) {
