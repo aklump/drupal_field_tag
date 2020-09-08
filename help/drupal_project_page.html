@@ -28,6 +28,10 @@
 <li>Visit an entity edit page and make sure you see the tag field as configured.</li>
 </ol>
 
+<h3>What Happens When a Field is Deleted</h3>
+
+<p>The field tags themselves exist as <code>FieldTag</code> entity instances.  When a field which is <em>field tag enabled</em> on an entity type is deleted, all field tags that are associated with that entity type/field are marked with a <code>1</code> in the <code>deleted</code> column in the <code>field_tag</code> table.  They still exist in the database but are not going to load via the normal field tag API, attach methods, etc.  You can still load them using <code>FieldTag::load()</code> if necessary, or access them via the database for reference.</p>
+
 <h2>Developers</h2>
 
 
