@@ -235,8 +235,11 @@ function field_tag_entity_delete(EntityInterface $entity) {
 /**
  * Implements hook_ENTITY_TYPE_delete().
  */
-function field_tag_field_config_delete(Drupal\Core\Entity\EntityInterface $entity) {
-  // When a field is deleted, we mark any tags associated with that field as deleted.
+function field_tag_field_storage_config_delete(Drupal\Core\Entity\EntityInterface $entity) {
+  // When a field is deleted at the storage level it means that field no longer
+  // exists on the entity and so we mark any tags associated with that field as
+  // deleted for better housekeeping.  This flag can be used to prune the
+  // entities by developers if they so desire.
   \Drupal::database()->update('field_tag')
     ->fields(['deleted' => TRUE])
     ->condition('parent_entity', $entity->get('entity_type'))
