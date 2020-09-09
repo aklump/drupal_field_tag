@@ -41,9 +41,11 @@ class FieldTagContentEntity extends ContentEntity {
       $tags = $field_tag_service->getAllFieldTagsByParent($entity);
       foreach ($tags as $tag) {
         $field_name = $tag->get('field_name')->value;
-        $delta = $tag->get('delta')->value;
-        if (($item = $entity->get($field_name)->get($delta))) {
-          $item->field_tag = (string) $tag;
+        if ($this->entity->hasField($field_name)) {
+          $delta = $tag->get('delta')->value;
+          if (($item = $entity->get($field_name)->get($delta))) {
+            $item->field_tag = (string) $tag;
+          }
         }
       }
 

@@ -97,9 +97,11 @@ class FieldTagService {
     $tags = $this->getAllFieldTagsByParent($this->entity);
     foreach ($tags as $tag) {
       $field_name = $tag->get('field_name')->value;
-      $delta = $tag->get('delta')->value;
-      if (($item = $this->entity->get($field_name)->get($delta))) {
-        $item->fieldTag = $tag;
+      if ($this->entity->hasField($field_name)) {
+        $delta = $tag->get('delta')->value;
+        if (($item = $this->entity->get($field_name)->get($delta))) {
+          $item->fieldTag = $tag;
+        }
       }
     }
     $this->entity->field_tag_attached = TRUE;
