@@ -28,7 +28,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
  *   admin_permission = "administer field tag entities",
  *   entity_keys = {
  *     "id" = "id",
- *     "label" = "name",
+ *     "label" = "tag",
  *   },
  * )
  */
