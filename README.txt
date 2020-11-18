@@ -90,6 +90,14 @@ $node->save();
      * There is a PDF of manual tests which must suffice until other tests
        can be written.
 
+Manage form display
+
+    1. Node forms will include a list of field tags in the Advanced area,
+       but only if one or more fields have field tags enabled.
+    2. You may control this form element by going to Manage form display
+       for a given node type and changing the weight or disabling this
+       element.
+
 Migrations
 
    Here's an example of how you might tag an image field during a
