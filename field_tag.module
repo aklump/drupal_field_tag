@@ -399,16 +399,16 @@ function field_tag_form_node_form_alter(array &$form, FormStateInterface $form_s
 
   // Now since field tags are used in this form, we'll proceed to add the
   // details section to the advanced (sidebar) of the page.
-  $form['advanced']['field_tag'] = [
+  $form['field_tag'] = [
     '#type' => 'details',
     '#title' => t('Field tags'),
     '#group' => 'advanced',
   ];
 
   $info = field_tag_tags_info();
-  $form['advanced']['field_tag']['field_tags'] = [];
+  $form['field_tag']['tags_by_group'] = [];
   foreach ($info['types'] as $type_id => $type_info) {
-    $form['advanced']['field_tag']['field_tags'][] = [
+    $form['field_tag']['tags_by_group'][$type_id] = [
       '#type' => 'fieldset',
       '#title' => $type_info['name'],
       [
@@ -419,7 +419,6 @@ function field_tag_form_node_form_alter(array &$form, FormStateInterface $form_s
       ],
     ];
   }
-
 }
 
 /**
