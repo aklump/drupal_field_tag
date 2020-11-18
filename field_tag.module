@@ -385,15 +385,11 @@ function field_tag_entity_extra_field_info() {
       ->getStorage('node_type')
       ->loadMultiple();
     foreach ($node_types as $node_type) {
-      $implements = \Drupal::service('field_tag')
-        ->doesBundleUseFieldTags('node', $node_type->id());
-      if ($implements) {
-        $extra['node'][$node_type->id()]['form']['field_tag'] = [
-          'label' => t('Field tag list'),
-          'description' => t('Display available field tags and descriptions.'),
-          'weight' => 50,
-        ];
-      }
+      $extra['node'][$node_type->id()]['form']['field_tag'] = [
+        'label' => t('Field tag list'),
+        'description' => t('Display available field tags and descriptions.'),
+        'weight' => 50,
+      ];
     }
   }
 
