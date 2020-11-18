@@ -195,13 +195,25 @@ class FieldTagService {
    *   commas removed, and spaces inserted after each comma.
    */
   public function normalizeFieldTagValue(string $value) {
-    // Remove duplicates and align the commas.
+    $value = $this->getFieldTagsAsArray($value);
+
+    return implode(', ', $value);
+  }
+
+  /**
+   * Convert a field tag value to an array.
+   *
+   * @param string $value
+   *   A field tag value (csv) string.
+   *
+   * @return array
+   *   An array of unique tags as indicated by $value.
+   */
+  public function getFieldTagsAsArray(string $value): array {
     $value = explode(',', $value);
     $value = array_map('trim', $value);
-    $value = array_filter(array_unique($value));
-    $value = implode(', ', $value);
 
-    return $value;
+    return array_filter(array_unique($value));
   }
 
   /**

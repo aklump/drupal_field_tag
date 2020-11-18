@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -7,7 +8,6 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\field_tag\Plugin\migrate\source\FieldTagContentEntity;
 use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
-use Drupal\Core\Cache\CacheBackendInterface;
 
 
 /**
@@ -39,16 +39,18 @@ function field_tag_tags_info() {
     return $tags_info;
   }
 
-  $tags_info = \Drupal::moduleHandler()->invokeAll('field_tag_tags_info');
+  $module_handler = \Drupal::moduleHandler();
+  $tags_info = $module_handler->invokeAll('field_tag_tags_info');
 
+  $field_tag_service = \Drupal::service('field_tag');
   $stored = \Drupal::database()
     ->select('field_tag')
     ->distinct()
     ->fields('field_tag', ['tag'])
     ->execute()
     ->fetchCol();
-  $stored = array_map(function ($tags) {
-    return explode(',', $tags);
+  $stored = array_map(function ($field_tag_value) use ($field_tag_service) {
+    return $field_tag_service->getFieldTagsAsArray($field_tag_value);
   }, $stored);
   $field_tags_in_use = [];
   foreach ($stored as $tags) {
@@ -99,9 +101,9 @@ function field_tag_tags_info() {
     'description' => t('These tags are used, but not documented.'),
   ]);
 
-  \Drupal::moduleHandler()->alter('field_tag_tags_info', $tags_info);
+  $module_handler->alter('field_tag_tags_info', $tags_info);
   \Drupal::cache()
-    ->set('field_tag:tags_info', $tags_info, CacheBackendInterface::CACHE_PERMANENT);
+    ->set('field_tag:tags_info', $tags_info, CacheBackendInterface::CACHE_PERMANENT, ['field_tag_list']);
 
   return $tags_info;
 }
