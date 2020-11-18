@@ -4,7 +4,9 @@ namespace Drupal\field_tag;
 
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\TypedData\TypedDataInterface;
+use Drupal\field\Entity\FieldConfig;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\paragraphs\ParagraphInterface;
 
@@ -23,13 +25,19 @@ class FieldTagService {
   protected $entity;
 
   /**
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
+
+  /**
    * FieldTagService constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
    *   An instance of EntityTypeManager.
    */
-  public function __construct(EntityTypeManager $entity_type_manager) {
+  public function __construct(EntityTypeManager $entity_type_manager, \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager) {
     $this->entityTypeManager = $entity_type_manager;
+    $this->entityFieldManager = $entity_field_manager;
   }
 
   /**
@@ -251,6 +259,51 @@ class FieldTagService {
     }
 
     return $field_tags;
+  }
+
+  /**
+   * Determines if an entity_type/bundle has any fields with tags enabled.
+   *
+   * @param string $entity_type_id
+   *   The entity type ID. Only entity types that implement
+   *   \Drupal\Core\Entity\FieldableEntityInterface are supported.
+   * @param string $bundle
+   *   The bundle.
+   *
+   * @return bool
+   *   True if any of the fields have field_tags enabled.
+   */
+  public function doesBundleUseFieldTags(string $entity_type_id, string $bundle) {
+    $field_definitions = $this->entityFieldManager
+      ->getFieldDefinitions($entity_type_id, $bundle);
+    foreach ($field_definitions as $field_name => $field_definition) {
+      if (!$field_definition instanceof FieldConfig) {
+        continue;
+      }
+      $settings = $field_definition->getThirdPartySettings('field_tag');
+      if ($settings['enabled'] ?? FALSE) {
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Determines if a given entity instance has field tags on any fields.
+   *
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *   A single entity instance.
+   *
+   * @return bool
+   *   True if any of the entity's fields have field_tags enabled.
+   */
+  public function doesEntityUseFieldTags(EntityInterface $entity) {
+    if ($entity instanceof FieldableEntityInterface) {
+      return $this->doesBundleUseFieldTags($entity->getEntityTypeId(), $entity->bundle());
+    }
+
+    return FALSE;
   }
 
 }

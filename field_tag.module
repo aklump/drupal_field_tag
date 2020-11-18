@@ -375,25 +375,37 @@ function field_tag_migrate_source_info_alter(&$info) {
 }
 
 /**
+ * Implements hook_entity_extra_field_info().
+ */
+function field_tag_entity_extra_field_info() {
+  $extra = [];
+
+  if (\Drupal::service('module_handler')->moduleExists('node')) {
+    $node_types = \Drupal::entityTypeManager()
+      ->getStorage('node_type')
+      ->loadMultiple();
+    foreach ($node_types as $node_type) {
+      $implements = \Drupal::service('field_tag')
+        ->doesBundleUseFieldTags('node', $node_type->id());
+      if ($implements) {
+        $extra['node'][$node_type->id()]['form']['field_tag'] = [
+          'label' => t('Field tag list'),
+          'description' => t('Display available field tags and descriptions.'),
+          'weight' => 50,
+        ];
+      }
+    }
+  }
+
+  return $extra;
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function field_tag_form_node_form_alter(array &$form, FormStateInterface $form_state) {
-
-  // Using the node, we will detect if field tags are present in this form by
-  // sniffing out the third party settings on each field.
   $node = $form_state->getFormObject()->getEntity();
-  $form_has_field_tags = FALSE;
-  foreach ($node->getFieldDefinitions() as $field_name => $field_definition) {
-    if (!$field_definition instanceof FieldConfig) {
-      continue;
-    }
-    $settings = $field_definition->getThirdPartySettings('field_tag');
-    if ($settings['enabled'] ?? FALSE) {
-      $form_has_field_tags = TRUE;
-      break;
-    }
-  }
-  if (!$form_has_field_tags) {
+  if (!\Drupal::service('field_tag')->doesEntityUseFieldTags($node)) {
     return;
   }
 

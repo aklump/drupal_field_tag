@@ -1,4 +1,4 @@
 services:
   field_tag:
     class: Drupal\field_tag\FieldTagService
-    arguments: ['@entity_type.manager']
+    arguments: ['@entity_type.manager', '@entity_field.manager']
