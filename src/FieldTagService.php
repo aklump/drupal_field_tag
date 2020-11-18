@@ -274,6 +274,13 @@ class FieldTagService {
    *   True if any of the fields have field_tags enabled.
    */
   public function doesBundleUseFieldTags(string $entity_type_id, string $bundle) {
+    $usages = &drupal_static(__METHOD__, NULL);
+    $cid = "$entity_type_id.$bundle";
+    if (!is_null($usages[$cid] ?? NULL)) {
+      return $usages[$cid];
+    }
+
+    $usages[$cid] = FALSE;
     $field_definitions = $this->entityFieldManager
       ->getFieldDefinitions($entity_type_id, $bundle);
     foreach ($field_definitions as $field_name => $field_definition) {
@@ -282,11 +289,12 @@ class FieldTagService {
       }
       $settings = $field_definition->getThirdPartySettings('field_tag');
       if ($settings['enabled'] ?? FALSE) {
-        return TRUE;
+        $usages[$cid] = TRUE;
+        break;
       }
     }
 
-    return FALSE;
+    return $usages[$cid];
   }
 
   /**
