@@ -385,7 +385,11 @@ function field_tag_entity_extra_field_info() {
       ->getStorage('node_type')
       ->loadMultiple();
     foreach ($node_types as $node_type) {
-      $extra['node'][$node_type->id()]['form']['field_tag'] = [
+
+      // The key cannot be the module name, because that might be mistaken with
+      // the field API if a field exists called "field_tag".  This is why we use
+      // an underscore in this pseudo-field name.
+      $extra['node'][$node_type->id()]['form']['_field_tag'] = [
         'label' => t('Field tag list'),
         'description' => t('Display available field tags and descriptions.'),
         'weight' => 50,
@@ -407,16 +411,15 @@ function field_tag_form_node_form_alter(array &$form, FormStateInterface $form_s
 
   // Now since field tags are used in this form, we'll proceed to add the
   // details section to the advanced (sidebar) of the page.
-  $form['field_tag'] = [
+  $form['_field_tag'] = [
     '#type' => 'details',
     '#title' => t('Field tags'),
     '#group' => 'advanced',
   ];
 
   $info = field_tag_tags_info();
-  $form['field_tag']['tags_by_group'] = [];
   foreach ($info['types'] as $type_id => $type_info) {
-    $form['field_tag']['tags_by_group'][$type_id] = [
+    $form['_field_tag'][$type_id] = [
       '#type' => 'fieldset',
       '#title' => $type_info['name'],
       [
