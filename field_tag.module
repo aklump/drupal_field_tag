@@ -7,6 +7,7 @@ use Drupal\field\Entity\FieldConfig;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\field_tag\Plugin\migrate\source\FieldTagContentEntity;
 use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
+use Drupal\Core\Cache\CacheBackendInterface;
 
 
 /**
@@ -27,7 +28,18 @@ use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
  *   help to clean up the documentation.
  */
 function field_tag_tags_info() {
-  $data = \Drupal::moduleHandler()->invokeAll('field_tag_tags_info');
+  $tags_info = &drupal_static(__METHOD__, NULL);
+  if (!is_null($tags_info)) {
+    return $tags_info;
+  }
+
+  if (($cache = \Drupal::cache()->get('field_tag:tags_info'))) {
+    $tags_info = $cache->data;
+
+    return $tags_info;
+  }
+
+  $tags_info = \Drupal::moduleHandler()->invokeAll('field_tag_tags_info');
 
   $stored = \Drupal::database()
     ->select('field_tag')
@@ -44,7 +56,7 @@ function field_tag_tags_info() {
   }
   $field_tags_in_use = array_unique($field_tags_in_use);
   $field_tags_documented = [];
-  foreach ($data['tags'] as $tags) {
+  foreach ($tags_info['tags'] as $tags) {
     foreach ($tags as $tag) {
       $field_tags_documented[] = $tag['tag'];
     }
@@ -55,24 +67,24 @@ function field_tag_tags_info() {
     return array_filter(array_map(function ($item) {
       return $item['match'] ?? NULL;
     }, $item));
-  }, $data['tags']);
+  }, $tags_info['tags']);
   $all_regexes = [];
   foreach ($regexes as $regex) {
     $all_regexes = array_merge($all_regexes, $regex);
   }
   $all_regexes = array_unique($all_regexes);
 
-  $handler = function (array $list, string $key, array $type_info) use (&$data, $all_regexes) {
+  $handler = function (array $list, string $key, array $type_info) use (&$tags_info, $all_regexes) {
     foreach ($list as $tag) {
       foreach ($all_regexes as $pattern) {
         if (preg_match($pattern, $tag)) {
           continue 2;
         }
       }
-      $data['tags'][$key][] = ['tag' => $tag, 'description' => ''];
+      $tags_info['tags'][$key][] = ['tag' => $tag, 'description' => ''];
     }
-    if ($data['tags'][$key]) {
-      $data['types'][$key] = $type_info;
+    if ($tags_info['tags'][$key]) {
+      $tags_info['types'][$key] = $type_info;
     }
   };
 
@@ -87,9 +99,11 @@ function field_tag_tags_info() {
     'description' => t('These tags are used, but not documented.'),
   ]);
 
-  \Drupal::moduleHandler()->alter('field_tag_tags_info', $data);
+  \Drupal::moduleHandler()->alter('field_tag_tags_info', $tags_info);
+  \Drupal::cache()
+    ->set('field_tag:tags_info', $tags_info, CacheBackendInterface::CACHE_PERMANENT);
 
-  return $data;
+  return $tags_info;
 }
 
 
