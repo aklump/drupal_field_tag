@@ -61,6 +61,11 @@ The field tags themselves exist as `FieldTag` entity instances.  When a field wh
 
 * There is a PDF of manual tests which must suffice until other tests can be written.
 
+## Manage form display
+
+1. Node forms will include a list of field tags in the Advanced area, but only if one or more fields have field tags enabled.
+1. You may control this form element by going to _Manage form display_ for a given node type and changing the weight or disabling this element.
+
 ## Migrations
 
 Here's an example of how you might tag an image field during a migration, this assumes `field_images` has field tagging enabled and that 1) your source has no field tags or 2) you wish to replace those existing field tags.
