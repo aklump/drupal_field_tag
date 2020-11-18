@@ -13,12 +13,81 @@ use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
  * Provide information about field tags and their groups.
  *
  * @return array
+ *   An associative array with the following keys:
+ *   - types array Keyed by the type ids.  Each value is an array with these
+ *   keys:
+ *     - name string The human name
+ *     - description string The description of the tag type/group.
+ *   - tags array Keyed by the type ids.  Each value represents a field tag and
+ *   has these keys:
+ *     - tag string The field tag.
+ *     - description string The description of the field tag.
+ *     - match string An optional regex pattern used to match this tag.  If
+ *   your field tag is not a constant, then you should include this as it will
+ *   help to clean up the documentation.
  */
 function field_tag_tags_info() {
   $data = \Drupal::moduleHandler()->invokeAll('field_tag_tags_info');
 
-  // TODO Add in any tags that are found in the database and describe as
-  // "undocumented.".
+  $stored = \Drupal::database()
+    ->select('field_tag')
+    ->distinct()
+    ->fields('field_tag', ['tag'])
+    ->execute()
+    ->fetchCol();
+  $stored = array_map(function ($tags) {
+    return explode(',', $tags);
+  }, $stored);
+  $field_tags_in_use = [];
+  foreach ($stored as $tags) {
+    $field_tags_in_use = array_merge($field_tags_in_use, array_map('trim', $tags));
+  }
+  $field_tags_in_use = array_unique($field_tags_in_use);
+  $field_tags_documented = [];
+  foreach ($data['tags'] as $tags) {
+    foreach ($tags as $tag) {
+      $field_tags_documented[] = $tag['tag'];
+    }
+  }
+
+  // Pull out all the regex matching strings.
+  $regexes = array_map(function ($item) {
+    return array_filter(array_map(function ($item) {
+      return $item['match'] ?? NULL;
+    }, $item));
+  }, $data['tags']);
+  $all_regexes = [];
+  foreach ($regexes as $regex) {
+    $all_regexes = array_merge($all_regexes, $regex);
+  }
+  $all_regexes = array_unique($all_regexes);
+
+  $handler = function (array $list, string $key, array $type_info) use (&$data, $all_regexes) {
+    foreach ($list as $tag) {
+      foreach ($all_regexes as $pattern) {
+        if (preg_match($pattern, $tag)) {
+          continue 2;
+        }
+      }
+      $data['tags'][$key][] = ['tag' => $tag, 'description' => ''];
+    }
+    if ($data['tags'][$key]) {
+      $data['types'][$key] = $type_info;
+    }
+  };
+
+  $list = array_diff($field_tags_documented, $field_tags_in_use);
+  $handler($list, 'unused', [
+    'name' => t('Unused'),
+  ]);
+
+  $list = array_diff($field_tags_in_use, $field_tags_documented);
+  $handler($list, 'undocumented', [
+    'name' => t('Undocumented'),
+    'description' => t('These tags are used, but not documented.'),
+  ]);
+
+  \Drupal::moduleHandler()->alter('field_tag_tags_info', $data);
 
   return $data;
 }
@@ -167,6 +236,7 @@ function field_tag_entity_update(EntityInterface $entity) {
   foreach ($entity->getFieldDefinitions() as $field_name => $field_definition) {
 
     // Only fields that have field tagging enabled are processed.
+    // TODO This may be giving a false positive.  Take a look at \field_tag_form_node_form_alter.  There we are actually checking for if ($settings['enabled']).
     if (!$field_definition instanceof FieldConfig
       || !$field_definition->getThirdPartySettings('field_tag')) {
       continue;
@@ -285,5 +355,85 @@ function field_tag_migrate_source_info_alter(&$info) {
     if (isset($info[$key]) && $info[$key]['requirements_met']) {
       $info[$key]['class'] = FieldTagContentEntity::class;
     }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function field_tag_form_node_form_alter(array &$form, FormStateInterface $form_state) {
+
+  // Using the node, we will detect if field tags are present in this form by
+  // sniffing out the third party settings on each field.
+  $node = $form_state->getFormObject()->getEntity();
+  $form_has_field_tags = FALSE;
+  foreach ($node->getFieldDefinitions() as $field_name => $field_definition) {
+    if (!$field_definition instanceof FieldConfig) {
+      continue;
+    }
+    $settings = $field_definition->getThirdPartySettings('field_tag');
+    if ($settings['enabled'] ?? FALSE) {
+      $form_has_field_tags = TRUE;
+      break;
+    }
+  }
+  if (!$form_has_field_tags) {
+    return;
+  }
+
+  // Now since field tags are used in this form, we'll proceed to add the
+  // details section to the advanced (sidebar) of the page.
+  $form['advanced']['field_tag'] = [
+    '#type' => 'details',
+    '#title' => t('Field tags'),
+    '#group' => 'advanced',
+  ];
+
+  $info = field_tag_tags_info();
+  $form['advanced']['field_tag']['field_tags'] = [];
+  foreach ($info['types'] as $type_id => $type_info) {
+    $form['advanced']['field_tag']['field_tags'][] = [
+      '#type' => 'fieldset',
+      '#title' => $type_info['name'],
+      [
+        '#theme' => 'field_tag_tags_by_type',
+        '#tag_type' => $type_info,
+        '#field_tags' => $info['tags'][$type_id],
+        '#sort' => TRUE,
+      ],
+    ];
+  }
+
+}
+
+/**
+ * Implements hook_theme().
+ */
+function field_tag_theme($existing, $type, $theme, $path) {
+  return [
+    'field_tag_tags_by_type' => [
+      'variables' => [
+
+        // Each element should have the keys "name" and "description".
+        'tag_type' => '',
+
+        // Each element should have the keys "tag" and "description".
+        'field_tags' => '',
+
+        // Set this to false to not alphabetically sort the tags.
+        'sort' => TRUE,
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function template_preprocess_field_tag_tags_by_type(&$vars) {
+  if ($vars['sort']) {
+    usort($vars['field_tags'], function ($a, $b) {
+      return strcasecmp($a['tag'], $b['tag']);
+    });
   }
 }

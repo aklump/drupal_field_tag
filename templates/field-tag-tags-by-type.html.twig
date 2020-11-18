@@ -1,0 +1,38 @@
+{#
+/**
+ * @file
+ * Theme Implementation for field-tag-tags-by-type.
+ *
+ * Available variables:
+ *    - #cache array
+ *        - contexts array
+ *    - attributes \Drupal\Core\Template\Attribute
+ *    - content_attributes \Drupal\Core\Template\Attribute
+ *    - db_is_active boolean
+ *    - directory string
+ *    - field_tags array
+ *    - is_admin boolean
+ *    - logged_in boolean
+ *    - sort boolean
+ *    - tag_type array
+ *        - name string
+ *        - description string
+ *    - theme_hook_original string
+ *    - theme_hook_suggestions array
+ *    - title_attributes \Drupal\Core\Template\Attribute
+ *    - title_prefix array
+ *    - title_suffix array
+ *    - user \Drupal\Core\Session\AccountProxy
+ *        - _serviceId string.
+ */
+#}
+<p><em>{{ tag_type.description }}</em></p>
+{% for tag in field_tags %}
+  <dl>
+    <dt>{{ tag.tag }}</dt>
+    {% if tag.description %}
+      <dd>{{ tag.description }}</dd>
+    {% endif %}
+  </dl>
+{% endfor %}
+
