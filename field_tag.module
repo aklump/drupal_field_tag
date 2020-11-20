@@ -426,6 +426,7 @@ function field_tag_form_node_form_alter(array &$form, FormStateInterface $form_s
   $form['_field_tag'] = [
     '#type' => 'details',
     '#title' => t('Field tags'),
+    '#description' => t('When entering multiple tags, separate with a comma.'),
     '#group' => 'advanced',
   ];
 
