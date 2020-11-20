@@ -114,13 +114,17 @@ function field_tag_tags_info() {
  */
 function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInterface $form_state) {
   $field = $form_state->getFormObject()->getEntity();
-  $settings = $field->getThirdPartySettings('field_tag') + [
-      'enabled' => FALSE,
-      'title' => t('Tags'),
-      'description' => 'Separate multiple tags with a comma.',
-      'weight' => 0,
-      'required' => FALSE,
-    ];
+  $settings = $field->getThirdPartySettings('field_tag');
+  $settings += [
+    'enabled' => FALSE,
+    'title' => t('Tags'),
+    'description' => '',
+    'placeholder' => '',
+
+    // I will assume the tags should come AFTER the widget.
+    'weight' => 1,
+    'required' => FALSE,
+  ];
   $form['third_party_settings']['field_tag'] = [
     '#type' => 'details',
     '#title' => t('Field tag'),
@@ -139,32 +143,39 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
       ),
     ),
   );
+  $form['third_party_settings']['field_tag']['required'] = [
+    '#type' => 'checkbox',
+    '#title' => t('Require at least one tag on this field?'),
+    '#default_value' => $settings['required'],
+    '#states' => $states,
+  ];
   $form['third_party_settings']['field_tag']['title'] = [
     '#type' => 'textfield',
-    '#title' => t('Tag form input label'),
+    '#title' => t('Tag textfield label'),
     '#default_value' => $settings['title'],
     '#required' => TRUE,
     '#states' => $states,
   ];
+  $form['third_party_settings']['field_tag']['placeholder'] = [
+    '#type' => 'textfield',
+    '#title' => t('Tag textfield placeholder'),
+    '#default_value' => $settings['placeholder'],
+    '#states' => $states,
+  ];
   $form['third_party_settings']['field_tag']['description'] = [
     '#type' => 'textfield',
-    '#title' => t('Tag form input description'),
+    '#title' => t('Tag textfield description'),
     '#default_value' => $settings['description'],
     '#states' => $states,
   ];
   $form['third_party_settings']['field_tag']['weight'] = array(
     '#type' => 'weight',
-    '#title' => t('Tag form input Weight'),
+    '#title' => t('Tag input weight'),
+    '#description' => t('Use this to position the tag input relative to the field widget.'),
     '#default_value' => $settings['weight'],
     '#delta' => 50,
     '#states' => $states,
   );
-  $form['third_party_settings']['field_tag']['required'] = [
-    '#type' => 'checkbox',
-    '#title' => t('Make the tag input field required.'),
-    '#default_value' => $settings['required'],
-    '#states' => $states,
-  ];
 }
 
 /**
@@ -215,7 +226,8 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
       '#type' => 'textfield',
       '#required' => $settings['required'],
       '#title' => $settings['title'],
-      '#description' => $settings['description'],
+      '#placeholder' => $settings['placeholder'] ?? '',
+      '#description' => $settings['description'] ?? '',
       '#default_value' => $default_value,
       '#attributes' => ['class' => ['field-tag']],
       '#access' => $access && \Drupal::currentUser()

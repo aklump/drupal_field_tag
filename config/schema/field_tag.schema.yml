@@ -14,6 +14,9 @@ field.field.*.*.*.third_party.field_tag:
     description:
       type: text
       label: 'Description'
+    placeholder:
+      type: text
+      label: 'Placeholder'
     required:
       type: boolean
       label: 'Required'
