@@ -3,7 +3,7 @@
 namespace Drupal\field_tag;
 
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\EntityTypeManager;
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\field\Entity\FieldConfig;
@@ -16,9 +16,9 @@ use Drupal\paragraphs\ParagraphInterface;
 class FieldTagService {
 
   /**
-   * An instance of EntityTypeManager.
+   * An service instance.
    *
-   * @var \Drupal\Core\Entity\EntityTypeManager
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
    */
   protected $entityTypeManager;
 
@@ -32,10 +32,10 @@ class FieldTagService {
   /**
    * FieldTagService constructor.
    *
-   * @param \Drupal\Core\Entity\EntityTypeManager $entity_type_manager
-   *   An instance of EntityTypeManager.
+   * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
+   *   A service instance.
    */
-  public function __construct(EntityTypeManager $entity_type_manager, \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
   }
