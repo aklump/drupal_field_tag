@@ -214,4 +214,13 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
     return $this;
   }
 
+  public function removeTag(string $tag): FieldTagInterface {
+    $tags = array_filter($this->getTags(), function ($item) use ($tag) {
+      return $item !== $tag;
+    });
+    $this->tag->value = implode(',', $tags);
+
+    return $this;
+  }
+
 }
