@@ -147,8 +147,8 @@ class FieldTagParagraphs {
         '_field_tag_paragraphs' => ['field_tag' => $original_tag],
       ]);
     $paragraph->save();
-    $this->messenger->addStatus($this->t('%label paragraph has been created', [
-      '%label' => $target_bundle,
+    $this->messenger->addStatus($this->t('%label paragraph has been created.', [
+      '%label' => $target_bundle['label'],
     ]));
 
     $this->removeOriginalTag($original_tag, $items, $delta);
