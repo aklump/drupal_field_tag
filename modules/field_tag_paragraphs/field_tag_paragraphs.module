@@ -1,0 +1,39 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implements hook_entity_presave().
+ */
+function field_tag_paragraphs_entity_presave(EntityInterface $entity) {
+  if (!\Drupal::service('field_tag')->doesEntityUseFieldTags($entity)) {
+    return;
+  }
+
+  // We know the entity uses field tagging, now we need to iterate on those
+  // fields that use field tagging, which are paragraph references and process.
+  $field_definitions = \Drupal::service('entity_field.manager')
+    ->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
+
+  /** @var \Drupal\field_tag_paragraphs\FieldTagParagraphs $service */
+  $service = \Drupal::service('field_tag_paragraphs');
+  foreach ($field_definitions as $field_definition) {
+    if (!$field_definition instanceof FieldConfig) {
+      continue;
+    }
+    $settings = $field_definition->getThirdPartySettings('field_tag');
+    if (!$settings['enabled'] ?? FALSE) {
+      continue;
+    }
+    $reference_bundle = $field_definition->getItemDefinition()
+      ->getSetting('target_type');
+    if ('paragraph' === $reference_bundle) {
+
+      // Look for any tags that are commands to create paragraphs.
+      $service->processEntityField($entity, $field_definition);
+    }
+  }
+}
+
+
