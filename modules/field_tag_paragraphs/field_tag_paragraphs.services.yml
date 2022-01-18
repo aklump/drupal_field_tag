@@ -1,12 +1,4 @@
 services:
   field_tag_paragraphs:
     class: \Drupal\field_tag_paragraphs\FieldTagParagraphs
-    arguments: [ "@entity_type.manager", "@field_tag", "@messenger" ]
-#  field_tag_paragraphs.route_subscriber:
-#    class: Drupal\field_tag_paragraphs\Routing\RouteSubscriber
-#    tags:
-#      - {name: event_subscriber}
-#  field_tag_paragraphs.do_something.access:
-#    class: \Drupal\field_tag_paragraphs\Access\DoSomethingAccess
-#    arguments: ['@module_handler']
-#    tags: { name: access_check }
+    arguments: [ "@entity_type.manager", "@field_tag", "@messenger", "@entity_type.bundle.info", "@module_handler" ]

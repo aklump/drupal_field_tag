@@ -3,31 +3,22 @@
 namespace Drupal\field_tag_paragraphs;
 
 use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\Core\Field\EntityReferenceFieldItemList;
 use Drupal\Core\Messenger\MessengerInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\field\FieldConfigInterface;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\field_tag\FieldTagService;
-use Drupal\gop3_core\Entity\Extractor;
-use Drupal\gop3_core\Entity\UserCrudService;
-use Drupal\gop3_core\Service\Core;
-use Drupal\gop3_core\Service\LoginService;
-use Drupal\gop3_core\Service\Transform;
 
 /**
- * Provides factories for field_tag_paragraphs_prefix.* services.
- *
- * This will provide autocompletion and cleaner code like using the \Drupal
- * class with static factory methods.
- *
- * @code
- *     \Drupal\module\FieldTagParagraphs::core()->...
- * @endcode
+ * Provide functionality to the field_tag_paragraphs module.
  */
 class FieldTagParagraphs {
 
-  use \Drupal\Core\StringTranslation\StringTranslationTrait;
+  use StringTranslationTrait;
 
   /**
    * @var \Drupal\Core\Entity\EntityTypeManagerInterface
@@ -45,14 +36,32 @@ class FieldTagParagraphs {
   protected $messenger;
 
   /**
+   * @var \Drupal\Core\Entity\EntityTypeBundleInfoInterface
+   */
+  protected $entityTypeBundleInfo;
+
+  /**
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    * @param \Drupal\field_tag\FieldTagService $field_tag_service
    * @param \Drupal\Core\Messenger\MessengerInterface $messenger
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, FieldTagService $field_tag_service, MessengerInterface $messenger) {
+  public function __construct(
+    EntityTypeManagerInterface $entity_type_manager,
+    FieldTagService $field_tag_service,
+    MessengerInterface $messenger,
+    EntityTypeBundleInfoInterface $entity_type_bundle_info,
+    ModuleHandlerInterface $module_handler
+  ) {
     $this->entityTypeManager = $entity_type_manager;
     $this->fieldTag = $field_tag_service;
     $this->messenger = $messenger;
+    $this->entityTypeBundleInfo = $entity_type_bundle_info;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -116,12 +125,10 @@ class FieldTagParagraphs {
 
   protected function processActionTag(string $original_tag, string $bundle, string $location, EntityReferenceFieldItemList $items, int $delta) {
 
-    \Drupal::moduleHandler()
-      ->alter('field_tag_paragraphs_bundle', $bundle, $original_tag);
+    $this->moduleHandler->alter('field_tag_paragraphs_bundle', $bundle, $original_tag);
 
     // Validate the bundle.
-    $target_bundle = \Drupal::service("entity_type.bundle.info")
-                       ->getAllBundleInfo()['paragraph'][$bundle] ?? NULL;
+    $target_bundle = $this->entityTypeBundleInfo->getAllBundleInfo()['paragraph'][$bundle] ?? NULL;
     if (!$target_bundle) {
       $this->messenger->addError($this->t('The command %command references an invalid paragraph bundle: %bundle.', [
         '%command' => $original_tag,
@@ -140,6 +147,9 @@ class FieldTagParagraphs {
         '_field_tag_paragraphs' => ['field_tag' => $original_tag],
       ]);
     $paragraph->save();
+    $this->messenger->addStatus($this->t('%label paragraph has been created', [
+      '%label' => $target_bundle,
+    ]));
 
     $this->removeOriginalTag($original_tag, $items, $delta);
     $stack = $items->getValue();
