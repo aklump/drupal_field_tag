@@ -27,8 +27,22 @@
 
 <p>All notable changes to this project will be documented in this file.</p>
 
-<p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>,
-and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+<p>The format is based on <a href="https://keepachangelog.com/en/1.0.0/">Keep a Changelog</a>, and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
+
+<h2>Todo</h2>
+
+<ul>
+<li>When field_tag_paragraph processes an item, redirect to the node edit form to immediately begin editing.</li>
+</ul>
+
+<h2>[0.2.0] - 2022-01-18</h2>
+
+<h3>Added</h3>
+
+<ul>
+<li>Field tag paragraphs module</li>
+<li>FieldTag::removeTag() method.</li>
+</ul>
 
 <h2>[0.0.19] - 2020-04-22</h2>
 
@@ -58,7 +72,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 
 <ul>
 <li><code>loadFromParent</code> has been replaced by <code>loadByParentField</code>.</li>
-<li><code>\Drupal\field_tag\FieldTagService::attachTags</code> now sets the FieldTag instance as <code>$item-&gt;fieldTag</code> instead of <code>$item-&gt;field_tag</code>.  The latter should only be used when you are setting the value, as this is what will be saved when the entity is saved.</li>
+<li><code>\Drupal\field_tag\FieldTagService::attachTags</code> now sets the FieldTag instance as <code>$item-&gt;fieldTag</code> instead of <code>$item-&gt;field_tag</code>. The latter should only be used when you are setting the value, as this is what will be saved when the entity is saved.</li>
 </ul>
 </section>
 
@@ -69,7 +83,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <footer>
   <div class="pager"><a href="index.html" class="prev index">&laquo;Field Tags Module</a><a href="index.html" class="index pager__book-title">Field Tags Module</a><a href="developers.html" class="next developers">Developers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 8.x-0.1.0 &bull; Last Updated: Thu, 14 Oct 2021 11:32:44 -0700</p>
+    <p class="legaleeze center">Version: 8.x-0.1.1 &bull; Last Updated: Tue, 18 Jan 2022 20:36:00 -0800</p>
   </div>
 </footer>
 
