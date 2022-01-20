@@ -23,7 +23,7 @@ function field_tag_paragraphs_entity_presave(EntityInterface $entity) {
       continue;
     }
     $settings = $field_definition->getThirdPartySettings('field_tag');
-    if (!$settings['enabled'] ?? FALSE) {
+    if (empty($settings['enabled'])) {
       continue;
     }
     $reference_bundle = $field_definition->getItemDefinition()
