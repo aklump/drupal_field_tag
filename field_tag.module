@@ -6,6 +6,8 @@ use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field_tag\Entity\FieldTag;
+use Drupal\field_tag\Event\FieldTagEvents;
+use Drupal\field_tag\Event\TagEvent;
 use Drupal\field_tag\Plugin\migrate\source\FieldTagContentEntity;
 use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
 
@@ -217,7 +219,7 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
     // e.g., a file field that has no files attached yet, should be seeing the
     // tagging input yet.  Only after it has a file.
     $access = TRUE;
-    if ($is_file = $context['items'] instanceof FileFieldItemList) {
+    if ($context['items'] instanceof FileFieldItemList) {
       $access = !empty($element['#default_value']['fids']);
     }
 
@@ -271,15 +273,20 @@ function field_tag_entity_update(EntityInterface $entity) {
     }
 
     // Determine if we should remove all tags for all items on this field first.
-    // This is indicated by assigning a fieldname as an array element on
+    // This is indicated by assigning a field name as an array element on
     // $entity->field_tag_sync.  This happens in
     // field_tag_field_widget_form_alter or could be done by a developer in
     // custom code.
+    $deleted_values = [];
     $should_sync = in_array($field_name, $entity->field_tag_sync ?? []);
     if ($should_sync) {
       $field_tag_instances_to_delete = $field_tag_service
         ->getAllFieldTagsByParent($entity, $field_name);
       if ($field_tag_instances_to_delete) {
+        $deltas = array_map(function ($field_tag) {
+          return $field_tag->delta->value;
+        }, $field_tag_instances_to_delete);
+        $deleted_values = array_combine($deltas, array_map('strval', $field_tag_instances_to_delete));
         $field_tag_storage->delete($field_tag_instances_to_delete);
       }
     }
@@ -299,6 +306,12 @@ function field_tag_entity_update(EntityInterface $entity) {
 
       $field_tag = FieldTag::loadByParentField($entity, $field_name, $delta);
 
+      // Sometimes tags are deleted, if so the original values will have been
+      // captured in $deleted_values first.  Otherwise if they were not deleted,
+      // they were not captured, and they will be present in the $field_tag
+      // instance.
+      $original_tag_value = $deleted_values[$delta] ?? strval($field_tag);
+
       if (!$new_tag_value) {
 
         // Delete existing field tags when the new value is empty.
@@ -311,6 +324,22 @@ function field_tag_entity_update(EntityInterface $entity) {
       elseif ($field_tag->isNew() || $field_tag->getValue() !== $new_tag_value) {
         $field_tag->get('tag')->value = $new_tag_value;
         $field_tag->save();
+      }
+
+      if ($original_tag_value !== $new_tag_value) {
+        if (empty($dispatcher)) {
+          $dispatcher = \Drupal::service('event_dispatcher');
+        }
+        $before = FieldTag::create(['tag' => $original_tag_value]);
+        $after = FieldTag::create(['tag' => $new_tag_value]);
+        $added = array_diff($after->getTags(), $before->getTags());
+        foreach ($added as $tag) {
+          $dispatcher->dispatch(FieldTagEvents::TAG_ADDED, new TagEvent($tag, $entity));
+        }
+        $removed = array_diff($before->getTags(), $after->getTags());
+        foreach ($removed as $tag) {
+          $dispatcher->dispatch(FieldTagEvents::TAG_REMOVED, new TagEvent($tag, $entity));
+        }
       }
     }
   }

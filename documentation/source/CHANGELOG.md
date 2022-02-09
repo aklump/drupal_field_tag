@@ -8,12 +8,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - When field_tag_paragraph processes an item, redirect to the node edit form to immediately begin editing.
 
+## [0.3.0] - 2022-02-09
+
+### Added
+
+- Dispatch event `\Drupal\field_tag\Event\FieldTagEvents::TAG_ADDED` when a tag is added to a parent.
+- Dispatch event `\Drupal\field_tag\Event\FieldTagEvents::TAG_REMOVED` when a tag is removed from a parent.
+
 ## [0.2.0] - 2022-01-18
 
 ### Added
 
 - Field tag paragraphs module
-- FieldTag::removeTag() method.
+- `FieldTag::removeTag()` method.
 
 ## [0.0.19] - 2020-04-22
 
