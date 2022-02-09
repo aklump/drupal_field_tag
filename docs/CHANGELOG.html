@@ -35,13 +35,22 @@
 <li>When field_tag_paragraph processes an item, redirect to the node edit form to immediately begin editing.</li>
 </ul>
 
+<h2>[0.3.0] - 2022-02-09</h2>
+
+<h3>Added</h3>
+
+<ul>
+<li>Dispatch event <code>\Drupal\field_tag\Event\FieldTagEvents::TAG_ADDED</code> when a tag is added to a parent.</li>
+<li>Dispatch event <code>\Drupal\field_tag\Event\FieldTagEvents::TAG_REMOVED</code> when a tag is removed from a parent.</li>
+</ul>
+
 <h2>[0.2.0] - 2022-01-18</h2>
 
 <h3>Added</h3>
 
 <ul>
 <li>Field tag paragraphs module</li>
-<li>FieldTag::removeTag() method.</li>
+<li><code>FieldTag::removeTag()</code> method.</li>
 </ul>
 
 <h2>[0.0.19] - 2020-04-22</h2>
@@ -83,7 +92,7 @@
 <footer>
   <div class="pager"><a href="index.html" class="prev index">&laquo;Field Tags Module</a><a href="index.html" class="index pager__book-title">Field Tags Module</a><a href="developers.html" class="next developers">Developers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 8.x-0.2.1 &bull; Last Updated: Wed, 19 Jan 2022 19:39:47 -0800</p>
+    <p class="legaleeze center">Version: 8.x-0.3.0 &bull; Last Updated: Wed, 09 Feb 2022 12:47:35 -0800</p>
   </div>
 </footer>
 
