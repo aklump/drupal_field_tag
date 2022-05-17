@@ -35,7 +35,7 @@ function field_tag_tags_info() {
     return $tags_info;
   }
 
-  if (($cache = \Drupal::cache()->get('field_tag:tags_info'))) {
+  if (0 && ($cache = \Drupal::cache()->get('field_tag:tags_info'))) {
     $tags_info = $cache->data;
 
     return $tags_info;
@@ -60,23 +60,29 @@ function field_tag_tags_info() {
   }
   $field_tags_in_use = array_unique($field_tags_in_use);
   $field_tags_documented = [];
-  foreach ($tags_info['tags'] as $tags) {
-    foreach ($tags as $tag) {
-      $field_tags_documented[] = $tag['tag'];
+
+  if (!empty($tags_info['tags'])) {
+    foreach ($tags_info['tags'] as $tags) {
+      foreach ($tags as $tag) {
+        $field_tags_documented[] = $tag['tag'];
+      }
     }
+
+    // Pull out all the regex matching strings.
+    $regexes = array_map(function ($item) {
+      return array_filter(array_map(function ($item) {
+        return $item['match'] ?? NULL;
+      }, $item));
+    }, $tags_info['tags']);
   }
 
-  // Pull out all the regex matching strings.
-  $regexes = array_map(function ($item) {
-    return array_filter(array_map(function ($item) {
-      return $item['match'] ?? NULL;
-    }, $item));
-  }, $tags_info['tags']);
   $all_regexes = [];
-  foreach ($regexes as $regex) {
-    $all_regexes = array_merge($all_regexes, $regex);
+  if (!empty($regexes)) {
+    foreach ($regexes as $regex) {
+      $all_regexes = array_merge($all_regexes, $regex);
+    }
+    $all_regexes = array_unique($all_regexes);
   }
-  $all_regexes = array_unique($all_regexes);
 
   $handler = function (array $list, string $key, array $type_info) use (&$tags_info, $all_regexes) {
     foreach ($list as $tag) {
@@ -87,10 +93,11 @@ function field_tag_tags_info() {
       }
       $tags_info['tags'][$key][] = ['tag' => $tag, 'description' => ''];
     }
-    if ($tags_info['tags'][$key]) {
+    if (!empty($tags_info['tags'][$key])) {
       $tags_info['types'][$key] = $type_info;
     }
   };
+
 
   $list = array_diff($field_tags_documented, $field_tags_in_use);
   $handler($list, 'unused', [
@@ -458,7 +465,7 @@ function field_tag_form_node_form_alter(array &$form, FormStateInterface $form_s
   ];
 
   $info = field_tag_tags_info();
-  foreach ($info['types'] as $type_id => $type_info) {
+  foreach (($info['types'] ?? []) as $type_id => $type_info) {
     $form['_field_tag'][$type_id] = [
       '#type' => 'fieldset',
       '#title' => $type_info['name'],
