@@ -2,7 +2,7 @@
 
 name: Field Tag Paragraphs
 description: Create paragraphs using field tags.
-package: field_tag_paragraphs_category
+package: Fields
 type: module
 core_version_requirement: ^8 || ^9
 version: 8.x-0.0.1
