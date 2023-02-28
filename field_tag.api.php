@@ -5,19 +5,31 @@
  * Defines the API functions provided by the field_tag module.
  */
 
-use Drupal\field_tag\Entity\FieldTag;
+// There are two classes to consider when working with field tags.  The
+// low-level class \Drupal\field_tag\Tags is purely utilitarian and has no
+// dependencies and may be more intuitive in some cases.  The other class, which
+// represents the FieldTag entity is \Drupal\field_tag\Entity\FieldTag and
+// should also be taken into account.
 
 /**
  * Create a field tag object by string
  */
+$instance = \Drupal\field_tag\Entity\FieldTag::createFromTags(\Drupal\field_tag\Tags::create('foo,bar'));
+TRUE === $instance->hasTag('foo');
 
-$instance = \Drupal\field_tag\Entity\FieldTag::create(['tag' => 'foo']);
+/**
+ * Create a field tag object by array
+ */
+$array_of_tags = ['foo', 'bar'];
+$instance = \Drupal\field_tag\Entity\FieldTag::createFromTags(\Drupal\field_tag\Tags::create(...$array_of_tags));
 TRUE === $instance->hasTag('foo');
 
 /**
  * Programmatically tagging fields.
  *
- * This should look very familiar and simple.
+ * You must use ->field_tag if you want the entity save operation to persist the
+ * values.  You cannot use ->fieldTag for adding tags to be saved in the
+ * database.
  */
 
 $entity->get('field_images')->get(0)->field_tag = 'foo, bar, baz';
@@ -39,7 +51,7 @@ $entity->save();
  * In both methods, once the field_tag entity is provided, you work with it the
  * same, using on it's own methods.
  */
-$field_tag_entity = FieldTag::loadByParentField($entity, 'field_images', 0);
+$field_tag_entity = \Drupal\field_tag\Entity\FieldTag::loadByParentField($entity, 'field_images', 0);
 
 // Check if a tag exists based on the CSV split.
 $has_tag = $field_tag_entity->hasTag('hero');
@@ -123,7 +135,7 @@ foreach ($items as $item) {
  * an id.  We're assuming that a tag such as "#foo" has been entered on the
  * parent's reference field.
  */
-// First get an array of FieldTag entities.
+// First get an array of \Drupal\field_tag\Entity\FieldTag entities.
 $field_tag_entities = $this->service('field_tag')
   ->getFieldTagsByParagraph($paragraph);
 

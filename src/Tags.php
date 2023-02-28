@@ -7,6 +7,10 @@ use Countable;
 /**
  * A Drupal-free helper class to make working with field tags easier.
  *
+ * @code
+ * Tags::create('foo', 'bar', 'baz')->has('foo');
+ * @endcode
+ *
  * @see \Drupal\field_tag\Entity\FieldTag
  */
 final class Tags implements Countable {
@@ -15,10 +19,21 @@ final class Tags implements Countable {
 
   private $tags;
 
+  public static function create(?string ...$tags) {
+    return new self(...$tags);
+  }
+
   /**
    * Construct a new instance.
    *
-   * To create an instance from an array:
+   * To create an instance from an CSV string.  Be aware that you may only pass
+   * one argument when constructing with CSV.
+   *
+   * @code
+   * $tags = new Tags('do,re,mi');
+   * @endcode
+   *
+   * To create an instance from an array variable use the spread operator.
    *
    * @code
    * $user_tags = ['do', 're', 'mi'];
@@ -26,9 +41,14 @@ final class Tags implements Countable {
    * @endcode
    *
    * @param string ...$tags
-   *   Any number of tags.
+   *   Any number of tags, or a single CSV string.
    */
-  public function __construct(string ...$tags) {
+  public function __construct(?string ...$tags) {
+    // Normally tags may not contain self::SEPARATOR, but for our constructor we
+    // allow passing a separated string.  This prevents exceptions.
+    if (func_num_args() === 1) {
+      $tags = explode(self::SEPARATOR, $tags[0]);
+    }
     $this->setTags($tags);
   }
 
@@ -66,21 +86,30 @@ final class Tags implements Countable {
   /**
    * Create a NEW INSTANCE of matched tags.
    *
+   * Optionally receive the matched grouped values in $matches.
+   *
    * @param string $pattern
    *   A regex pattern used to match the tags for inclusion, e.g. "/\d+/".
+   * @param array &$matches
+   *   Optional.  An array keyed by tag name, with values that are the
+   *   preg_match results.  The grouping in $pattern determines the total
+   *   elements in the values array, with 0 always being the full match.
    *
    * @return \Drupal\field_tag\Tags
    *   A new instance with only the tags that match $pattern.
+   *
+   * @see \preg_match()
    */
-  public function match(string $pattern): Tags {
-    $matched = [];
+  public function match(string $pattern, array &$matches = []): Tags {
+    $matched_tags = [];
     foreach ($this->all() as $tag) {
-      if (preg_match($pattern, $tag)) {
-        $matched[] = $tag;
+      if (preg_match($pattern, $tag, $found)) {
+        $matched_tags[] = $tag;
+        $matches[$found[0]] = $found;
       }
     }
 
-    return new Tags(...$matched);
+    return new Tags(...$matched_tags);
   }
 
   /**

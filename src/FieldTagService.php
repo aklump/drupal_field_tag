@@ -2,6 +2,7 @@
 
 namespace Drupal\field_tag;
 
+use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
@@ -9,6 +10,8 @@ use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\paragraphs\ParagraphInterface;
+use InvalidArgumentException;
+use RuntimeException;
 
 /**
  * Service class supporting the use of field_tag module.
@@ -35,7 +38,7 @@ class FieldTagService {
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   A service instance.
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
   }
@@ -132,10 +135,10 @@ class FieldTagService {
    */
   public function getItemsTaggedBy(string $tag, string $field_name): array {
     if (is_null($this->entity)) {
-      throw new \RuntimeException("Missing $this->entity; did you call ::attachTags() first?");
+      throw new RuntimeException("Missing $this->entity; did you call ::attachTags() first?");
     }
     if (empty($field_name)) {
-      throw new \InvalidArgumentException("\$field_name may not be empty.");
+      throw new InvalidArgumentException("\$field_name may not be empty.");
     }
     $items = [];
 
@@ -155,7 +158,7 @@ class FieldTagService {
         if (array_key_exists('field_tag', $item->getValue())) {
           $item_tag = $this->normalizeItemFieldTag($item);
           if ($item_tag !== NULL
-            && FieldTag::create(['tag' => $item_tag])->hasTag($tag)) {
+            && Tags::create($item_tag)->has($tag)) {
             $items[$delta] = $item;
           }
         }
@@ -218,9 +221,9 @@ class FieldTagService {
    */
   public function getFieldTagsAsArray(string $value): array {
     $value = explode(',', $value);
-    $value = array_map('trim', $value);
+    $tags = new Tags(...$value);
 
-    return array_filter(array_unique($value));
+    return $tags->all();
   }
 
   /**
@@ -273,7 +276,7 @@ class FieldTagService {
    *   True if any of the fields have field_tags enabled.
    */
   public function doesBundleUseFieldTags(string $entity_type_id, string $bundle) {
-    $usages = &drupal_static(__METHOD__, NULL);
+    $usages = &drupal_static(__METHOD__);
     $cid = "$entity_type_id.$bundle";
     if (!is_null($usages[$cid] ?? NULL)) {
       return $usages[$cid];
@@ -282,7 +285,7 @@ class FieldTagService {
     $usages[$cid] = FALSE;
     $field_definitions = $this->entityFieldManager
       ->getFieldDefinitions($entity_type_id, $bundle);
-    foreach ($field_definitions as $field_name => $field_definition) {
+    foreach ($field_definitions as $field_definition) {
       if (!$field_definition instanceof FieldConfig) {
         continue;
       }

@@ -56,7 +56,8 @@ interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterfa
    *   The regex expression including delimiters/modifiers, e.g. "/.+/i".
    *
    * @return array
-   *   Any tags that match the expression $regex.
+   *   The grouped results from preg_match for all matches to $regex.  Keys are
+   *   the tags and the values are the $matches from preg_match.
    *
    * @see \Drupal\field_tag\Entity\FieldTagInterface::hasTag('foo', TRUE)
    */

@@ -13,6 +13,20 @@ use Drupal\field_tag\Tags;
  */
 final class TagsTest extends TestCase {
 
+  public function testMatchWithMatchesVariable() {
+    $tags = new Tags('chapter1--page3', 'chapter1--page2', 'chapter5--page9');
+    $matches = [];
+    $tags->match('/chapter(\d+)\-\-page(\d+)/', $matches);
+    $this->assertCount(3, $matches);
+
+    $this->assertSame('1', $matches['chapter1--page3'][1]);
+    $this->assertSame('3', $matches['chapter1--page3'][2]);
+    $this->assertSame('1', $matches['chapter1--page2'][1]);
+    $this->assertSame('2', $matches['chapter1--page2'][2]);
+    $this->assertSame('5', $matches['chapter5--page9'][1]);
+    $this->assertSame('9', $matches['chapter5--page9'][2]);
+  }
+
   public function testMatch() {
     $tags = new Tags('foo', 'bar', 'baz');
     $matches = $tags->match('/^f/');
@@ -129,16 +143,48 @@ final class TagsTest extends TestCase {
     $this->assertSame('foo,bar', strval($tags));
   }
 
-  public function testConstructor() {
-    $tags = new Tags();
-    $this->assertSame([], $tags->all());
+  public function testConstructorAndCreateWithMultipleArgs() {
     $tags = new Tags('foo', 'bar');
+    $this->assertContains('foo', $tags->all());
+    $this->assertContains('bar', $tags->all());
+
+    $tags = Tags::create('foo', 'bar');
     $this->assertContains('foo', $tags->all());
     $this->assertContains('bar', $tags->all());
   }
 
-  protected function setUp(): void {
+  public function testConstructorAndCreateWithCsv() {
+    $tags = new Tags('foo,bar');
+    $this->assertContains('foo', $tags->all());
+    $this->assertContains('bar', $tags->all());
 
+    $tags = Tags::create('foo,bar');
+    $this->assertContains('foo', $tags->all());
+    $this->assertContains('bar', $tags->all());
+  }
+
+  public function testConstructorAndCreateWithNoArgs() {
+    $tags = new Tags();
+    $this->assertSame([], $tags->all());
+    $tags = Tags::create();
+    $this->assertSame([], $tags->all());
+  }
+
+  public function testConstructorAndCreateWithNull() {
+    $tags = new Tags(NULL);
+    $this->assertSame([], $tags->all());
+    $tags = Tags::create(NULL);
+    $this->assertSame([], $tags->all());
+  }
+
+  public function testConstructorWithCsvWithMoreThanOneArgThrows() {
+    $this->expectException(\InvalidArgumentException::class);
+    new Tags('foo,bar,baz', 'alpha');
+  }
+
+  public function testCreateFromCsvWithMoreThanOneArgThrows() {
+    $this->expectException(\InvalidArgumentException::class);
+    Tags::create('foo,bar,baz', 'alpha');
   }
 
 }

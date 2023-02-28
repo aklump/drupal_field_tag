@@ -14,6 +14,12 @@ use Drupal\field_tag\Tags;
 /**
  * Defines the Field tag entity.
  *
+ * Create an entity by doing this:
+ *
+ * @code
+ * $field_tag_entity = \Drupal\field_tag\Entity\FieldTag::createFromTags(\Drupal\field_tag\Tags::create('do', 're', 'mi'));
+ * @endcode
+ *
  * @ingroup field_tag
  *
  * @ContentEntityType(
@@ -118,28 +124,21 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    * {@inheritdoc}
    */
   public function getValue(): string {
-    $array = explode(',', $this->tag->value);
-    $tags = new Tags(...$array);
-
-    return strval($tags);
+    return strval(Tags::create($this->tag->value));
   }
 
   /**
    * {@inheritdoc}
    */
   public function getTags(): array {
-    $array = explode(',', $this->tag->value);
-    $tags = new Tags(...$array);
-
-    return $tags->all();
+    return Tags::create($this->tag->value)->all();
   }
 
   /**
    * {@inheritdoc}
    */
   public function hasTag(string $tag, bool $use_regex = FALSE): bool {
-    $array = explode(',', $this->tag->value);
-    $tags = new Tags(...$array);
+    $tags = new Tags($this->tag->value);
     if ($use_regex) {
       return count($tags->match($tag)) > 0;
     }
@@ -151,13 +150,10 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    * {@inheritdoc}
    */
   public function matchTags(string $regex): array {
-    return array_filter(array_map(function ($tag_value) use ($regex) {
-      if (!preg_match($regex, $tag_value, $matches)) {
-        return NULL;
-      }
+    $matches = [];
+    Tags::create($this->tag->value)->match($regex, $matches);
 
-      return $matches;
-    }, $this->getTags()));
+    return $matches;
   }
 
   /**
@@ -202,20 +198,27 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
   }
 
   /**
+   * Create a new entity from a Tags instance.
+   *
+   * @param \Drupal\field_tag\Tags $tags
+   *
+   * @return \Drupal\field_tag\Entity\FieldTag
+   */
+  public static function createFromTags(Tags $tags): FieldTag {
+    return static::create(['tag' => strval($tags)]);
+  }
+
+  /**
    * @inheritDoc
    */
   public function addTag(string $tag): FieldTagInterface {
-    $array = explode(',', $this->tag->value);
-    $tags = new Tags(...$array);
-    $tags->add($tag);
-    $this->tag->value = strval($tags);
+    $this->tag->value = strval(Tags::create($this->tag->value)->add($tag));
 
     return $this;
   }
 
   public function removeTag(string $tag): FieldTagInterface {
-    $array = explode(',', $this->tag->value);
-    $tags = new Tags(...$array);
+    $tags = new Tags($this->tag->value);
     $this->tag->value = (string) $tags->filter(function (string $item) use ($tag) {
       return $item !== $tag;
     });
