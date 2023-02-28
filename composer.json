@@ -1,6 +1,13 @@
 {
-    "license": "GPL-2.0-or-later",
-    "require-dev": {
-        "aklump/manual-test": "^1.2"
+  "license": "GPL-2.0-or-later",
+  "require-dev": {
+    "aklump/manual-test": "^1.2",
+    "phpunit/phpunit": "^9.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Drupal\\field_tag\\": "src",
+      "Drupal\\Tests\\field_tag\\Unit\\": "tests/src/Unit"
     }
+  }
 }

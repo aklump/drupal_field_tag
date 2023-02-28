@@ -66,9 +66,8 @@ class FieldTagService {
       $query->condition('field_name', $field_name);
     }
     $ids = $query->execute();
-    $entities = $ids ? $storage->loadMultiple($ids) : [];
 
-    return $entities;
+    return $ids ? $storage->loadMultiple($ids) : [];
   }
 
   /**

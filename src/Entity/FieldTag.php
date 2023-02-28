@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\field_tag\Tags;
 
 /**
  * Defines the Field tag entity.
@@ -117,36 +118,33 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    * {@inheritdoc}
    */
   public function getValue(): string {
-    return trim($this->tag->value, ', ');
+    $array = explode(',', $this->tag->value);
+    $tags = new Tags(...$array);
+
+    return strval($tags);
   }
 
   /**
    * {@inheritdoc}
    */
   public function getTags(): array {
-    $value = $this->getValue();
-    if (empty($value)) {
-      return [];
-    }
+    $array = explode(',', $this->tag->value);
+    $tags = new Tags(...$array);
 
-    return array_filter(array_map('trim', explode(',', $this->getValue() . ',')));
+    return $tags->all();
   }
 
   /**
    * {@inheritdoc}
    */
   public function hasTag(string $tag, bool $use_regex = FALSE): bool {
+    $array = explode(',', $this->tag->value);
+    $tags = new Tags(...$array);
     if ($use_regex) {
-      foreach ($this->getTags() as $tag_value) {
-        if (preg_match($tag, $tag_value)) {
-          return TRUE;
-        }
-      }
-
-      return FALSE;
+      return count($tags->match($tag)) > 0;
     }
 
-    return in_array(strtolower($tag), array_map('strtolower', $this->getTags()));
+    return $tags->has($tag);
   }
 
   /**
@@ -200,25 +198,27 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    * {@inheritdoc}
    */
   public function __toString() {
-    return (string) $this->tag->value;
+    return $this->getValue();
   }
 
   /**
    * @inheritDoc
    */
   public function addTag(string $tag): FieldTagInterface {
-    $tags = $this->getTags();
-    $tags[] = $tag;
-    $this->tag->value = implode(',', array_unique($tags));
+    $array = explode(',', $this->tag->value);
+    $tags = new Tags(...$array);
+    $tags->add($tag);
+    $this->tag->value = strval($tags);
 
     return $this;
   }
 
   public function removeTag(string $tag): FieldTagInterface {
-    $tags = array_filter($this->getTags(), function ($item) use ($tag) {
+    $array = explode(',', $this->tag->value);
+    $tags = new Tags(...$array);
+    $this->tag->value = (string) $tags->filter(function (string $item) use ($tag) {
       return $item !== $tag;
     });
-    $this->tag->value = implode(',', $tags);
 
     return $this;
   }

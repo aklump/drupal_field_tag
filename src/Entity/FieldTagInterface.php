@@ -50,13 +50,15 @@ interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterfa
   public function hasTag(string $tag, bool $use_regex = FALSE): bool;
 
   /**
-   * Return all tags that match a given regex expression.
+   * Return preg_match results after applying a pattern against all tags.
    *
    * @param string $regex
-   *   The regex expression including delimiters/modifers, e.g. "/.+/i".
+   *   The regex expression including delimiters/modifiers, e.g. "/.+/i".
    *
    * @return array
    *   Any tags that match the expression $regex.
+   *
+   * @see \Drupal\field_tag\Entity\FieldTagInterface::hasTag('foo', TRUE)
    */
   public function matchTags(string $regex): array;
 
