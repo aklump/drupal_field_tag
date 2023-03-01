@@ -7,6 +7,42 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ## Todo
 
 - When field_tag_paragraph processes an item, redirect to the node edit form to immediately begin editing.
+- Replace the need for attachTags with a hook like: hook_entity_storage_load() or hook_entity_field_values_init()
+
+## [0.4.0] - 2023-03-01
+
+### Added
+
+- lorem
+
+### Changed
+
+- The `\Drupal\field_tag\Event\TagEvent` now delivers an instance of FieldTag that has only the added or removed tags. You will most likely **need to update your event handlers**. Here is an example of a diff.
+
+```
+- if ('some_tag' === $event->getTag()) {
++ if ($event->getFieldTag()->hasTag('some_tag')) {
+```
+
+### Deprecated
+
+- `\Drupal\field_tag\FieldTagService::normalizeFieldTagValue`. Use `implode(', ', \Drupal\field_tag\Tags::create($value)->all());`
+- `\Drupal\field_tag\FieldTagService::doesEntityUseFieldTags`. Use `\Drupal\field_tag\FieldTagService::getTaggedFieldDefinitionsByEntity()` cast to boolean
+- `\Drupal\field_tag\FieldTagService::getFieldTagsAsArray`. Use `Tags::create($value)->all()` instead.
+- `\Drupal\field_tag\Event\TagEvent::getEntity` use `\Drupal\field_tag\Event\TagEvent::getFieldTag->getParentEntity()` instead.
+- `\Drupal\field_tag\Event\TagEvent::getTag` use `\Drupal\field_tag\Event\TagEvent::getFieldTag()->getValue()` instead.
+
+### Removed
+
+- lorem
+
+### Fixed
+
+- lorem
+
+### Security
+
+- lorem
 
 ## [0.3.0] - 2022-02-09
 

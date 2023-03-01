@@ -28,7 +28,7 @@ class FieldTagParagraphs {
   /**
    * @var \Drupal\field_tag\FieldTagService
    */
-  protected $fieldTag;
+  protected $fieldTagService;
 
   /**
    * @var \Drupal\Core\Messenger\MessengerInterface
@@ -58,7 +58,7 @@ class FieldTagParagraphs {
     ModuleHandlerInterface $module_handler
   ) {
     $this->entityTypeManager = $entity_type_manager;
-    $this->fieldTag = $field_tag_service;
+    $this->fieldTagService = $field_tag_service;
     $this->messenger = $messenger;
     $this->entityTypeBundleInfo = $entity_type_bundle_info;
     $this->moduleHandler = $module_handler;
@@ -80,7 +80,7 @@ class FieldTagParagraphs {
     }
 
     foreach ($items as $delta => $item) {
-      $tags = $item->field_tag ?? $this->fieldTag->normalizeItemFieldTag($item);
+      $tags = $item->field_tag ?? $this->fieldTagService->normalizeItemFieldTag($item);
       if (empty($tags)) {
         continue;
       }
@@ -165,7 +165,7 @@ class FieldTagParagraphs {
     if (!$items->get($delta)) {
       return;
     }
-    $foo = $this->fieldTag->normalizeItemFieldTag($items->get($delta));
+    $foo = $this->fieldTagService->normalizeItemFieldTag($items->get($delta));
     $foo = strval(FieldTag::create(['tag' => $foo])->removeTag($original_tag));
     $items->get($delta)->set('field_tag', $foo);
   }

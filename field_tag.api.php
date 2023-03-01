@@ -7,21 +7,28 @@
 
 // There are two classes to consider when working with field tags.  The
 // low-level class \Drupal\field_tag\Tags is purely utilitarian and has no
-// dependencies and may be more intuitive in some cases.  The other class, which
-// represents the FieldTag entity is \Drupal\field_tag\Entity\FieldTag and
-// should also be taken into account.
+// dependencies and may be more intuitive in some cases; it has not concept of
+// parent entity.  The other class, which represents the FieldTag entity is
+// \Drupal\field_tag\Entity\FieldTag and should also be taken into account.
 
 /**
- * Create a field tag object by string
+ * Create a field tag object attached to a parent entity.
  */
-$instance = \Drupal\field_tag\Entity\FieldTag::createFromTags(\Drupal\field_tag\Tags::create('foo,bar'));
-TRUE === $instance->hasTag('foo');
+$instance = \Drupal\field_tag\Entity\FieldTag::createFromTags(
+  \Drupal\field_tag\Tags::create('foo,bar'),
+  $parent_entity,
+  'field_foo',
+);
 
 /**
  * Create a field tag object by array
  */
 $array_of_tags = ['foo', 'bar'];
-$instance = \Drupal\field_tag\Entity\FieldTag::createFromTags(\Drupal\field_tag\Tags::create(...$array_of_tags));
+$instance = \Drupal\field_tag\Entity\FieldTag::createFromTags(
+  \Drupal\field_tag\Tags::create(...$array_of_tags),
+  $parent_entity,
+  'field_foo',
+);
 TRUE === $instance->hasTag('foo');
 
 /**
@@ -61,7 +68,7 @@ $value = $field_tag_entity->getValue();
 $value = (string) $field_tag_entity;
 
 // Get an array of tags split by CSV.
-$tags = $field_tag_entity->getTags();
+$tags = $field_tag_entity->all();
 
 /**
  * Second approach, first attach all tags to parent, then manipulate.
@@ -73,7 +80,7 @@ $tags = $field_tag_entity->getTags();
 foreach ($entity->get('field_images') as $item) {
   if ($field_tag_entity = $item->fieldTag) {
     $has_tag = $field_tag_entity->hasTag();
-    $tags = $field_tag_entity->getTags();
+    $tags = $field_tag_entity->all();
     $value = $field_tag_entity->getValue();
   }
 }
@@ -141,7 +148,7 @@ $field_tag_entities = $this->service('field_tag')
 
 // Then merge them into a single array of single tag strings.
 $tags = array_flatten(array_map(function ($field_tag) {
-  return $field_tag->getTags();
+  return $field_tag->all();
 }, $field_tag_entities));
 
 // Now we want to get the first tag that begins with '#', so we can use that to

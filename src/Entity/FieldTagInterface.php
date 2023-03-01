@@ -4,6 +4,7 @@ namespace Drupal\field_tag\Entity;
 
 use Drupal\Core\Entity\ContentEntityInterface;
 use Drupal\Core\Entity\EntityChangedInterface;
+use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Provides an interface for defining Field tag entities.
@@ -18,7 +19,22 @@ interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterfa
    * @return \Drupal\Core\Entity\EntityInterface||null
    *   The parent entity.
    */
-  public function getParentEntity();
+  public function getParentEntity(): ?EntityInterface;
+
+  public function getFieldName(): string;
+
+  public function getDelta(): int;
+
+  public function setDelta(int $delta): FieldTagInterface;
+
+  /**
+   * Return the referenced entity when available.
+   *
+   * This will only return an if the field is a entity reference field; that is to say it has `target_id` as a value key.
+   *
+   * @return ?\Drupal\Core\Entity\EntityInterface
+   */
+  public function getTargetEntity(): ?EntityInterface;
 
   /**
    * Return the tag value.
@@ -29,18 +45,23 @@ interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterfa
   public function getValue(): string;
 
   /**
+   * @deprecated
+   */
+  public function getTags(): array;
+
+  /**
    * Return an array by splitting the value of the field_tag.
    *
    * @return array
    *   The split value of field_tag.
    */
-  public function getTags(): array;
+  public function all(): array;
 
   /**
    * Determine if a tag exists in the current value.
    *
    * @param string $tag
-   *   The tag value to search for in getTags().
+   *   The tag value to search for in all().
    * @param bool $use_regex
    *   Treat $tag as a regex expression to match.  Defaults false.
    *
@@ -72,6 +93,9 @@ interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterfa
    * @return $this
    *   Self for chaining.
    */
-  public function addTag(string $tag): self;
+  public function addTag(string $tag): FieldTagInterface;
 
+  public function setValue(string $value): FieldTagInterface;
+
+  public function removeTag(string $tag): FieldTagInterface;
 }

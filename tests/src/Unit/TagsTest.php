@@ -13,6 +13,35 @@ use Drupal\field_tag\Tags;
  */
 final class TagsTest extends TestCase {
 
+  public function testSortMixedCase() {
+    $tags = new Tags('BRAVO', 'alpha', 'Chocolate', 'cHarlie');
+    $this->assertSame('alpha,BRAVO,cHarlie,Chocolate', (string) $tags->sort());
+  }
+
+  public function testSort() {
+    $tags = new Tags('do', 're', 'mi');
+    $this->assertSame('do,re,mi', (string) $tags);
+    $this->assertSame('do,mi,re', (string) $tags->sort());
+  }
+
+  public function testDiffMultiple() {
+    $diff = Tags::create('red,orange,yellow,green,blue,purple')
+      ->diff(Tags::create('red'), Tags::create('green'), Tags::create('blue'));
+    $this->assertNotContains('red', $diff->all());
+    $this->assertContains('orange', $diff->all());
+    $this->assertContains('yellow', $diff->all());
+    $this->assertNotContains('green', $diff->all());
+    $this->assertNotContains('blue', $diff->all());
+    $this->assertContains('purple', $diff->all());
+  }
+
+  public function testDiff() {
+    $diff = Tags::create('red', 'white', 'blue')->diff(Tags::create('red'));
+    $this->assertNotContains('red', $diff->all());
+    $this->assertContains('white', $diff->all());
+    $this->assertContains('blue', $diff->all());
+  }
+
   public function testMatchWithMatchesVariable() {
     $tags = new Tags('chapter1--page3', 'chapter1--page2', 'chapter5--page9');
     $matches = [];

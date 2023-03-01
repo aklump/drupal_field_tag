@@ -134,13 +134,32 @@ final class Tags implements Countable {
    * @return \Drupal\field_tag\Tags
    *   A new instance
    */
-  public function merge(Tags ...$tag_set): self {
+  public function merge(Tags ...$tag_set): Tags {
     $merged = $this->all();
     foreach ($tag_set as $tags) {
       $merged = array_merge($tags->all(), $merged);
     }
 
     return new Tags(...$merged);
+  }
+
+  /**
+   * Get a new instance with only unique tags not found in other instances.
+   *
+   * @param \Drupal\field_tag\Tags ...$tag_set
+   *
+   * @return \Drupal\field_tag\Tags
+   *   An new instance with only those tags unique to this instance, and not
+   *   present in any of $tag_set arguments.
+   */
+  public function diff(Tags ...$tag_set): Tags {
+    $diff = array_map(function (Tags $tags) {
+      return $tags->all();
+    }, func_get_args());
+    array_unshift($diff, $this->all());
+    $diff = array_diff(...$diff);
+
+    return new Tags(...$diff);
   }
 
   /**
@@ -171,6 +190,21 @@ final class Tags implements Countable {
    */
   public function count(): int {
     return count($this->tags);
+  }
+
+  /**
+   * Get an alphabetized (ignoring case) instance
+   *
+   * @return \Drupal\field_tag\Tags
+   *   A new instance with the tags sorted alphabetically.
+   */
+  public function sort(): Tags {
+    $all = $this->all();
+    usort($all, function ($a, $b) {
+      return strcasecmp($a, $b);
+    });
+
+    return new Tags(...$all);
   }
 
   /**

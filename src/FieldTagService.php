@@ -44,33 +44,37 @@ class FieldTagService {
   }
 
   /**
-   * Return an array of FieldTag entities by parent entity.
+   * Return an array of FieldTag entities by parent entity from storage.
    *
    * @param \Drupal\Core\Entity\EntityInterface $parent
    *   The parent entity.
    * @param string|null $field_name
-   *   Optionally, only for this field on $parent.
+   *   Optionally, pass a field name to limit tags to that field only.
    *
-   * @return array|\Drupal\Core\Entity\EntityInterface[]
-   *   An array of field_tag entities attached to $parent.
-   *
-   * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
-   * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
+   * @return \Drupal\field_tag\Entity\FieldTag[]
+   *   An array of field_tag entities attached to $parent.  Keys are irrelevant.
    */
-  public function getAllFieldTagsByParent(EntityInterface $parent, string $field_name = NULL) {
-    $storage = $this->entityTypeManager
-      ->getStorage('field_tag');
-    $query = $storage
-      ->getQuery()
-      ->condition('deleted', 0)
-      ->condition('parent_entity', $parent->getEntityTypeId())
-      ->condition('parent_id', $parent->id());
-    if ($field_name) {
-      $query->condition('field_name', $field_name);
+  public function getAllFieldTagsByParent(EntityInterface $parent, string $field_name = NULL): array {
+    try {
+      $storage = $this->entityTypeManager->getStorage('field_tag');
+      $query = $storage
+        ->getQuery()
+        ->condition('deleted', 0)
+        ->condition('parent_entity', $parent->getEntityTypeId())
+        ->condition('parent_id', $parent->id());
+      if ($field_name) {
+        $query->condition('field_name', $field_name);
+      }
+      $ids = $query->execute();
+      if (!empty($ids)) {
+        return array_values($storage->loadMultiple($ids));
+      }
     }
-    $ids = $query->execute();
+    catch (\Exception $exception) {
+      watchdog_exception('field_tag', $exception);
+    }
 
-    return $ids ? $storage->loadMultiple($ids) : [];
+    return [];
   }
 
   /**
@@ -86,7 +90,7 @@ class FieldTagService {
    * $entity->field_tag_attached = false before calling this method.
    *
    * If you want to have tags attached automatically to entities on load then
-   * you should implement hook_entity_load and call this method as desired.a
+   * you should implement hook_entity_load and call this method as desired.
    *
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *   The parent entity to attach to.
@@ -106,9 +110,9 @@ class FieldTagService {
     }
     $tags = $this->getAllFieldTagsByParent($this->entity);
     foreach ($tags as $tag) {
-      $field_name = $tag->get('field_name')->value;
+      $field_name = $tag->getFieldName();
       if ($this->entity->hasField($field_name)) {
-        $delta = $tag->get('delta')->value;
+        $delta = $tag->getDelta();
         if (($item = $this->entity->get($field_name)->get($delta))) {
           $item->fieldTag = $tag;
         }
@@ -132,6 +136,8 @@ class FieldTagService {
    * @return \Drupal\Core\Field\FieldItemInterface[]
    *   The items in $field_name tagged by $tag or [].  The keys are going to
    *   match the item list delta.
+   *
+   * // TODO Consider passing in $entity and doing away with $this->entity; then the service can be shared.
    */
   public function getItemsTaggedBy(string $tag, string $field_name): array {
     if (is_null($this->entity)) {
@@ -155,10 +161,12 @@ class FieldTagService {
         // that the unsaved version is more correct, so we should also use
         // field_tag.  In effect, we should use 'field_tag' over using
         // 'fieldTag', when it's present.
-        if (array_key_exists('field_tag', $item->getValue())) {
-          $item_tag = $this->normalizeItemFieldTag($item);
-          if ($item_tag !== NULL
-            && Tags::create($item_tag)->has($tag)) {
+        $value = $item->getValue();
+        if (array_key_exists('field_tag', $value)) {
+
+          // Keep this as a nested IF because we want to always use "field_tag"
+          // if the key is present and NOT fieldTag in such cases.
+          if (Tags::create($value['field_tag'])->has($tag)) {
             $items[$delta] = $item;
           }
         }
@@ -191,11 +199,12 @@ class FieldTagService {
       return NULL;
     }
 
-    return $this->normalizeFieldTagValue($item['field_tag']);
+    return implode(', ', Tags::create($item['field_tag'])
+      ->all());
   }
 
   /**
-   * Normalize a field tag CSV list.
+   * Normalize a field tag CSV list using ", " (quotes excluded).
    *
    * @param string $value
    *   The field tag value, a CSV string.
@@ -203,11 +212,22 @@ class FieldTagService {
    * @return string
    *   The normalized string with duplicate tags removed; leading/trailing
    *   commas removed, and spaces inserted after each comma.
+   *
+   * @deprecated  Use the following instead:
+   *
+   * If you wish to have ", " separation then do this:
+   * @code
+   * $normalized_value = implode(', ', \Drupal\field_tag\Tags::create($value)->all());
+   * @endcode
+   *
+   * Otherwise for CSV, do this:
+   *
+   * @code
+   * $normalized_value = (string) \Drupal\field_tag\Tags::create($value);
+   * @endcode
    */
   public function normalizeFieldTagValue(string $value) {
-    $value = $this->getFieldTagsAsArray($value);
-
-    return implode(', ', $value);
+    return implode(', ', Tags::create($value)->all());
   }
 
   /**
@@ -218,6 +238,8 @@ class FieldTagService {
    *
    * @return array
    *   An array of unique tags as indicated by $value.
+   *
+   * @deprecated Use `\Drupal\field_tag\Tags::create($value)->all()` instead.
    */
   public function getFieldTagsAsArray(string $value): array {
     $value = explode(',', $value);
@@ -307,6 +329,8 @@ class FieldTagService {
    *
    * @return bool
    *   True if any of the entity's fields have field_tags enabled.
+   *
+   * @deprecated Use \Drupal\field_tag\FieldTagService::getTaggedFieldDefinitionsByEntity() cast to boolean instead.
    */
   public function doesEntityUseFieldTags(EntityInterface $entity) {
     if ($entity instanceof FieldableEntityInterface) {
@@ -314,6 +338,39 @@ class FieldTagService {
     }
 
     return FALSE;
+  }
+
+  /**
+   * @param \Drupal\Core\Entity\EntityInterface $entity
+   *
+   * @return \Drupal\field\FieldConfigInterface[]
+   *   An indexed array of field definitions.
+   */
+  public function getTaggedFieldDefinitionsByEntity(EntityInterface $entity): array {
+    if ('field_tag' === $entity->getEntityTypeId() || !$entity instanceof FieldableEntityInterface) {
+      return [];
+    }
+
+    $cid = $entity->getEntityTypeId() . '.' . $entity->bundle();
+    static $index;
+    if (isset($index[$cid])) {
+      return $index[$cid];
+    }
+
+    $field_definitions = $this->entityFieldManager
+      ->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
+    $index[$cid] = [];
+    foreach ($field_definitions as $field_definition) {
+      if (!$field_definition instanceof \Drupal\field\FieldConfigInterface) {
+        continue;
+      }
+      $settings = $field_definition->getThirdPartySettings('field_tag');
+      if ($settings['enabled'] ?? FALSE) {
+        $index[$cid][] = $field_definition;
+      }
+    }
+
+    return $index[$cid];
   }
 
 }

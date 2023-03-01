@@ -2,16 +2,19 @@
 
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Render\Element;
-use Drupal\field\Entity\FieldConfig;
-use Drupal\field_tag\Entity\FieldTag;
+use Drupal\field\FieldConfigInterface;
+use Drupal\field_tag\Entity\FieldTagInterface;
 use Drupal\field_tag\Event\FieldTagEvents;
 use Drupal\field_tag\Event\TagEvent;
+use Drupal\field_tag\FieldStorageHandler;
 use Drupal\field_tag\Plugin\migrate\source\FieldTagContentEntity;
-use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
+use Drupal\field_tag\Tags;
+use Drupal\field_tag\WidgetHandler;
 
+const FIELD_TAG_DEFAULT_LABEL = 'Tags';
 
 /**
  * Provide information about field tags and their groups.
@@ -30,42 +33,37 @@ use Drupal\file\Plugin\Field\FieldType\FileFieldItemList;
  *   your field tag is not a constant, then you should include this as it will
  *   help to clean up the documentation.
  */
-function field_tag_tags_info() {
-  $tags_info = &drupal_static(__METHOD__, NULL);
+function field_tag_tags_info(): array {
+  $tags_info = &drupal_static(__METHOD__);
   if (!is_null($tags_info)) {
     return $tags_info;
   }
 
-  if (0 && ($cache = \Drupal::cache()->get('field_tag:tags_info'))) {
-    $tags_info = $cache->data;
-
-    return $tags_info;
+  if (($cache = Drupal::cache()->get('field_tag:tags_info'))) {
+    return $cache->data;
   }
 
-  $module_handler = \Drupal::moduleHandler();
+  $module_handler = Drupal::moduleHandler();
   $tags_info = $module_handler->invokeAll('field_tag_tags_info');
 
-  $field_tag_service = \Drupal::service('field_tag');
-  $stored = \Drupal::database()
+  $stored = Drupal::database()
     ->select('field_tag')
     ->distinct()
     ->fields('field_tag', ['tag'])
     ->execute()
     ->fetchCol();
-  $stored = array_map(function ($field_tag_value) use ($field_tag_service) {
-    return $field_tag_service->getFieldTagsAsArray($field_tag_value);
-  }, $stored);
-  $field_tags_in_use = [];
-  foreach ($stored as $tags) {
-    $field_tags_in_use = array_merge($field_tags_in_use, array_map('trim', $tags));
+
+  $field_tags_in_use = Tags::create();
+  foreach ($stored as $item) {
+    $field_tags_in_use = $field_tags_in_use->merge(Tags::create($item));
   }
-  $field_tags_in_use = array_unique($field_tags_in_use);
-  $field_tags_documented = [];
+
+  $field_tags_documented = Tags::create();
 
   if (!empty($tags_info['tags'])) {
     foreach ($tags_info['tags'] as $tags) {
       foreach ($tags as $tag) {
-        $field_tags_documented[] = $tag['tag'];
+        $field_tags_documented->add($tag['tag']);
       }
     }
 
@@ -100,19 +98,19 @@ function field_tag_tags_info() {
   };
 
 
-  $list = array_diff($field_tags_documented, $field_tags_in_use);
+  $list = $field_tags_documented->diff($field_tags_in_use)->all();
   $handler($list, 'unused', [
     'name' => t('Unused'),
   ]);
 
-  $list = array_diff($field_tags_in_use, $field_tags_documented);
+  $list = $field_tags_in_use->diff($field_tags_documented)->all();
   $handler($list, 'undocumented', [
     'name' => t('Undocumented'),
     'description' => t('These tags are used, but not documented.'),
   ]);
 
   $module_handler->alter('field_tag_tags_info', $tags_info);
-  \Drupal::cache()
+  Drupal::cache()
     ->set('field_tag:tags_info', $tags_info, CacheBackendInterface::CACHE_PERMANENT, ['field_tag_list']);
 
   return $tags_info;
@@ -123,11 +121,15 @@ function field_tag_tags_info() {
  * Implements hook_form_FORM_ID_form_alter().
  */
 function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInterface $form_state) {
-  $field = $form_state->getFormObject()->getEntity();
+  $form_object = $form_state->getFormObject();
+  if (!method_exists($form_object, 'getEntity')) {
+    return;
+  }
+  $field = $form_object->getEntity();
   $settings = $field->getThirdPartySettings('field_tag');
   $settings += [
     'enabled' => FALSE,
-    'title' => t('Tags'),
+    'title' => t(FIELD_TAG_DEFAULT_LABEL),
     'description' => '',
     'placeholder' => '',
     'weight' => 10,
@@ -187,67 +189,28 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
 }
 
 function field_tag_field_widget_complete_form_alter(&$field_widget_complete_form, FormStateInterface $form_state, $context) {
-  $field_definition = $context['items']->getFieldDefinition();
-  if (!$field_definition instanceof FieldConfig) {
+  $widget = new WidgetHandler(
+    $form_state,
+    $context,
+    Drupal::currentUser()
+  );
+
+  if (!$widget->access()->isAllowed()) {
     return;
   }
-  $settings = $field_definition->getThirdPartySettings('field_tag');
-  if (empty($settings['enabled'])) {
-    return;
-  }
-  if (!\Drupal::currentUser()->hasPermission('access field tag inputs')) {
-    return;
-  }
 
-  $field_tag_service = \Drupal::service('field_tag');
 
-  $entity = $context['items']->getParent();
-  if ($entity) {
-    $entity = $context['items']->getParent()->getEntity();
-  }
-  $field_name = $field_definition->getName();
+  $values = $widget->getValues();
 
-  $values = $form_state->getValue($field_name);
-  if ($values) {
-    $max_delta = max(array_keys($values));
-  }
-
-  $values = [];
-  foreach ($context['items'] as $delta => $item) {
-    if (isset($max_delta) && $delta > $max_delta) {
-
-      // This is important to make sure that we do not leave orphaned field tag
-      // entities in the database.
-      $entity->field_tag_sync[] = $field_name;
+  // Add the field tag input to all items in the field when there is a $value
+  // set.  The value will only be set on items that have values, so the final
+  // file item will not.
+  foreach (Element::children($field_widget_complete_form['widget']) as $delta) {
+    if (!is_numeric($delta) || !array_key_exists($delta, $values)) {
       continue;
     }
-    $stored_tag = '';
-    if ($entity) {
-      $stored_tag = FieldTag::loadByParentField($entity, $field_name, $delta)
-        ->getValue();
-    }
-    $values[$delta] = $item->field_tag ?? $stored_tag;
-    if ($values[$delta]) {
-      $values[$delta] = $field_tag_service->normalizeFieldTagValue($values[$delta]);
-    }
-
-    // We have to attach this also to the item so it passes through correctly in
-    // all situations.
-    $context['items'][$delta]->field_tag = $values[$delta];
-  }
-
-  // Add the field tag input to all items in the field.
-  foreach (Element::children($field_widget_complete_form['widget']) as $delta) {
     $element = &$field_widget_complete_form['widget'][$delta];
-
-    // In some widgets this should not be shown under certain circumstances,
-    // e.g., a file field that has no files attached yet, should be seeing the
-    // tagging input yet.  Only after it has a file.
-    $access = TRUE;
-    if ($context['items'] instanceof FileFieldItemList) {
-      $access = !empty($element['#default_value']['fids']);
-    }
-
+    $settings = $widget->getSettings();
     $element['field_tag'] = [
       '#weight' => $settings['weight'],
       '#type' => 'textfield',
@@ -257,7 +220,6 @@ function field_tag_field_widget_complete_form_alter(&$field_widget_complete_form
       '#description' => $settings['description'] ?? '',
       '#default_value' => $values[$delta] ?? '',
       '#attributes' => ['class' => ['field-tag']],
-      '#access' => $access,
     ];
   }
 }
@@ -271,115 +233,84 @@ function field_tag_entity_insert(EntityInterface $entity) {
 
 /**
  * Implements hook_entity_update().
- *
- * This may synchronize field tags for the entity.  This will only happen under
- * certain conditions:
- *  - if $entity->field_tag_sync contains the field name.
  */
-function field_tag_entity_update(EntityInterface $entity) {
-
-  // Ignore processing of certain entity types.
-  if (!$entity instanceof FieldableEntityInterface
-    || $entity->getEntityTypeId() === 'field_tag') {
+function field_tag_entity_update(EntityInterface $parent) {
+  if ('field_tag' === $parent->getEntityTypeId()) {
     return;
   }
 
-  $field_tag_service = \Drupal::service('field_tag');
-  $field_tag_storage = \Drupal::entityTypeManager()->getStorage('field_tag');
+  /** @var \Drupal\field_tag\FieldTagService $field_tag_service */
+  $field_tag_service = Drupal::service('field_tag');
+  $fields = $field_tag_service->getTaggedFieldDefinitionsByEntity($parent);
+  if (count($fields) === 0) {
+    return;
+  }
 
-  foreach ($entity->getFieldDefinitions() as $field_name => $field_definition) {
+  $dispatcher = Drupal::service('event_dispatcher');
+  $storage_handler = new FieldStorageHandler();
 
-    // Only fields that have field tagging enabled are processed.
-    // TODO This may be giving a false positive.  Take a look at \field_tag_form_node_form_alter.  There we are actually checking for if ($settings['enabled']).
-    if (!$field_definition instanceof FieldConfig
-      || !$field_definition->getThirdPartySettings('field_tag')) {
+  foreach ($fields as $field) {
+    $list = $parent->get($field->getName());
+    if (!$list instanceof FieldItemListInterface) {
       continue;
     }
+    $pending_actions = $storage_handler->getStorageActions($list);
+    foreach ($pending_actions as $pending_action) {
+      switch ($pending_action['action']) {
+        case FieldStorageHandler::ACTION_DELETE:
+          $pending_action['fieldTag']->delete();
+          break;
 
-    // Determine if we should remove all tags for all items on this field first.
-    // This is indicated by assigning a field name as an array element on
-    // $entity->field_tag_sync.  This happens in
-    // field_tag_field_widget_form_alter or could be done by a developer in
-    // custom code.
-    $deleted_values = [];
-    $should_sync = in_array($field_name, $entity->field_tag_sync ?? []);
-    if ($should_sync) {
-      $field_tag_instances_to_delete = $field_tag_service
-        ->getAllFieldTagsByParent($entity, $field_name);
-      if ($field_tag_instances_to_delete) {
-        $deltas = array_map(function ($field_tag) {
-          return $field_tag->delta->value;
-        }, $field_tag_instances_to_delete);
-        $deleted_values = array_combine($deltas, array_map('strval', $field_tag_instances_to_delete));
-        $field_tag_storage->delete($field_tag_instances_to_delete);
+        case FieldStorageHandler::ACTION_SAVE:
+          $pending_action['fieldTag']->save();
+          break;
       }
+
+      foreach ($pending_action['events'] as $type => $tags) {
+        $context = clone $pending_action['fieldTag'];
+        $context->setValue($tags);
+        $dispatcher->dispatch($type, new TagEvent($context));
+      }
+
     }
 
-    // Now go through and save any data that is present as `field_tag`.
-    foreach ($entity->{$field_name} as $delta => $item) {
+    $field_tag_service->attachTags($parent);
 
-      // fieldTag instances get detached on save.
+    // fieldTag instances get detached from the parent entities during the CRUD
+    // operations.  They will not always be present, but this will ensure
+    // normalization.
+    // @see \Drupal\field_tag\FieldTagService::attachTags()
+    foreach ($list as $item) {
       unset($item->fieldTag);
-
-      // We will only perform a field tag entity save if `field_tag` is
-      // present on this field item.
-      $new_tag_value = $field_tag_service->normalizeItemFieldTag($item);
-      if (is_null($new_tag_value)) {
-        continue;
-      }
-
-      $field_tag = FieldTag::loadByParentField($entity, $field_name, $delta);
-
-      // Sometimes tags are deleted, if so the original values will have been
-      // captured in $deleted_values first.  Otherwise if they were not deleted,
-      // they were not captured, and they will be present in the $field_tag
-      // instance.
-      $original_tag_value = $deleted_values[$delta] ?? strval($field_tag);
-
-      if (!$new_tag_value) {
-
-        // Delete existing field tags when the new value is empty.
-        if (!$field_tag->isNew()) {
-          $field_tag->delete();
-        }
-      }
-
-      // Save new ones and those whose new value differs from the old.
-      elseif ($field_tag->isNew() || $field_tag->getValue() !== $new_tag_value) {
-        $field_tag->get('tag')->value = $new_tag_value;
-        $field_tag->save();
-      }
-
-      if ($original_tag_value !== $new_tag_value) {
-        if (empty($dispatcher)) {
-          $dispatcher = \Drupal::service('event_dispatcher');
-        }
-        $before = FieldTag::create(['tag' => $original_tag_value]);
-        $after = FieldTag::create(['tag' => $new_tag_value]);
-        $added = array_diff($after->getTags(), $before->getTags());
-        foreach ($added as $tag) {
-          $dispatcher->dispatch(FieldTagEvents::TAG_ADDED, new TagEvent($tag, $entity));
-        }
-        $removed = array_diff($before->getTags(), $after->getTags());
-        foreach ($removed as $tag) {
-          $dispatcher->dispatch(FieldTagEvents::TAG_REMOVED, new TagEvent($tag, $entity));
-        }
-      }
     }
+    unset($parent->field_tag_attached);
   }
 }
 
 /**
  * Implements hook_entity_delete().
  *
- * Deletes tags on entities that get deleted.
+ * For any parent entity being deleting, iterates over and deletes all field tag
+ * entities.  Fires the removal event for the deleted field tags.
  */
 function field_tag_entity_delete(EntityInterface $entity) {
-  if ($entity instanceof FieldableEntityInterface
-    && (($field_tags = \Drupal::service('field_tag')
-      ->getAllFieldTagsByParent($entity)))) {
-    \Drupal::entityTypeManager()
-      ->getStorage('field_tag')->delete($field_tags);
+  $field_tag_service = Drupal::service('field_tag');
+
+  if ($entity instanceof FieldTagInterface) {
+    Drupal::service('event_dispatcher')
+      ->dispatch(FieldTagEvents::TAG_REMOVED, new TagEvent($entity));
+  }
+
+  elseif ($field_tag_service->getTaggedFieldDefinitionsByEntity($entity)) {
+    // Check ::getTaggedFieldDefinitionsByEntity() first because it doesn't
+    // require a db call and if that passes then lookup the field tags
+    // associated with $entity.
+    $field_tags = $field_tag_service->getAllFieldTagsByParent($entity);
+    foreach ($field_tags as $field_tag) {
+      $field_tag->delete();
+      // Note: the event will fire in the recursive call to this function when
+      // $entity is an instance of FieldTagInterface.
+    }
   }
 }
 
@@ -391,7 +322,7 @@ function field_tag_field_storage_config_delete(Drupal\Core\Entity\EntityInterfac
   // exists on the entity and so we mark any tags associated with that field as
   // deleted for better housekeeping.  This flag can be used to prune the
   // entities by developers if they so desire.
-  \Drupal::database()->update('field_tag')
+  Drupal::database()->update('field_tag')
     ->fields(['deleted' => TRUE])
     ->condition('parent_entity', $entity->get('entity_type'))
     ->condition('field_name', $entity->getName())
@@ -405,7 +336,7 @@ function field_tag_field_storage_config_delete(Drupal\Core\Entity\EntityInterfac
 //  }
 //  $form['field_tag_visibility'] = [
 //    '#type' => 'details',
-//    '#title' => t('Tags'),
+//    '#title' => t(FIELD_TAG_DEFAULT_LABEL),
 //    '#attributes' => ['class' => ['node-form-field-tags']],
 //    '#group' => 'advanced',
 //    [
@@ -425,14 +356,14 @@ function field_tag_migrate_source_info_alter(&$info) {
   // to see what entities have tags and then we modify only those classes in the
   // source plugins, so that when those entity types are loaded, the field tags
   // are automatically attached.
-  $entity_types = \Drupal::database()
+  $entity_types = Drupal::database()
     ->select('field_tag', 'ft')
     ->fields('ft', ['parent_entity'])
     ->distinct('parent_entity')
     ->execute()
     ->fetchAllAssoc('parent_entity');
   foreach (array_keys($entity_types) as $entity_type) {
-    $key = "content_entity:{$entity_type}";
+    $key = "content_entity:$entity_type";
     if (isset($info[$key]) && $info[$key]['requirements_met']) {
       $info[$key]['class'] = FieldTagContentEntity::class;
     }
@@ -441,23 +372,36 @@ function field_tag_migrate_source_info_alter(&$info) {
 
 /**
  * Implements hook_entity_extra_field_info().
+ *
+ * @see field_tag_form_node_form_alter()
  */
-function field_tag_entity_extra_field_info() {
+function field_tag_entity_extra_field_info(): array {
   $extra = [];
 
-  if (\Drupal::service('module_handler')->moduleExists('node')) {
-    $node_types = \Drupal::entityTypeManager()
-      ->getStorage('node_type')
-      ->loadMultiple();
+  if (Drupal::service('module_handler')->moduleExists('node')) {
+    try {
+      $node_types = Drupal::entityTypeManager()
+        ->getStorage('node_type')
+        ->loadMultiple();
+    }
+    catch (Exception $exception) {
+      $node_types = [];
+    }
     foreach ($node_types as $node_type) {
 
-      // The key cannot be the module name, because that might be mistaken with
+      // The key(s) cannot be the module name, because that might be mistaken with
       // the field API if a field exists called "field_tag".  This is why we use
       // an underscore in this pseudo-field name.
-      $extra['node'][$node_type->id()]['form']['_field_tag'] = [
+
+      $extra['node'][$node_type->id()]['form']['_field_tag__used'] = [
+        'label' => t('Field tags used'),
+        'description' => t('Display any tags attached to the entity.'),
+        'weight' => 0,
+      ];
+      $extra['node'][$node_type->id()]['form']['_field_tag__types'] = [
         'label' => t('Field tag list'),
         'description' => t('Display available field tags and descriptions.'),
-        'weight' => 50,
+        'weight' => 0,
       ];
     }
   }
@@ -467,25 +411,66 @@ function field_tag_entity_extra_field_info() {
 
 /**
  * Implements hook_form_FORM_ID_alter().
+ *
+ * @see field_tag_entity_extra_field_info()
  */
 function field_tag_form_node_form_alter(array &$form, FormStateInterface $form_state) {
-  $node = $form_state->getFormObject()->getEntity();
-  if (!\Drupal::service('field_tag')->doesEntityUseFieldTags($node)) {
+
+  /** @var \Drupal\Core\Entity\EntityInterface $entity */
+  $entity = $form_state->getFormObject()->getEntity();
+
+  /** @var \Drupal\field_tag\FieldTagService $field_tag_service */
+  $field_tag_service = Drupal::service('field_tag');
+  $definitions = $field_tag_service->getTaggedFieldDefinitionsByEntity($entity);
+  if (!$definitions) {
     return;
+  }
+
+  // Analyze the settings to get the appropriate label to use.
+  $labels = array_map(function (FieldConfigInterface $config) {
+    return $config->getThirdPartySettings('field_tag')['title'] ?? '';
+  }, $definitions);
+  $labels = array_count_values($labels);
+  arsort($labels, SORT_NUMERIC);
+  $label = key($labels);
+  $label = NULL;
+  if (empty($label)) {
+    $label = FIELD_TAG_DEFAULT_LABEL;
+  }
+
+  // Show all that tags attached to this entity.
+  $used = $field_tag_service->getAllFieldTagsByParent($entity);
+  if (count($used)) {
+    $tags_used = new Tags();
+    foreach ($used as $item) {
+      $tags_used = $tags_used->merge(new Tags($item->getValue()));
+    }
+    $form['_field_tag__used'] = [
+      '#type' => 'details',
+      '#title' => t('@label used', [
+        '@label' => $label,
+      ]),
+      '#group' => 'advanced',
+    ];
+    $form['_field_tag__used']['tags'] = [
+      '#markup' => implode(', ', $tags_used->sort()->all()),
+    ];
   }
 
   // Now since field tags are used in this form, we'll proceed to add the
   // details section to the advanced (sidebar) of the page.
-  $form['_field_tag'] = [
+  $form['_field_tag__types'] = [
     '#type' => 'details',
-    '#title' => t('Field tags'),
+    '#title' => t('@label help', [
+      '@label' => $label,
+    ]),
     '#description' => t('When entering multiple tags, separate with a comma.'),
     '#group' => 'advanced',
   ];
 
   $info = field_tag_tags_info();
   foreach (($info['types'] ?? []) as $type_id => $type_info) {
-    $form['_field_tag'][$type_id] = [
+    $form['_field_tag__types'][$type_id] = [
       '#type' => 'fieldset',
       '#title' => $type_info['name'],
       [
@@ -496,12 +481,14 @@ function field_tag_form_node_form_alter(array &$form, FormStateInterface $form_s
       ],
     ];
   }
+
+
 }
 
 /**
  * Implements hook_theme().
  */
-function field_tag_theme($existing, $type, $theme, $path) {
+function field_tag_theme($existing, $type, $theme, $path): array {
   return [
     'field_tag_tags_by_type' => [
       'variables' => [

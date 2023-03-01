@@ -4,6 +4,7 @@ namespace Drupal\field_tag\Plugin\migrate\process;
 
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\field_tag\FieldTagService;
+use Drupal\field_tag\Tags;
 use Drupal\migrate\MigrateException;
 use Drupal\migrate\MigrateExecutableInterface;
 use Drupal\migrate\ProcessPluginBase;
@@ -71,8 +72,7 @@ class FieldTagAdd extends ProcessPluginBase implements ContainerFactoryPluginInt
       throw new MigrateException('Missing configuration key "field_tag"');
     }
 
-    return $this->fieldTagService
-      ->normalizeFieldTagValue($value . ',' . $this->configuration['field_tag']);
+    return strval(Tags::create($value . ',' . $this->configuration['field_tag']));
   }
 
 }

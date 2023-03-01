@@ -139,7 +139,6 @@ It is possible to tag a field when creating and updating an entity programmatica
     $node->field_images->filter(function () {
       return FALSE;
     })->appendItem($item);
-    $node->field_tag_sync[] = 'field_images';
     $node->save();
     
     $query = "select count(*) from ";
