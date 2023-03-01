@@ -146,9 +146,9 @@ $tags = array_flatten(array_map(function ($field_tag) {
 
 // Now we want to get the first tag that begins with '#', so we can use that to
 // render an id attribute.
-$id = array_first(array_filter($tags, function ($tag) {
+$id = array_values(array_filter($tags, function ($tag) {
   return strpos($tag, '#') === 0;
-}));
+}))[0];
 
 
 /**

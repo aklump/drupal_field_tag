@@ -4,6 +4,7 @@ use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element;
 use Drupal\field\Entity\FieldConfig;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\field_tag\Event\FieldTagEvents;
@@ -185,40 +186,59 @@ function field_tag_form_field_config_edit_form_alter(array &$form, FormStateInte
   );
 }
 
-/**
- * Implements hook_field_widget_form_alter().
- */
-function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_state, $context) {
-  if (($field_definition = $context['items']->getFieldDefinition()) instanceof FieldConfig
-    && ($settings = $field_definition->getThirdPartySettings('field_tag'))
-    && ($settings['enabled'] ?? FALSE)) {
+function field_tag_field_widget_complete_form_alter(&$field_widget_complete_form, FormStateInterface $form_state, $context) {
+  $field_definition = $context['items']->getFieldDefinition();
+  if (!$field_definition instanceof FieldConfig) {
+    return;
+  }
+  $settings = $field_definition->getThirdPartySettings('field_tag');
+  if (empty($settings['enabled'])) {
+    return;
+  }
+  if (!\Drupal::currentUser()->hasPermission('access field tag inputs')) {
+    return;
+  }
 
-    // On subsequent submissions, such as an AJAX remove of an item in a item
-    // list, the field tag entity id will be present in context, we have to use
-    // this because the delta is no longer reliable (due to list modification
-    // via AJAX in the form).
-    $item = $context['items']->get($context['delta']);
-    $default_value = \Drupal::service('field_tag')
-      ->normalizeItemFieldTag($item);
+  $field_tag_service = \Drupal::service('field_tag');
 
-    // The first time the form is loaded we have to rely on the delta value to
-    // locate the correct tag for this item.
-    if (is_null($default_value)) {
-      $entity = $context['items']->getParent()->getEntity();
-      $field_name = $field_definition->getName();
+  $entity = $context['items']->getParent();
+  if ($entity) {
+    $entity = $context['items']->getParent()->getEntity();
+  }
+  $field_name = $field_definition->getName();
+
+  $values = $form_state->getValue($field_name);
+  if ($values) {
+    $max_delta = max(array_keys($values));
+  }
+
+  $values = [];
+  foreach ($context['items'] as $delta => $item) {
+    if (isset($max_delta) && $delta > $max_delta) {
 
       // This is important to make sure that we do not leave orphaned field tag
       // entities in the database.
       $entity->field_tag_sync[] = $field_name;
-      $entity->field_tag_sync = array_unique($entity->field_tag_sync);
-
-      $field_tag = FieldTag::loadByParentField($entity, $field_name, $context['delta']);
-      $default_value = (string) $field_tag;
+      continue;
+    }
+    $stored_tag = '';
+    if ($entity) {
+      $stored_tag = FieldTag::loadByParentField($entity, $field_name, $delta)
+        ->getValue();
+    }
+    $values[$delta] = $item->field_tag ?? $stored_tag;
+    if ($values[$delta]) {
+      $values[$delta] = $field_tag_service->normalizeFieldTagValue($values[$delta]);
     }
 
     // We have to attach this also to the item so it passes through correctly in
     // all situations.
-    $context['items']->get($context['delta'])->field_tag = $default_value;
+    $context['items'][$delta]->field_tag = $values[$delta];
+  }
+
+  // Add the field tag input to all items in the field.
+  foreach (Element::children($field_widget_complete_form['widget']) as $delta) {
+    $element = &$field_widget_complete_form['widget'][$delta];
 
     // In some widgets this should not be shown under certain circumstances,
     // e.g., a file field that has no files attached yet, should be seeing the
@@ -235,10 +255,9 @@ function field_tag_field_widget_form_alter(&$element, FormStateInterface $form_s
       '#title' => $settings['title'],
       '#placeholder' => $settings['placeholder'] ?? '',
       '#description' => $settings['description'] ?? '',
-      '#default_value' => $default_value,
+      '#default_value' => $values[$delta] ?? '',
       '#attributes' => ['class' => ['field-tag']],
-      '#access' => $access && \Drupal::currentUser()
-          ->hasPermission('access field tag inputs'),
+      '#access' => $access,
     ];
   }
 }

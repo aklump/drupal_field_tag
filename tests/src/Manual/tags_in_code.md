@@ -89,7 +89,7 @@ It is possible to tag a field when creating and updating an entity programmatica
     $node = \Drupal\node\Entity\Node::load({{ _nid }});
     $service = \Drupal::service('field_tag')->attachTags($node);
     $i = $service->getItemsTaggedBy('{{ tag2 }}', 'field_images');
-    $item = array_first($i)->getValue();
+    $item = array_values($i)[0]->getValue();
     $item['field_tag'] = '{{ tag3 }}';
     $node->field_images->filter(function () {
       return FALSE;

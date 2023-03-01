@@ -10,6 +10,7 @@ use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\field_tag\Tags;
+use RuntimeException;
 
 /**
  * Defines the Field tag entity.
@@ -62,29 +63,34 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
-  public static function loadByParentField(EntityInterface $entity, string $field_name, $delta = 0): FieldTagInterface {
+  public static function loadByParentField(EntityInterface $entity, string $field_name, int $delta = 0): FieldTagInterface {
+    try {
+      // Field tags only exist in database AFTER the parent has been created.
+      if (!$entity->isNew()) {
 
-    // Field tags can only exist in the database, after the parent exists.
-    if (!$entity->isNew()) {
+        // TODO Static cache optimize?
+        $query = \Drupal::entityTypeManager()
+          ->getStorage('field_tag')
+          ->getQuery()
+          ->condition('deleted', 0)
+          ->condition('parent_entity', $entity->getEntityTypeId())
+          ->condition('parent_id', $entity->id())
+          ->condition('field_name', $field_name)
+          ->condition('delta', $delta);
+        $ids = $query->execute();
 
-      // TODO Static cache optimize?
-      $query = \Drupal::entityTypeManager()
-        ->getStorage('field_tag')
-        ->getQuery()
-        ->condition('deleted', 0)
-        ->condition('parent_entity', $entity->getEntityTypeId())
-        ->condition('parent_id', $entity->id())
-        ->condition('field_name', $field_name)
-        ->condition('delta', $delta);
-      $ids = $query->execute();
+        if (count($ids) > 1) {
+          throw new RuntimeException(sprintf('Too many instances (%d) for field: %s exist in the entity table for parent entity (%s %d).', count($ids), $field_name, $entity->getEntityTypeId(), $entity->id()));
+        }
 
-      if (count($ids) > 1) {
-        throw new \RuntimeException(sprintf('Too many instances (%d) for field: %s exist in the entity table for parent entity (%s %d).', count($ids), $field_name, $entity->getEntityTypeId(), $entity->id()));
+        $id = array_shift($ids);
+        if ($id) {
+          return static::load($id);
+        }
       }
-
-      if ($id = array_first($ids)) {
-        return static::load($id);
-      }
+    }
+    catch (\Exception $exception) {
+      watchdog_exception('field_tag', $exception);
     }
 
     return static::create([

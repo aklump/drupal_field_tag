@@ -238,10 +238,10 @@ class FieldTagService {
    *   attached to the parent's referencing field.
    *
    * @return \Drupal\field_tag\Entity\FieldTag[]
-   *   In the case that the parent references the same paragraph more than once
-   *   on the same field, you will receive more than one result in the return
-   *   array from this; this should be an edge case, so in most cases
-   *   array_first() should be used.
+   *   An indexed array, with arbitrary keys. In the case that the parent
+   *   references the same paragraph more than once on the same field, you will
+   *   receive more than one result in the return array from this; this should
+   *   be an edge case, so in most cases you should use $field_tags[0].
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
