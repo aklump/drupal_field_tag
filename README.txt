@@ -67,28 +67,9 @@ Developers
 $node->field_images->get(0)->field_tag = 'foo, bar, baz';
 $node->save();
 
-     * If $entity->field_tag_sync, an array, contains a field name of a
-       tag-enabled field, then during entity save operations, all existing
-       field tags for all items in that field will be deleted. Then the
-       field items will be iterated over and only those which have a
-       field_tag value will have field tag entities created. You must
-       understand how this works, before you go programmatically handling
-       field_tag CRUD operations. For example.
-$item = $node->field_images->get(0)->getValue();
-$item['field_tag'] = 'new tag';
-$node->field_images->filter(function () {
-  return FALSE;
-})->appendItem($item);
-
-// This line is VERY important because of the use of the filter method
-// above.  If you did not include this line, then you would potentially
-// have orphaned field tags.
-$node->field_tag_sync[] = 'field_images';
-
-$node->save();
-
      * There is a PDF of manual tests which must suffice until other tests
        can be written.
+     * Run unit tests with ./bin/run_unit_tests.sh
 
 Manage form display
 

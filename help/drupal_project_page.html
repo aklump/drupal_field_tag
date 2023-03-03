@@ -39,28 +39,14 @@
 <li>This provides the UI and storage mechanism for field content tagging.  It creates a new entity type <em>field_tag</em>.  It's up to you to implement use cases for the data.</li>
 <li>See <em>field_tag.api.php</em> for code examples.</li>
 <li><strong>Never rely on the id of a field tag entity beyond the scope of a single request. The ids should be considered ephemeral.</strong></li>
-<li><p>The value of <code>fieldTag</code> on a <code>\Drupal\Core\Field\FieldItemInterface</code> is read only.  It gets added to the item when one calls <code>\Drupal\field_tag\FieldTagService::attachTags</code>.  It is completely ignored during entity save operations, and will be unset at that time.</p></li>
+<li>The value of <code>fieldTag</code> on a <code>\Drupal\Core\Field\FieldItemInterface</code> is read only.  It gets added to the item when one calls <code>\Drupal\field_tag\FieldTagService::attachTags</code>.  It is completely ignored during entity save operations, and will be unset at that time.</li>
 <li><p>The value of <code>field_tag</code> on a <code>\Drupal\Core\Field\FieldItemInterface</code> is for entity save operations.  If present, this value will overwrite the existing value of the tag for that field item.  This is a string and represents the full tag value, which may be CSV of multiple tags, e.g., 'foo, bar'.</p>
 
 <pre><code>$node-&gt;field_images-&gt;get(0)-&gt;field_tag = 'foo, bar, baz';
 $node-&gt;save();
 </code></pre></li>
-<li><p>If <code>$entity-&gt;field_tag_sync</code>, an array, contains a field name of a tag-enabled field, then during entity save operations, all existing field tags for all items in that field will be deleted.  Then the field items will be iterated over and only those which have a <code>field_tag</code> value will have field tag entities created.  <strong>You must understand how this works</strong>, before you go programmatically handling field_tag CRUD operations.  For example.</p>
-
-<pre><code>$item = $node-&gt;field_images-&gt;get(0)-&gt;getValue();
-$item['field_tag'] = 'new tag';
-$node-&gt;field_images-&gt;filter(function () {
-  return FALSE;
-})-&gt;appendItem($item);
-
-// This line is VERY important because of the use of the filter method
-// above.  If you did not include this line, then you would potentially
-// have orphaned field tags.
-$node-&gt;field_tag_sync[] = 'field_images';
-
-$node-&gt;save();
-</code></pre></li>
 <li><p>There is a PDF of manual tests which must suffice until other tests can be written.</p></li>
+<li>Run unit tests with <code>./bin/run_unit_tests.sh</code></li>
 </ul>
 
 <h2>Manage form display</h2>

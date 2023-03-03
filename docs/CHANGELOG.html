@@ -33,6 +33,53 @@
 
 <ul>
 <li>When field_tag_paragraph processes an item, redirect to the node edit form to immediately begin editing.</li>
+<li>Replace the need for attachTags with a hook like: hook_entity_storage_load() or hook_entity_field_values_init()</li>
+</ul>
+
+<h2>[0.4.0] - 2023-03-01</h2>
+
+<h3>Added</h3>
+
+<ul>
+<li>lorem</li>
+</ul>
+
+<h3>Changed</h3>
+
+<ul>
+<li>The <code>\Drupal\field_tag\Event\TagEvent</code> now delivers an instance of FieldTag that has only the added or removed tags. You will most likely <strong>need to update your event handlers</strong>. Here is an example of a diff.</li>
+</ul>
+
+<pre><code>- if ('some_tag' === $event-&gt;getTag()) {
++ if ($event-&gt;getFieldTag()-&gt;hasTag('some_tag')) {
+</code></pre>
+
+<h3>Deprecated</h3>
+
+<ul>
+<li><code>\Drupal\field_tag\FieldTagService::normalizeFieldTagValue</code>. Use <code>implode(', ', \Drupal\field_tag\Tags::create($value)-&gt;all());</code></li>
+<li><code>\Drupal\field_tag\FieldTagService::doesEntityUseFieldTags</code>. Use <code>\Drupal\field_tag\FieldTagService::getTaggedFieldDefinitionsByEntity()</code> cast to boolean</li>
+<li><code>\Drupal\field_tag\FieldTagService::getFieldTagsAsArray</code>. Use <code>Tags::create($value)-&gt;all()</code> instead.</li>
+<li><code>\Drupal\field_tag\Event\TagEvent::getEntity</code> use <code>\Drupal\field_tag\Event\TagEvent::getFieldTag-&gt;getParentEntity()</code> instead.</li>
+<li><code>\Drupal\field_tag\Event\TagEvent::getTag</code> use <code>\Drupal\field_tag\Event\TagEvent::getFieldTag()-&gt;getValue()</code> instead.</li>
+</ul>
+
+<h3>Removed</h3>
+
+<ul>
+<li>lorem</li>
+</ul>
+
+<h3>Fixed</h3>
+
+<ul>
+<li>lorem</li>
+</ul>
+
+<h3>Security</h3>
+
+<ul>
+<li>lorem</li>
 </ul>
 
 <h2>[0.3.0] - 2022-02-09</h2>
@@ -92,7 +139,7 @@
 <footer>
   <div class="pager"><a href="index.html" class="prev index">&laquo;Field Tags Module</a><a href="index.html" class="index pager__book-title">Field Tags Module</a><a href="developers.html" class="next developers">Developers&raquo;</a></div>  
   <div id="footer-legaleeze">
-    <p class="legaleeze center">Version: 8.x-0.3.6 &bull; Last Updated: Mon, 27 Feb 2023 21:03:00 -0800</p>
+    <p class="legaleeze center">Version: 8.x-0.3.6 &bull; Last Updated: Thu, 02 Mar 2023 20:43:06 -0800</p>
   </div>
 </footer>
 
