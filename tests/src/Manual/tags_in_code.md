@@ -106,7 +106,7 @@ It is possible to tag a field when creating and updating an entity programmatica
     $query = "select count(*) from ";
     $query .= "field_tag where parent_id = {{ _nid }}";
     $count = \Drupal::database()->query($query)->fetchField();
-    4 == $count || die('field tag table should have 4 items');
+    3 == $count || die('field tag table should have 3 items');
     
     die('Snippet B passed.');
 

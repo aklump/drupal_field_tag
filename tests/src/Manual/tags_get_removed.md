@@ -34,6 +34,6 @@ A tagged paragraph that is removed and immediately replaced without saving the e
 1. Reload the entity edit page.
 2. Remove the image tagged with {{ tag2 }} using the _Remove_ button
 3. Without saving, _Add a new file_
-4. Add a third image.
+4. Add a new image (in position two)
 
 - Assert the new image has no tags.
