@@ -9,6 +9,7 @@ use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
+use Drupal\field_tag\Helpers\Dedupe;
 use Drupal\field_tag\Tags;
 use Exception;
 use RuntimeException;
@@ -49,6 +50,7 @@ use RuntimeException;
 class FieldTag extends ContentEntityBase implements FieldTagInterface {
 
   use EntityChangedTrait;
+  use \Drupal\Core\Logger\LoggerChannelTrait;
 
   /**
    * Load FieldTag entity instance by parent entity/field/delta.
@@ -83,10 +85,22 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
         $ids = $query->execute();
 
         if (count($ids) > 1) {
-          throw new RuntimeException(sprintf('Too many instances (%d) for field: %s exist in the entity table for parent entity (%s %d).', count($ids), $field_name, $parent->getEntityTypeId(), $parent->id()));
+          // This is an error condition, however we will try to gracefully
+          // handle it before making a log entry.
+          $deduper = new Dedupe();
+          $entities = FieldTag::loadMultiple($ids);
+          $entities = $deduper($entities);
+          $ids = array_map(function (FieldTagInterface $field_tag) {
+            return $field_tag->id();
+          }, $entities);
         }
 
-        $id = array_shift($ids);
+        if (count($ids) > 1) {
+          \Drupal::logger('field_tag')
+            ->critical(sprintf('Too many instances (%d) for field: %s exist in the entity table for parent entity (%s %d).  See documentation for more info.', count($ids), $field_name, $parent->getEntityTypeId(), $parent->id()));
+        }
+
+        $id = array_pop($ids);
         if ($id) {
           return static::load($id);
         }
@@ -301,4 +315,5 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
   public function getDelta(): int {
     return $this->delta->value ?? 0;
   }
+
 }
