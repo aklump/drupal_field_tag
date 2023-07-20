@@ -12,13 +12,13 @@
          verbose="true">
     <testsuites>
         <testsuite name="default">
-            <directory suffix="Test.php">tests</directory>
+            <directory suffix="Test.php">tests/src/Unit</directory>
         </testsuite>
     </testsuites>
 
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">src</directory>
+            <directory suffix=".php">src/Unit</directory>
         </include>
     </coverage>
 </phpunit>

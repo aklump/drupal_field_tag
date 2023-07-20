@@ -37,10 +37,12 @@ interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterfa
   public function getTargetEntity(): ?EntityInterface;
 
   /**
-   * Return the tag value.
+   * Return the normalized tag value.
    *
    * @return string
-   *   The arbitrary tag value.
+   *   The normalized tag value.
+   *
+   * @see \Drupal\field_tag\Helpers\ValueHash
    */
   public function getValue(): string;
 

@@ -11,18 +11,8 @@ use Drupal\field_tag\Entity\FieldTagInterface;
 final class Compare {
 
   public function __invoke(FieldTagInterface $a, FieldTagInterface $b): bool {
-    $serialize = function (FieldTagInterface $tag): string {
-      return implode(':', [
-        $tag->getParentEntity()->getEntityTypeId(),
-        $tag->getParentEntity()->id(),
-        $tag->getFieldName(),
-        $tag->getDelta(),
-        $tag->getValue(),
-      ]);
-    };
-    $a = $serialize($a);
-    $b = $serialize($b);
+    $hash = new ValueHash();
 
-    return $a === $b;
+    return $hash($a) === $hash($b);
   }
 }
