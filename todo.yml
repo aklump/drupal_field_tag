@@ -1,0 +1,2 @@
+- instance user do such and such
+- change `jig clean` to be an options menu: 1) skip 2) delete 3) keep.  on keep remove .jig from filename.

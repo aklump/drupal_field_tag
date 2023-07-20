@@ -1,0 +1,16 @@
+{
+  "minimum-stability": "dev",
+  "repositories": [
+    {
+      "type": "path",
+      "url": "\/Users\/aklump\/Code\/Packages\/php\/knowledge\/app"
+    },
+    {
+      "type": "path",
+      "url": "\/Users\/aklump\/Code\/Packages\/php\/json_schema"
+    }
+  ],
+  "require-dev": {
+    "aklump\/knowledge": "@dev"
+  }
+}

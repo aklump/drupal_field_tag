@@ -1,0 +1,31 @@
+pre code {
+    display: block;
+    padding: 20px;
+    background-color: #efefef;
+    border-radius: 8px;
+}
+
+.btn.nav__prev-chapter {
+    flex: 20% 0 1;
+}
+
+.btn.nav__prev-page {
+    flex: 45px 0 0;
+}
+
+.btn.nav__toc {
+    flex: 45px 0 0;
+}
+
+.btn.nav__next-page {
+    flex: 50% 1 0;
+}
+
+.btn.nav__next-chapter {
+    flex: 20% 0 0;
+}
+
+.header__page-numbers {
+    flex-basis: 80px;
+    text-align: right;
+}

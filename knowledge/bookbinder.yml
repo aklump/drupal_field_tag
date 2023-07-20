@@ -1,0 +1,14 @@
+-
+  format: markdown
+  path: ../
+  special:
+    - embed images
+  include:
+    - '**/README.md'
+    - '**/CHANGELOG.md'
+-
+  format: website
+  path: ../docs
+  exclude:
+    - '**/readme*'
+    - '**/drupal_project_page*'

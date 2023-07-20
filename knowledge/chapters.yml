@@ -1,0 +1,10 @@
+chapter_order:
+  - general
+  - developing
+chapter_info:
+  -
+    id: general
+    title: General
+  -
+    id: developing
+    title: Developing

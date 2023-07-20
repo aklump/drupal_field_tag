@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap/dist/css/bootstrap.css">
+      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/style.css">
+      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css">
+    <title>Code Examples | Field Tags Module</title>
+</head>
+<body class="my-5">
+
+<header class="header bg-light fixed-top p-2 pt-1">
+  <div class="container-md">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="header__breadcrumbs flex-shrink-0 flex-grow-1 me-3">
+        <nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+      <a class="fw-bold" href="/Users/aklump/Code/Packages/d8/field_tag/docs/index.html">Field Tags Module</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a class="fw-bold" href="#" data-bs-toggle="offcanvas"
+         data-bs-target="#table-of-contents"
+         aria-controls="table-of-contents">TOC</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/events.html">Developing</a></li>
+  </ol>
+</nav>
+
+      </div>
+      <div class="header__tags me-3">  </div>
+      <div class="header__page-numbers flex-shrink-1">9
+        / 9</div>
+    </div>
+  </div>
+</header>
+
+<main class="container-md flex-column">
+  <div class="row mb-5 pt-5">
+    <article class="col">
+      <h1 class="mb-4 text-primary">Code Examples</h1>
+      <pre><code class="php">&lt;?php
+
+/**
+ * @file
+ * Defines the API functions provided by the field_tag module.
+ */
+
+// There are two classes to consider when working with field tags.  The
+// low-level class \Drupal\field_tag\Tags is purely utilitarian and has no
+// dependencies and may be more intuitive in some cases; it has not concept of
+// parent entity.  The other class, which represents the FieldTag entity is
+// \Drupal\field_tag\Entity\FieldTag and should also be taken into account.
+
+/**
+ * Create a field tag object attached to a parent entity.
+ */
+$instance = \Drupal\field_tag\Entity\FieldTag::createFromTags(
+  \Drupal\field_tag\Tags::create('foo,bar'),
+  $parent_entity,
+  'field_foo',
+);
+
+/**
+ * Create a field tag object by array
+ */
+$array_of_tags = ['foo', 'bar'];
+$instance = \Drupal\field_tag\Entity\FieldTag::createFromTags(
+  \Drupal\field_tag\Tags::create(...$array_of_tags),
+  $parent_entity,
+  'field_foo',
+);
+TRUE === $instance-&gt;hasTag('foo');
+
+/**
+ * Programmatically tagging fields.
+ *
+ * You must use -&gt;field_tag if you want the entity save operation to persist the
+ * values.  You cannot use -&gt;fieldTag for adding tags to be saved in the
+ * database.
+ */
+
+$entity-&gt;get('field_images')-&gt;get(0)-&gt;field_tag = 'foo, bar, baz';
+$entity-&gt;save();
+
+/**
+ * Programmatically manipulating field tags.
+ *
+ * There are two approaches for working with tags already attached to an
+ * entity. Each one has it's merits so review both and then decide which is
+ * most
+ * appropriate for your use case.
+ *
+ * The first approach shows loading a given tag entity directly.  This method
+ * is nice because if the field is not already tagged--that is the field_tag
+ * entity does not yet exist--you still receive a configured instance of a
+ * field_tag entity in return (not yet saved, however).
+ *
+ * In both methods, once the field_tag entity is provided, you work with it the
+ * same, using on it's own methods.
+ */
+$field_tag_entity = \Drupal\field_tag\Entity\FieldTag::loadByParentField($entity, 'field_images', 0);
+
+// Check if a tag exists based on the CSV split.
+$has_tag = $field_tag_entity-&gt;hasTag('hero');
+
+// Get the string value of the field_tag.  Both yield the same result.
+$value = $field_tag_entity-&gt;getValue();
+$value = (string) $field_tag_entity;
+
+// Get an array of tags split by CSV.
+$tags = $field_tag_entity-&gt;all();
+
+/**
+ * Second approach, first attach all tags to parent, then manipulate.
+ *
+ * The alternative approach is to attach all field_tags to an entity and then
+ * work with them in that context.  An example follows.
+ */
+\Drupal::service('field_tag')-&gt;attachTags($entity);
+foreach ($entity-&gt;get('field_images') as $item) {
+  if ($field_tag_entity = $item-&gt;fieldTag) {
+    $has_tag = $field_tag_entity-&gt;hasTag();
+    $tags = $field_tag_entity-&gt;all();
+    $value = $field_tag_entity-&gt;getValue();
+  }
+}
+
+/**
+ * Pluck out a single image tagged by 'hero'.
+ */
+$hero_image_references = \Drupal::service('field_tag')
+  -&gt;attachTags($node)
+  -&gt;getItemsTaggedBy('hero', 'field_images');
+if ($hero_image_references &amp;&amp; ($image_file = $hero_images[0]-&gt;get('entity')
+    -&gt;getTarget()
+    -&gt;getEntity())) {
+  $uri = $image_file-&gt;getFileUri();
+}
+
+/**
+ * Another version, more verbose.
+ *
+ * Get the image entity and URI of the first image tagged with 'hero'.  It is
+ * assumed that $entity has an image reference field: field_images, and field
+ * tagging has been configured for that field, and at least one field has been
+ * tagged with 'hero'.
+ */
+$hero_image_entity = NULL;
+$hero_image_uri = NULL;
+foreach ($entity-&gt;get('field_images') as $image_item) {
+  if ($image_item-&gt;field_tag &amp;&amp; $image_item-&gt;field_tag-&gt;hasTag('hero')) {
+    $hero_image_entity = $image_item-&gt;get('entity')-&gt;getTarget()-&gt;getValue();
+    $hero_image_uri = $hero_image_entity-&gt;get('uri')-&gt;value;
+    break;
+  }
+}
+
+
+/**
+ * A complex Paragraphs example.
+ *
+ * In this example, a node has a paragraph reference as field_paragraphs, which
+ * allows multiple items.  Tagging is set up on field_paragraphs.  (That is, on
+ * the node, not the paragraph entity.)  When given the paragraph, we check to
+ * see if it is tagged on the parent by a given tag and then do something to it.
+ */
+$parent = $paragraph-&gt;getParentEntity();
+$parent_field = $paragraph-&gt;get('parent_field_name')-&gt;get(0)-&gt;value;
+$items = \Drupal::service('field_tag')
+  -&gt;attachTags($parent)
+  -&gt;getItemsTaggedBy('golden', $parent_field);
+foreach ($items as $item) {
+  if ($item-&gt;target_id == $paragraph-&gt;id()) {
+    // React to the fact that this paragraph is tagged by 'golden'.
+  }
+}
+
+/**
+ * Getting tags for a referenced paragraph.
+ *
+ * In this example we want to find the first tag that begins with '#' to use as
+ * an id.  We're assuming that a tag such as "#foo" has been entered on the
+ * parent's reference field.
+ */
+// First get an array of \Drupal\field_tag\Entity\FieldTag entities.
+$field_tag_entities = $this-&gt;service('field_tag')
+  -&gt;getFieldTagsByParagraph($paragraph);
+
+// Then merge them into a single array of single tag strings.
+$tags = array_flatten(array_map(function ($field_tag) {
+  return $field_tag-&gt;all();
+}, $field_tag_entities));
+
+// Now we want to get the first tag that begins with '#', so we can use that to
+// render an id attribute.
+$id = array_values(array_filter($tags, function ($tag) {
+  return strpos($tag, '#') === 0;
+}))[0];
+
+
+/**
+ * Implements hook_field_tag_tags_info().
+ *
+ * Provides information about the available field tags and facilitates grouping.
+ *
+ * @return array
+ *   An array with these keys:
+ *   - types
+ *   - tags
+ *   Types should be keyed by the machine name that is used to key the tags
+ *   array.  Each value in types should contain:
+ *   - name string|\Drupal\Core\StringTranslation\TranslatableMarkup The name
+ *   of the group.
+ *   - description string|\Drupal\Core\StringTranslation\TranslatableMarkup The
+ *   description of the group. Tags should be keyed by the type and each type
+ *   array is an array of tags with the following keys:
+ *   - tag string|\Drupal\Core\StringTranslation\TranslatableMarkup The
+ *   lowercase tag value.
+ *   - description string|\Drupal\Core\StringTranslation\TranslatableMarkup A
+ *   description of the tag, how it is used, examples, links, etc.
+ */
+function hook_field_tag_tags_info() {
+  return [
+    'types' =&gt; [
+      'visibility' =&gt; [
+        'name' =&gt; t('Visibility'),
+        'description' =&gt; t('Affect the visibility and/or device visibility.'),
+      ],
+      'image' =&gt; [
+        'name' =&gt; t('Image'),
+        'description' =&gt; t('Field tags that apply to images.'),
+      ],
+    ],
+    'tags' =&gt; [
+      'layout' =&gt; [
+        [
+          'tag' =&gt; '1 of foo',
+          'description' =&gt; t('Tags that follow this pattern define a group that is sequenced every page load; only one item is loaded per HTTP request.  You can see this at work on Sanctuaries of Silence (/node/9146), it\'s how we get a different VR experience to show up on each load.  The group `{id}` can be any arbitrary value, e.g. "vr", "foo", "bar".'),
+        ],
+        [
+          'tag' =&gt; '#foo',
+          'description' =&gt; t('Where &lt;code&gt;foo&lt;/code&gt; is an HTML ID, e.g., &lt;code&gt;#downloads&lt;/code&gt;.  See _Creating HTML Anchors Using Tags_.'),
+        ],
+      ],
+      'language' =&gt; [
+        [
+          'tag' =&gt; 'english',
+          'description' =&gt; t('Indicates the tagged item is in the English language.  Used for downloads and resources.'),
+        ],
+        [
+          'tag' =&gt; 'spanish',
+          'description' =&gt; t('Indicates the tagged item is in the Spanish language.  Used for downloads and resources.'),
+        ],
+      ],
+    ],
+  ];
+}
+</code></pre>
+    </article>
+  </div>
+</main>
+
+  <footer class="footer d-flex justify-content-center">
+    <div class="flex-column justify-content-center">Version:
+      <strong></strong>
+      &bull;
+      Last Update: <strong>7/20/2023</strong></div>
+  </footer>
+
+
+<nav class="nav d-flex justify-content-center align-items-center
+  fixed-bottom">
+  <div class="btn-group flex-fill">
+              <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/events.html" class="btn nav__prev-chapter btn-secondary"><i class="bi
+      bi-caret-left-fill"></i> Tag Events</a>
+  
+    
+              <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/drupal_migrations.html" class="btn nav__prev-page js-nav__prev-page
+    btn-primary"><i class="bi
+      bi-caret-left-fill"></i></a>
+  
+    
+    <a class="nav__toc btn btn-light" href="#"
+       data-bs-toggle="offcanvas"
+       data-bs-target="#table-of-contents"
+       aria-controls="table-of-contents"><i class="bi
+           bi-list-ol"></i></a>
+    
+              <span class="btn nav__next-page js-nav__next-page
+    btn-primary"></span>
+  
+    
+              <span class="btn nav__next-chapter btn-secondary "></span>
+  
+  </div>
+</nav>
+
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="table-of-contents"
+     aria-labelledby="table-of-contents__title" data-bs-keyboard="true">
+  <div class="offcanvas-header">
+    <h1 class="h6 offcanvas-title js-chapter-list-title"
+        id="table-of-contents__title">All
+      Chapters
+      &amp; Pages</h1>
+    <h1 class="d-none h6 offcanvas-title js-search-results-title"
+        id="table-of-contents__title">Search Results</h1>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+          <input class="js-search form-control mb-4" type="search"
+             placeholder="Search docs..."
+             aria-label="Search">
+      <div class="js-search-results d-none">
+        <h2 class="h4 mt-4">Matched Pages</h2>
+        <ol class="list-unstyled">
+                                            <li value="1"><a data-page="readme" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/readme.html">Field Tags Module <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="2"><a data-page="issues" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/issues.html">Known Issues <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="3"><a data-page="relationships" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/relationships.html">Relationships <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="4"><a data-page="changelog" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/changelog.html">Changelog <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                                        <li value="5"><a data-page="events" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/events.html">Tag Events <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="6"><a data-page="developers" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/developers.html">Developers <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="7"><a data-page="in_code" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/in_code.html">Creating Field Tags in Code <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="8"><a data-page="drupal_migrations" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/drupal_migrations.html">Drupal Migrations <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="9"><a data-page="code_examples" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/code_examples.html">Code Examples <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                              </ol>
+      </div>
+        
+    <div class="js-chapter-list">
+              <h2 class="h4 mt-4">General</h2>
+        <ol>
+                              <li value="1"><a data-page="readme" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/readme.html">Field Tags Module</a>
+    </li>
+  
+                              <li value="2"><a data-page="issues" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/issues.html">Known Issues</a>
+    </li>
+  
+                              <li value="3"><a data-page="relationships" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/relationships.html">Relationships</a>
+    </li>
+  
+                              <li value="4"><a data-page="changelog" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/changelog.html">Changelog</a>
+    </li>
+  
+                  </ol>
+              <h2 class="h4 mt-4">Developing</h2>
+        <ol>
+                              <li value="5"><a data-page="events" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/events.html">Tag Events</a>
+    </li>
+  
+                              <li value="6"><a data-page="developers" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/developers.html">Developers</a>
+    </li>
+  
+                              <li value="7"><a data-page="in_code" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/in_code.html">Creating Field Tags in Code</a>
+    </li>
+  
+                              <li value="8"><a data-page="drupal_migrations" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/drupal_migrations.html">Drupal Migrations</a>
+    </li>
+  
+                              <li value="9"><a data-page="code_examples" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/code_examples.html">Code Examples</a>
+    </li>
+  
+                  </ol>
+          </div>
+  </div>
+</div>
+<div class="modal fade" id="modal" tabindex="-1"
+     aria-labelledby="modal-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="js-modal-title modal-title" id="modal-title"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mt-1 mb-4">
+                  </p>
+        
+                
+        <ul class="list-group list-group-flush">
+                                    <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/readme.html">Field Tags Module</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/issues.html">Known Issues</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/relationships.html">Relationships</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/changelog.html">Changelog</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/events.html">Tag Events</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/developers.html">Developers</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/in_code.html">Creating Field Tags in Code</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/drupal_migrations.html">Drupal Migrations</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/code_examples.html">Code Examples</a>
+                              </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/dist/lunr.js"></script>
+  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/knowledge.min.js"></script>
+
+</body>
+</html>

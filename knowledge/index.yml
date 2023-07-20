@@ -1,0 +1,9 @@
+page_order:
+  - readme
+  - issues
+  - relationships
+  - changelog
+  - events
+  - developers
+  - in_code
+  - drupal_migrations
