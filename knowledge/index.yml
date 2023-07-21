@@ -7,3 +7,4 @@ page_order:
   - developers
   - in_code
   - drupal_migrations
+  - testing
