@@ -84,6 +84,21 @@ final class Tags implements Countable {
   }
 
   /**
+   * Create a new instance by mapping each tag to a callback.
+   *
+   * @param callable $callback
+   *   Receives (string $tag).  Return the new value of $tag.
+   *
+   * @return $this
+   *   A new instance with only tags post $callback.
+   */
+  public function map(callable $callback): self {
+    $tags = array_map($callback, $this->all());
+
+    return new Tags(...$tags);
+  }
+
+  /**
    * Create a NEW INSTANCE of matched tags.
    *
    * Optionally receive the matched grouped values in $matches.

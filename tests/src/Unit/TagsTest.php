@@ -167,6 +167,17 @@ final class TagsTest extends TestCase {
 
   }
 
+  public function testMapWorksWithStrToLower() {
+    $tags = new Tags('FOO', 'BAR', 'BAZ');
+    $mapped = $tags->map('strtolower');
+    $this->assertNotSame($tags, $mapped);
+
+    $mapped_set = $mapped->all();
+    $this->assertContains('foo', $mapped_set);
+    $this->assertContains('bar', $mapped_set);
+    $this->assertContains('baz', $mapped_set);
+  }
+
   public function testToString() {
     $tags = new Tags('foo', 'bar');
     $this->assertSame('foo,bar', strval($tags));
