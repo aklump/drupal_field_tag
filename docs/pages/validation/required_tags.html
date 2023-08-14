@@ -7,7 +7,7 @@
       <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=8.x-0.4.4">
       <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/style.css?ver=8.x-0.4.4">
       <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=8.x-0.4.4">
-    <title>Field Tags Module | Field Tags Module</title>
+    <title>Required Tags | Field Tags Module</title>
 </head>
 <body class="my-5">
 
@@ -26,13 +26,13 @@
          aria-controls="table-of-contents">TOC</a>
     </li>
     <li class="breadcrumb-item">
-      <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/readme.html">General</a></li>
+      <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/validation.html">Validation</a></li>
   </ol>
 </nav>
 
       </div>
       <div class="header__tags me-3">  </div>
-      <div class="header__page-numbers flex-shrink-1">1
+      <div class="header__page-numbers flex-shrink-1">14
         / 14</div>
     </div>
   </div>
@@ -41,47 +41,35 @@
 <main class="container-md flex-column">
   <div class="row mb-5 pt-5">
     <article class="col">
-      <h1 class="mb-4 text-primary">Field Tags Module</h1>
-      <p><img class="img-fluid" src="../../images/implementation.jpg" alt="Implementation" /></p>
-<h2>Summary</h2>
-<p>Provides a means to attach a tag-style input box to any entity field, which allows content managers to tag the field content.  Developers may take advantage of this additional metadata when manipulating fields.</p>
-<p>The use case for which this was written is this.  Allow the tagging of images on an multiple value image field to indicate which image is the <code>hero</code> image, which image is the <code>thumb</code> image, and untagged images are just that.  It allows the content managers to indicate the role the image is playing for that given entity.</p>
-<p><strong>Visit <a href="https://aklump.github.io/field_tag">https://aklump.github.io/field_tag</a> for full documentation.</strong></p>
-<h2>About Tags</h2>
-<ul>
-<li>The field tag input box is a CSV string separating one or more tags, e.g. <code>foo</code> or <code>foo, bar</code>.</li>
-<li>Tags are not case-sensitive.</li>
-<li>Tags may contain spaces.</li>
-<li>Tags must be unique; duplicates will be removed.</li>
-</ul>
-<h2>Configuration</h2>
-<ol>
-<li>Enable this module.</li>
-<li>Visit the <em>Manage fields</em> page for the entity you've picked.</li>
-<li>Click on the <em>Edit</em> button for the given field.</li>
-<li>Enable the <em>Field Tag</em>, and adjust settings as necessary.  <img class="img-fluid" src="../../images/settings.jpg" alt="Settings" /></li>
-<li>Give the permission <em>Use field tagging</em> to the correct user roles.</li>
-<li>Visit an entity edit page and make sure you see the tag field as configured.</li>
-</ol>
-<h3>What Happens When a Field is Deleted</h3>
-<p>The field tags themselves exist as <code>FieldTag</code> entity instances.  When a field which is <em>field tag enabled</em> on an entity type is deleted, all field tags that are associated with that entity type/field are marked with a <code>1</code> in the <code>deleted</code> column in the <code>field_tag</code> table.  They still exist in the database but are not going to load via the normal field tag API, attach methods, etc.  You can still load them using <code>FieldTag::load()</code> if necessary, or access them via the database for reference.</p>
-<h2>Manage form display</h2>
-<ol>
-<li>Node forms will include a list of field tags in the Advanced area, but only if one or more fields have field tags enabled.</li>
-<li>You may control this form element by going to <em>Manage form display</em> for a given node type and changing the weight or disabling this element.</li>
-</ol>
-<h2>Contributing</h2>
-<p>If you find this project useful... please consider <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=4E5KZHDQCEUV8&amp;item_name=Gratitude%20for%20aklump%2Ffield_tag">making a donation</a>.</p>
-<h2>Contact The Developer</h2>
-<ul>
-<li>In the Loft Studios</li>
-<li>Aaron Klump - Web Developer</li>
-<li>sourcecode@intheloftstudios.com</li>
-<li>360.690.6432</li>
-<li>PO Box 29294 Bellingham, WA 98228-1294</li>
-<li><a href="http://www.intheloftstudios.com">http://www.intheloftstudios.com</a></li>
-<li><a href="https://github.com/aklump">https://github.com/aklump</a></li>
-</ul>
+      <h1 class="mb-4 text-primary">Required Tags</h1>
+      <h2>Exactly One Tag on a Specific Bundle Field</h2>
+<p>Here is the scenario:  You have a node bundle called <code>blog_entry</code>, it has <code>field_images</code>, which allows multiple images. You need to ensure that exactly one of those images is designated as the thumbnail. You've decided to use the <code>thumb</code> tag for this designation. Later your theme can cherry pick that image and render it appropriately</p>
+<p>Here's how to write that rule:</p>
+<pre><code class="php">use Drupal\field_tag\Rule;
+
+$rule = (new Rule())
+  -&gt;condition(Rule::BUNDLE, 'blog_entry')
+  -&gt;condition(Rule::HAS_FIELD, 'field_images')
+  -&gt;require(Rule::TAG_VALUE, 'thumb')
+  -&gt;require(Rule::TAG_MIN_PER_FIELD, 1)
+  -&gt;require(Rule::TAG_MAX_PER_FIELD, 1);
+</code></pre>
+<h2>At Least One Tag on Any Entity</h2>
+<p>Here is the scenario:  You have two fields attached to two entity types. For the node entity type it's used across multiple bundles, and you want this rule to cover all future bundles that have either of those fields; <em>this is pointed out to explain why the rule does not include <code>Rule::BUNDLE</code></em>. However, you only want it to apply to the two current entity types, which is why you see <code>Rule::ENTITY</code>.</p>
+<p>The reason for this rule, is that you've decided to display only some of those files in the teaser and you've designated the <code>teaser</code> tag to indicate this. You want to ensure that every <code>node,user</code> entity has at least one file between those two fields tagged <code>teaser</code>. That way you can display at least one item per node.</p>
+<p>Here's how to write that rule:</p>
+<pre><code class="php">use Drupal\field_tag\Rule;
+
+$rule = (new Rule())
+  -&gt;condition(Rule::ENTITY, ['node', 'user'], 'in')
+  -&gt;condition(Rule::HAS_FIELD, ['field_images', 'field_pdfs'], 'in')
+  -&gt;require(Rule::TAG_VALUE, 'teaser')
+  -&gt;require(Rule::TAGGED_FIELD, ['field_images', 'field_pdfs'], 'in')
+  -&gt;require(Rule::TAG_MIN_PER_ENTITY, 1);
+</code></pre>
+<p>Here's how to read it in plain English:</p>
+<blockquote class="blockquote"><p>Any node or user entity that has <code>field_images</code> and/or <code>field_pdfs</code> must have either of those fields tagged at least once with <code>teaser</code>.</p>
+</blockquote>
     </article>
   </div>
 </main>
@@ -99,12 +87,13 @@
 <nav class="nav d-flex justify-content-center align-items-center
   fixed-bottom">
   <div class="btn-group flex-fill">
-              <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/readme.html" class="btn nav__prev-chapter btn-secondary"><i class="bi
-      bi-caret-left-fill"></i> Field Tags Module</a>
+              <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/validation.html" class="btn nav__prev-chapter btn-secondary"><i class="bi
+      bi-caret-left-fill"></i> Tag Validation Rules</a>
   
     
-              <span class="btn nav__prev-page js-nav__prev-page
-    btn-primary"></span>
+              <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/overview.html" class="btn nav__prev-page js-nav__prev-page
+    btn-primary"><i class="bi
+      bi-caret-left-fill"></i></a>
   
     
     <a class="nav__toc btn btn-light" href="#"
@@ -113,14 +102,11 @@
        aria-controls="table-of-contents"><i class="bi
            bi-list-ol"></i></a>
     
-              <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/relationships.html" class="btn nav__next-page js-nav__next-page
-    btn-primary"><i class="bi bi-file-earmark"></i> Relationships <i class="bi
-       bi-caret-right-fill"></i></a>
+              <span class="btn nav__next-page js-nav__next-page
+    btn-primary"></span>
   
     
-              <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/developers.html" class="btn nav__next-chapter btn-secondary ">Developers <i
-      class="bi
-      bi-caret-right-fill"></i></a>
+              <span class="btn nav__next-chapter btn-secondary "></span>
   
   </div>
 </nav>
