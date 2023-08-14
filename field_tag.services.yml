@@ -1,6 +1,14 @@
 services:
+  field_tag.labels:
+    class: \Drupal\field_tag\Service\LabelService
+    arguments: [ '@entity_type.manager' ]
+
+  field_tag.validation:
+    class: \Drupal\field_tag\Service\ValidationService
+    arguments: [ '@module_handler' ]
+
   field_tag:
     class: Drupal\field_tag\FieldTagService
-    arguments: [ '@entity_type.manager', '@entity_field.manager' ]
+    arguments: [ '@entity_type.manager', '@entity_field.manager', '@module_handler' ]
     shared: false
 

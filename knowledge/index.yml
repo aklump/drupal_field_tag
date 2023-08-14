@@ -1,10 +1,12 @@
 page_order:
   - readme
-  - issues
   - relationships
-  - changelog
-  - events
   - developers
+  - testing
+  - validation
+  - events
   - in_code
   - drupal_migrations
-  - testing
+  - issues
+  - changelog
+  - retroactive

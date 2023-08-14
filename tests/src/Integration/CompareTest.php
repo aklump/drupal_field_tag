@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\field_tag\Tests;
+namespace Drupal\Tests\field_tag\Integration;
 
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\field_tag\Helpers\Compare;

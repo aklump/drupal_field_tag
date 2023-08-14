@@ -1,0 +1,16 @@
+<!--
+id: validation
+tags: api
+-->
+
+# Tag Validation Rules
+
+It's possible to setup rules for how tags are used including, minimums, maximums, required, or invalid. Without defining these validation rules anything can be entered as a tag without constraint.
+
+To define rules you will implement `hook_field_tag_validation_rules`; see _field\_tag.api.php_ for more info and examples. Every rule change requires that you rebuild the Drupal caches.
+
+The rules are implemented as [entity and field constraints](https://www.drupal.org/docs/drupal-apis/entity-api/entity-validation-api/entity-validation-api-overview). @see `\Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraint`.
+
+## Explained
+
+Each rule consists of two parts: 1) the conditions to be met to apply the rule and 2) the requirements that must be met if the rule is applied.

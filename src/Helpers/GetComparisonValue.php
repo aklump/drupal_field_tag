@@ -8,7 +8,7 @@ use Drupal\field_tag\Tags;
 /**
  * Get a string that can be used to compare two instances safely.
  */
-final class ComparisonValue {
+final class GetComparisonValue {
 
   public function __invoke(FieldTagInterface $field_tag): string {
     $stack = [];

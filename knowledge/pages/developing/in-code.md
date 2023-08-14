@@ -3,6 +3,6 @@ id: in_code
 tags: ''
 -->
 
-# Creating Field Tags in Code
+# Working Programatically with Field Tags.
 
-See _field\_tag.api.php_ for usages examples.
+[See Code Examples](@code_examples)

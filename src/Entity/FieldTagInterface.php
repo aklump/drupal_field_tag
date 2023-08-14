@@ -42,7 +42,7 @@ interface FieldTagInterface extends ContentEntityInterface, EntityChangedInterfa
    * @return string
    *   The normalized tag value.
    *
-   * @see \Drupal\field_tag\Helpers\ComparisonValue
+   * @see \Drupal\field_tag\Helpers\GetComparisonValue
    */
   public function getValue(): string;
 

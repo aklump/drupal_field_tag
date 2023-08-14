@@ -8,12 +8,12 @@ tags: ''
 ## Unit Tests
 
 1. From the module root.
-2. `./bin/run_unit_tests`
+2. `./bin/run_unit_tests.sh`
 
 ## Integration Tests
 
 1. From Drupal app root.
-2. `./bin/run_integration_tests --filter=field_tag`
+2. `./bin/run_integration_tests.sh --filter=field_tag`
 
 ## Manual Tests
 

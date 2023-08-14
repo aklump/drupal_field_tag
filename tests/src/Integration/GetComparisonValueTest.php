@@ -1,13 +1,13 @@
 <?php
 
-namespace Drupal\field_tag\Tests;
+namespace Drupal\Tests\field_tag\Integration;
 
 use Drupal\field_tag\Entity\FieldTagInterface;
-use Drupal\field_tag\Helpers\ComparisonValue;
+use Drupal\field_tag\Helpers\GetComparisonValue;
 use Drupal\paragraphs\ParagraphInterface;
 use PHPUnit\Framework\TestCase;
 
-class ComparisonValueTest extends TestCase {
+class GetComparisonValueTest extends TestCase {
 
   public function testInvokeDoesntBreakWithoutParent() {
     $basis = [
@@ -17,7 +17,7 @@ class ComparisonValueTest extends TestCase {
       'getValue' => 'lorem, ipsum',
     ];
     $field_tag = $this->createConfiguredMock(FieldTagInterface::class, $basis);
-    $obj = new ComparisonValue();
+    $obj = new GetComparisonValue();
     $a = $obj($field_tag);
     $this->assertIsString($obj($field_tag));
     $this->assertNotEmpty($a);
@@ -35,7 +35,7 @@ class ComparisonValueTest extends TestCase {
       'getValue' => 'lorem, ipsum',
     ];
     $field_tag = $this->createConfiguredMock(FieldTagInterface::class, $basis);
-    $obj = new ComparisonValue();
+    $obj = new GetComparisonValue();
     $a = $obj($field_tag);
     $this->assertIsString($obj($field_tag));
     $this->assertNotEmpty($a);

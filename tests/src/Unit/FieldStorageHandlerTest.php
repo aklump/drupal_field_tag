@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Drupal\field_tag\Tests;
+namespace Drupal\Tests\field_tag\Unit;
 
 use Drupal\field_tag\Event\FieldTagEvents;
 use Drupal\field_tag\FieldStorageHandler;
@@ -196,4 +196,5 @@ class Testable extends FieldStorageHandler {
   public static function _determineCorrectAction(?array $in_storage, ?array $in_memory) {
     return static::determineCorrectAction($in_storage, $in_memory);
   }
+
 }

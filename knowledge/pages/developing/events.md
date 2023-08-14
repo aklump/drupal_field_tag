@@ -3,7 +3,7 @@ id: events
 tags: ''
 -->
 
-# Tag Events
+# Tag-Related Events
 
 If you need to react to a tag being added or removed you can subscribe to the event(s): `\Drupal\field_tag\Event\FieldTagEvents::TAG_REMOVED` and/or `\Drupal\field_tag\Event\FieldTagEvents::TAG_ADDED`.
 
@@ -36,4 +36,4 @@ class Foo implements \Symfony\Component\EventDispatcher\EventSubscriberInterface
 
 ## Deleting Parent Entities
 
-When parent entities (those with field tagging enabled) are deleted, the associated field tag entities are also deleted. This also fires the \Drupal\field_tag\Event\FieldTagEvents::TAG_REMOVED event.
+When parent entities (those with field tagging enabled) are deleted, the associated field tag entities are also deleted. This also fires the `\Drupal\field_tag\Event\FieldTagEvents::TAG_REMOVED` event.

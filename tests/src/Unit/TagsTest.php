@@ -1,7 +1,7 @@
 <?php
 
 
-namespace Drupal\field_tag\Tests;
+namespace Drupal\Tests\field_tag\Unit;
 
 use PHPUnit\Framework\TestCase;
 use Drupal\field_tag\Tags;

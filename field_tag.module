@@ -241,6 +241,11 @@ function field_tag_entity_update(EntityInterface $parent) {
 
   /** @var \Drupal\field_tag\FieldTagService $field_tag_service */
   $field_tag_service = Drupal::service('field_tag');
+  if (!in_array($parent->getEntityTypeId(), $field_tag_service->getTaggableEntityTypeIds())) {
+    return;
+  }
+
+
   $fields = $field_tag_service->getTaggedFieldDefinitionsByEntity($parent);
   if (count($fields) === 0) {
     return;
@@ -514,5 +519,21 @@ function template_preprocess_field_tag_tags_by_type(&$vars) {
     usort($vars['field_tags'], function ($a, $b) {
       return strcasecmp($a['tag'], $b['tag']);
     });
+  }
+}
+
+/**
+ * Implements hook_entity_type_build().
+ *
+ * Add constraint to all taggable entities.
+ *
+ * @param \Drupal\Core\Entity\EntityTypeInterface[] $entity_types
+ */
+function field_tag_entity_type_build(array &$entity_types) {
+  $taggable_types = \Drupal::service('field_tag')->getTaggableEntityTypeIds();
+  foreach ($taggable_types as $taggable_type) {
+    if (!empty($entity_types[$taggable_type])) {
+      $entity_types[$taggable_type]->addConstraint('FieldTagFieldTag');
+    }
   }
 }

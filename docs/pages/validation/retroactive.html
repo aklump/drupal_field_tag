@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=8.x-0.4.4">
+      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/style.css?ver=8.x-0.4.4">
+      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=8.x-0.4.4">
+    <title>Retroactive Validation | Field Tags Module</title>
+</head>
+<body class="my-5">
+
+<header class="header bg-light fixed-top p-2 pt-1">
+  <div class="container-md">
+    <div class="d-flex justify-content-between align-items-center">
+      <div class="header__breadcrumbs flex-shrink-0 flex-grow-1 me-3">
+        <nav aria-label="breadcrumb">
+  <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+      <a class="fw-bold" href="/Users/aklump/Code/Packages/d8/field_tag/docs/index.html">Field Tags Module</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a class="fw-bold" href="#" data-bs-toggle="offcanvas"
+         data-bs-target="#table-of-contents"
+         aria-controls="table-of-contents">TOC</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/validation.html">Validation</a></li>
+  </ol>
+</nav>
+
+      </div>
+      <div class="header__tags me-3">  </div>
+      <div class="header__page-numbers flex-shrink-1">12
+        / 12</div>
+    </div>
+  </div>
+</header>
+
+<main class="container-md flex-column">
+  <div class="row mb-5 pt-5">
+    <article class="col">
+      <h1 class="mb-4 text-primary">Retroactive Validation</h1>
+      <p>You can use the following snippets to help in writing rules retroactively.</p>
+<p>Determine the entity types currently having tags:</p>
+<pre><code class="sql">select distinct(parent_entity) as 'only_on_entities'
+from field_tag;
+</code></pre>
+<p>Then for each entity type do something like the flowing examples for nodes and paragraphs.</p>
+<pre><code class="sql">select distinct tag           as tag_value,
+                parent_entity as only_on_entities,
+                n.type        as only_on_bundles,
+                field_name    as only_on_fields
+from field_tag ft
+         join node n on n.nid = ft.parent_id
+where deleted &lt; 1
+  and parent_entity = 'node'
+order by tag_value;
+</code></pre>
+<pre><code class="sql">select distinct tag           as tag_value,
+                parent_entity as only_on_entities,
+                p.type        as only_on_bundles,
+                field_name    as only_on_fields
+from field_tag ft
+         join paragraphs_item p on p.id = ft.parent_id
+where deleted &lt; 1
+  and parent_entity = 'paragraph'
+order by tag_value;
+</code></pre>
+<p>Then you can analyze single tags with something like this; notice the <code>tag like...</code> addition.</p>
+<pre><code class="sql">select distinct tag           as tag_value,
+                parent_entity as only_on_entities,
+                n.type        as only_on_bundles,
+                field_name    as only_on_fields
+from field_tag ft
+         join node n on n.nid = ft.parent_id
+where deleted &lt; 1
+  and parent_entity = 'node'
+  and tag like "%vimeo%";
+</code></pre>
+    </article>
+  </div>
+</main>
+
+  <footer class="footer d-flex justify-content-center">
+    <div class="flex-column justify-content-center">
+                  Version:
+          <strong>8.x-0.4.4</strong>
+          &bull;
+                Last Update: <strong>8/3/2023</strong>
+    </div>
+  </footer>
+
+
+<nav class="nav d-flex justify-content-center align-items-center
+  fixed-bottom">
+  <div class="btn-group flex-fill">
+              <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/validation.html" class="btn nav__prev-chapter btn-secondary"><i class="bi
+      bi-caret-left-fill"></i> Tag Validation Rules</a>
+  
+    
+              <a href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/validation.html" class="btn nav__prev-page js-nav__prev-page
+    btn-primary"><i class="bi
+      bi-caret-left-fill"></i></a>
+  
+    
+    <a class="nav__toc btn btn-light" href="#"
+       data-bs-toggle="offcanvas"
+       data-bs-target="#table-of-contents"
+       aria-controls="table-of-contents"><i class="bi
+           bi-list-ol"></i></a>
+    
+              <span class="btn nav__next-page js-nav__next-page
+    btn-primary"></span>
+  
+    
+              <span class="btn nav__next-chapter btn-secondary "></span>
+  
+  </div>
+</nav>
+
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="table-of-contents"
+     aria-labelledby="table-of-contents__title" data-bs-keyboard="true">
+  <div class="offcanvas-header">
+    <h1 class="h6 offcanvas-title js-chapter-list-title"
+        id="table-of-contents__title">All
+      Chapters
+      &amp; Pages</h1>
+    <h1 class="d-none h6 offcanvas-title js-search-results-title"
+        id="table-of-contents__title">Search Results</h1>
+    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+          <input class="js-search form-control mb-4" type="search"
+             placeholder="Search docs..."
+             aria-label="Search">
+      <div class="js-search-results d-none">
+        <h2 class="h4 mt-4">Matched Pages</h2>
+        <ol class="list-unstyled">
+                                            <li value="1"><a data-page="readme" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/readme.html">Field Tags Module <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="2"><a data-page="relationships" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/relationships.html">Relationships <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="3"><a data-page="issues" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/issues.html">Known Issues <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="4"><a data-page="changelog" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/changelog.html">Changelog <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                                        <li value="5"><a data-page="developers" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/developers.html">Developers <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="6"><a data-page="testing" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/testing.html">Testing <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="7"><a data-page="events" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/events.html">Tag-Related Events <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="8"><a data-page="in_code" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/in_code.html">Working Programatically with Field Tags. <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="9"><a data-page="drupal_migrations" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/drupal_migrations.html">Drupal Migrations <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="10"><a data-page="code_examples" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/code_examples.html">Code Examples <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                                        <li value="11"><a data-page="validation" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/validation.html">Tag Validation Rules <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                                  <li value="12"><a data-page="retroactive" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/retroactive.html">Retroactive Validation <span
+              class="js-search-score
+              badge
+              bg-info rounded-pill badge-sm"></span></a>
+    </li>
+  
+                              </ol>
+      </div>
+        
+    <div class="js-chapter-list">
+              <h2 class="h4 mt-4">General</h2>
+        <ol>
+                              <li value="1"><a data-page="readme" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/readme.html">Field Tags Module</a>
+    </li>
+  
+                              <li value="2"><a data-page="relationships" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/relationships.html">Relationships</a>
+    </li>
+  
+                              <li value="3"><a data-page="issues" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/issues.html">Known Issues</a>
+    </li>
+  
+                              <li value="4"><a data-page="changelog" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/changelog.html">Changelog</a>
+    </li>
+  
+                  </ol>
+              <h2 class="h4 mt-4">Developing</h2>
+        <ol>
+                              <li value="5"><a data-page="developers" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/developers.html">Developers</a>
+    </li>
+  
+                              <li value="6"><a data-page="testing" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/testing.html">Testing</a>
+    </li>
+  
+                              <li value="7"><a data-page="events" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/events.html">Tag-Related Events</a>
+    </li>
+  
+                              <li value="8"><a data-page="in_code" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/in_code.html">Working Programatically with Field Tags.</a>
+    </li>
+  
+                              <li value="9"><a data-page="drupal_migrations" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/drupal_migrations.html">Drupal Migrations</a>
+    </li>
+  
+                              <li value="10"><a data-page="code_examples" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/code_examples.html">Code Examples</a>
+    </li>
+  
+                  </ol>
+              <h2 class="h4 mt-4">Validation</h2>
+        <ol>
+                              <li value="11"><a data-page="validation" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/validation.html">Tag Validation Rules</a>
+    </li>
+  
+                              <li value="12"><a data-page="retroactive" class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/retroactive.html">Retroactive Validation</a>
+    </li>
+  
+                  </ol>
+          </div>
+  </div>
+</div>
+<div class="modal fade" id="modal" tabindex="-1"
+     aria-labelledby="modal-title" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="js-modal-title modal-title" id="modal-title"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mt-1 mb-4">
+                                  <span type="button" class="js-tag-filter badge rounded-pill" data-tag="API" aria-pressed="false">API</span>
+                  </p>
+        
+                
+        <ul class="list-group list-group-flush">
+                                    <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/readme.html">Field Tags Module</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/relationships.html">Relationships</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/issues.html">Known Issues</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/general/changelog.html">Changelog</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/developers.html">Developers</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/testing.html">Testing</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/events.html">Tag-Related Events</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/in_code.html">Working Programatically with Field Tags.</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/drupal_migrations.html">Drupal Migrations</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[&quot;API&quot;]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/developing/code_examples.html">Code Examples</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[&quot;API&quot;]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/validation.html">Tag Validation Rules</a>
+                                                <a class="list-group-item list-group-item-action"
+                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/retroactive.html">Retroactive Validation</a>
+                              </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=8.x-0.4.4"></script>
+  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/dist/lunr.js?ver=8.x-0.4.4"></script>
+  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/knowledge.min.js?ver=8.x-0.4.4"></script>
+
+</body>
+</html>

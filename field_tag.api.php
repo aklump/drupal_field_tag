@@ -157,7 +157,6 @@ $id = array_values(array_filter($tags, function ($tag) {
   return strpos($tag, '#') === 0;
 }))[0];
 
-
 /**
  * Implements hook_field_tag_tags_info().
  *
@@ -213,5 +212,29 @@ function hook_field_tag_tags_info() {
         ],
       ],
     ],
+  ];
+}
+
+/**
+ * Allow extensions to provide tag usage rules for entities and fields.
+ *
+ * @return \Drupal\field_tag\Rule\Rule[]
+ */
+function hook_field_tag_validation_rules(): array {
+  return [
+    (new \Drupal\field_tag\Rule\Rule())
+      ->condition(\Drupal\field_tag\Rule\Rule::TAG_VALUE, 'thumb')
+      ->condition(\Drupal\field_tag\Rule\Rule::ENTITY, 'node')
+      ->condition(\Drupal\field_tag\Rule\Rule::BUNDLE, [
+        'page',
+        'blog_entry',
+      ], 'in')
+      ->condition(\Drupal\field_tag\Rule\Rule::HAS_FIELD, 'field_photos')
+      ->require(\Drupal\field_tag\Rule\Rule::TAG_MIN_PER_FIELD, 1),
+
+    (new \Drupal\field_tag\Rule\Rule())
+      ->condition(\Drupal\field_tag\Rule\Rule::TAG_REGEX, '/^(english|spanish|french)$/')
+      ->require(\Drupal\field_tag\Rule\Rule::ENTITY, 'node')
+      ->require(\Drupal\field_tag\Rule\Rule::TAGGED_FIELD, 'field_articles'),
   ];
 }

@@ -11,6 +11,8 @@ $dispatcher->addListener(AssemblePages::NAME, function (AssemblePages $event) {
   $content = "# Code Examples\n\n```php\n$content```";
   // TODO Parse into markdown.
   $page = new Page('code_examples', 'developing');
-  $page->setBody($content, BookPageInterface::MIME_TYPE_MARKDOWN);
+  $page
+    ->addTag('api')
+    ->setBody($content, BookPageInterface::MIME_TYPE_MARKDOWN);
   $event->addPage($page);
 });

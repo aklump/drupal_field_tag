@@ -6,8 +6,11 @@ use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
+use Drupal\Core\Field\FieldDefinitionInterface;
 use Drupal\Core\TypedData\TypedDataInterface;
 use Drupal\field\Entity\FieldConfig;
+use Drupal\field\FieldConfigInterface;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\paragraphs\ParagraphInterface;
 use InvalidArgumentException;
@@ -33,14 +36,22 @@ class FieldTagService {
   protected $entityFieldManager;
 
   /**
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $moduleHandler;
+
+  /**
    * FieldTagService constructor.
    *
    * @param \Drupal\Core\Entity\EntityTypeManagerInterface $entity_type_manager
    *   A service instance.
+   * @param \Drupal\Core\Entity\EntityFieldManagerInterface $entity_field_manager
+   * @param \Drupal\Core\Extension\ModuleHandlerInterface $module_handler
    */
-  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager) {
+  public function __construct(EntityTypeManagerInterface $entity_type_manager, EntityFieldManagerInterface $entity_field_manager, ModuleHandlerInterface $module_handler) {
     $this->entityTypeManager = $entity_type_manager;
     $this->entityFieldManager = $entity_field_manager;
+    $this->moduleHandler = $module_handler;
   }
 
   /**
@@ -124,6 +135,29 @@ class FieldTagService {
   }
 
   /**
+   * Return the target_id and value for an unsaved field tag field item.
+   *
+   * @param \Drupal\Core\TypedData\TypedDataInterface $item
+   *   The single item from a FieldItemList.
+   *
+   * @return string|null
+   *   If the item does not have field_tag as a key, meaning there is no CRUD
+   *   indication, then NULL will be returned.  Otherwise a trimmed string
+   *   value will be returned which is the tags value, possibly a CSV string.
+   *   Any duplicated tags will be removed.  Commas not followed by a space
+   *   will be replaced with ', '.
+   */
+  public function normalizeItemFieldTag(TypedDataInterface $item) {
+    $item = $item->getValue();
+    if (!array_key_exists('field_tag', $item)) {
+      return NULL;
+    }
+
+    return implode(', ', Tags::create($item['field_tag'])
+      ->all());
+  }
+
+  /**
    * Return the field item tagged by $tag if it exists.
    *
    * You must call ::attachTags first to set the entity.
@@ -136,12 +170,11 @@ class FieldTagService {
    * @return \Drupal\Core\Field\FieldItemInterface[]
    *   The items in $field_name tagged by $tag or [].  The keys are going to
    *   match the item list delta.
-   *
-   * // TODO Consider passing in $entity and doing away with $this->entity; then the service can be shared.
    */
-  public function getItemsTaggedBy(string $tag, string $field_name): array {
-    if (is_null($this->entity)) {
-      throw new RuntimeException("Missing $this->entity; did you call ::attachTags() first?");
+  public function getItemsTaggedBy(string $tag, string $field_name, EntityInterface $entity = NULL): array {
+    $entity = $entity ?? $this->entity ?? NULL;
+    if (is_null($entity)) {
+      throw new RuntimeException("Missing $entity; did you call ::attachTags() first?");
     }
     if (empty($field_name)) {
       throw new InvalidArgumentException("\$field_name may not be empty.");
@@ -153,8 +186,8 @@ class FieldTagService {
     if (empty(trim($tag))) {
       return $items;
     }
-    if ($this->entity->hasField($field_name)) {
-      foreach ($this->entity->get($field_name) as $delta => $item) {
+    if ($entity->hasField($field_name)) {
+      foreach ($entity->get($field_name) as $delta => $item) {
 
         // During entity inserts we will have ->field_tag, and that should be
         // used.  During entity updates we might have both, and we should assume
@@ -177,30 +210,6 @@ class FieldTagService {
     }
 
     return $items;
-  }
-
-  /**
-   * Return the target_id and value for an unsaved field tag field item.
-   *
-   * @param \Drupal\Core\TypedData\TypedDataInterface|array $item
-   *   The single item from a FieldItemList, or an array with the key
-   *   'field_tag'.
-   *
-   * @return string|null
-   *   If the item does not have field_tag as a key, meaning there is no CRUD
-   *   indication, then NULL will be returned.  Otherwise a trimmed string
-   *   value will be returned which is the tags value, possibly a CSV string.
-   *   Any duplicated tags will be removed.  Commas not followed by a space
-   *   will be replaced with ', '.
-   */
-  public function normalizeItemFieldTag(TypedDataInterface $item) {
-    $item = $item->getValue();
-    if (!array_key_exists('field_tag', $item)) {
-      return NULL;
-    }
-
-    return implode(', ', Tags::create($item['field_tag'])
-      ->all());
   }
 
   /**
@@ -286,6 +295,34 @@ class FieldTagService {
   }
 
   /**
+   * Get info about entity fields enableed with tagging.
+   *
+   * @return array
+   *   An array of entity_type_ids that allow tagging.
+   *
+   * @see field_tag_entity_type_build()
+   */
+  public function getTaggableEntityTypeIds(): array {
+    static $taggable_ids;
+    if (!isset($taggable_ids)) {
+      $taggable_ids = ['node'];
+      if ($this->moduleHandler->moduleExists('field_tag_paragraphs')) {
+        $taggable_ids[] = 'paragraph';
+      }
+    }
+
+    return $taggable_ids;
+  }
+
+  public function getTaggableFieldNamesByEntity(EntityInterface $entity): array {
+    $definitions = $this->getTaggedFieldDefinitionsByEntity($entity);
+
+    return array_map(function (FieldDefinitionInterface $definition) {
+      return $definition->getName();
+    }, $definitions);
+  }
+
+  /**
    * Determines if an entity_type/bundle has any fields with tags enabled.
    *
    * @param string $entity_type_id
@@ -347,6 +384,9 @@ class FieldTagService {
    *   An indexed array of field definitions.
    */
   public function getTaggedFieldDefinitionsByEntity(EntityInterface $entity): array {
+    if (!in_array($entity->getEntityTypeId(), $this->getTaggableEntityTypeIds())) {
+      return [];
+    }
     if ('field_tag' === $entity->getEntityTypeId() || !$entity instanceof FieldableEntityInterface) {
       return [];
     }
@@ -361,7 +401,7 @@ class FieldTagService {
       ->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
     $index[$cid] = [];
     foreach ($field_definitions as $field_definition) {
-      if (!$field_definition instanceof \Drupal\field\FieldConfigInterface) {
+      if (!$field_definition instanceof FieldConfigInterface) {
         continue;
       }
       $settings = $field_definition->getThirdPartySettings('field_tag');

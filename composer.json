@@ -1,13 +1,24 @@
 {
-  "license": "GPL-2.0-or-later",
-  "require-dev": {
-    "aklump/manual-test": "^1.2",
-    "phpunit/phpunit": "^9.5"
-  },
-  "autoload": {
-    "psr-4": {
-      "Drupal\\field_tag\\": "src",
-      "Drupal\\Tests\\field_tag\\Unit\\": "tests/src/Unit"
+    "name": "drupal/field_tag",
+    "type": "drupal-custom-module",
+    "license": "GPL-2.0+",
+    "homepage": "https://github.com/aklump/drupal_field_tag",
+    "authors": [
+        {
+            "name": "Aaron Klump (aklump)",
+            "homepage": "https://www.drupal.org/u/aklump",
+            "role": "Maintainer"
+        }
+    ],
+    "require-dev": {
+        "aklump/manual-test": "^1.2",
+        "phpunit/phpunit": "^9.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Drupal\\field_tag\\": "src",
+            "Drupal\\Tests\\field_tag\\Integration\\": "tests/src/Integration",
+            "Drupal\\Tests\\field_tag\\Unit\\": "tests/src/Unit"
+        }
     }
-  }
 }
