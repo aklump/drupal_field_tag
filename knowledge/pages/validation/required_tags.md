@@ -1,3 +1,8 @@
+<!--
+id: required_tags
+tags: ''
+-->
+
 # Required Tags
 
 ## Exactly One Tag on a Specific Bundle Field

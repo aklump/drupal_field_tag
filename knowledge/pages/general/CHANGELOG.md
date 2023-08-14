@@ -14,6 +14,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - When field_tag_paragraph processes an item, redirect to the node edit form to immediately begin editing.
 - Replace the need for attachTags with a hook like: hook_entity_storage_load() or hook_entity_field_values_init()
 
+## [0.5.0] - 2023-08-13
+
+### Added
+
+- `hook_field_tag_validation_rules()`  You can now add constraints to your field_tag use cases.  See _field_tag.api.php_ for more info.
+
 ## [0.4.0] - 2023-03-01
 
 ### Changed

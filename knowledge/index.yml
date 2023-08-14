@@ -10,3 +10,5 @@ page_order:
   - issues
   - changelog
   - retroactive
+  - overview
+  - required_tags
