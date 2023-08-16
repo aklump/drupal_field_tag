@@ -1,1 +1,0 @@
-- write an update script to dedupe the field_tag table using `\Drupal\field_tag\Helpers\Dedupe`.
