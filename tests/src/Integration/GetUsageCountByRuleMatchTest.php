@@ -8,7 +8,7 @@ use Drupal\field_tag\Rule\Rule;
 class GetUsageCountByRuleMatchTest extends \PHPUnit\Framework\TestCase {
 
   use RuleTestTrait;
-  use \AKlump\PHPUnit\Framework\MockObject\MockDrupalEntityTrait;
+  use \AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 
   public function dataEntityProvider() {
     $tests = [];

@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 final class FieldTagConstraintValidator_DocsValidationTest extends TestCase {
 
   use RuleTestTrait;
-  use \AKlump\PHPUnit\Framework\MockObject\MockDrupalEntityTrait;
+  use \AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 
   public function dataForFirstRuleHappyPath() {
     $tests = [];

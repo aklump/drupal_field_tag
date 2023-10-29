@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\field_tag\Integration;
 
-use AKlump\PHPUnit\Framework\MockObject\MockDrupalEntityTrait;
+use AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 use Drupal\Core\Entity\EntityFieldManagerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Extension\ModuleHandlerInterface;

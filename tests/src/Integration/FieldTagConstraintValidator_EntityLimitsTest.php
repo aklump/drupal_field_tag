@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 final class FieldTagConstraintValidator_EntityLimitsTest extends TestCase {
 
   use RuleTestTrait;
-  use \AKlump\PHPUnit\Framework\MockObject\MockDrupalEntityTrait;
+  use \AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 
   public function testEntityMinNotMetIfFieldDoesNotMatchRequirement() {
     $this->addRule((new Rule())

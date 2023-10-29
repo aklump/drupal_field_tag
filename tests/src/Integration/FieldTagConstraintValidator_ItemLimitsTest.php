@@ -14,7 +14,7 @@ use Drupal\field_tag\Rule\Rule;
 final class FieldTagConstraintValidator_ItemLimitsTest extends TestCase {
 
   use RuleTestTrait;
-  use \AKlump\PHPUnit\Framework\MockObject\MockDrupalEntityTrait;
+  use \AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 
   public function testItemMinOneShowsOneViolationIfTagIsNotUsedOnOneItemOfThree() {
     $this->addRule((new Rule())

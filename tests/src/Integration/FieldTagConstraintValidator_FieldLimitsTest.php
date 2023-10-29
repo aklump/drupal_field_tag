@@ -15,7 +15,7 @@ use PHPUnit\Framework\TestCase;
 final class FieldTagConstraintValidator_FieldLimitsTest extends TestCase {
 
   use RuleTestTrait;
-  use \AKlump\PHPUnit\Framework\MockObject\MockDrupalEntityTrait;
+  use \AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 
   /**
    * Provides data for testKnowledgePageRequiredTagsThumb.

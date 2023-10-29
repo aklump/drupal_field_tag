@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class CountTagsTest extends TestCase {
 
-  use \AKlump\PHPUnit\Framework\MockObject\MockDrupalEntityTrait;
+  use \AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 
   protected $counter;
 
