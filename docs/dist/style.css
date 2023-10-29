@@ -1,7 +1,23 @@
+:root,
+[data-bs-theme=light] {
+    --bs-primary: #0d6efd;
+    --bs-primary-rgb: 13, 110, 253;
+    --bs-link-color: #0d6efd;
+    --bs-link-color-rgb: 13, 110, 253;
+    --bs-code-color: #d63384;
+    --bs-gray-100: #f8f9fa;
+    --bs-gray-200: #e9ecef;
+    --bs-gray-300: #dee2e6;
+    --bs-gray-400: #ced4da;
+    --bs-info: #0dcaf0;
+    --bs-info-text-emphasis: #055160;
+    --bs-info-bg-subtle: #cff4fc;
+}
+
 pre code {
     display: block;
     padding: 20px;
-    background-color: #efefef;
+    background-color: var(--bs-gray-200);
     border-radius: 8px;
 }
 
@@ -28,4 +44,36 @@ pre code {
 .header__page-numbers {
     flex-basis: 80px;
     text-align: right;
+}
+
+.blockquote {
+    max-width: 700px;
+    font-size: 1.2em;
+    font-style: italic;
+    margin: 2em 0;
+    padding: 1.2em 30px 1.2em 75px;
+    border-left: 8px solid var(--bs-info);
+    line-height: 1.6;
+    position: relative;
+    font-family: var(--bs-font-monospace);
+}
+
+.blockquote::before {
+    content: "\201C";
+    color: var(--bs-info);
+    font-size: 4em;
+    position: absolute;
+    left: 10px;
+    top: -10px;
+}
+
+.blockquote::after {
+    content: '';
+}
+
+.blockquote span {
+    display: block;
+    font-style: normal;
+    font-weight: bold;
+    margin-top: 1em;
 }
