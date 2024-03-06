@@ -2,3 +2,4 @@ documentation/core
 documentation/README.md
 vendor/
 composer.lock
+.idea/

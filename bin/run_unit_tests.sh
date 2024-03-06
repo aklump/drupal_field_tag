@@ -1,19 +1,10 @@
 #!/usr/bin/env bash
-# @file
-#
-# Run custom phpunit tests.
-#
+s="${BASH_SOURCE[0]}";[[ "$s" ]] || s="${(%):-%N}";while [ -h "$s" ];do d="$(cd -P "$(dirname "$s")" && pwd)";s="$(readlink "$s")";[[ $s != /* ]] && s="$d/$s";done;__DIR__=$(cd -P "$(dirname "$s")" && pwd)
 
-source="${BASH_SOURCE[0]}"
-source="${BASH_SOURCE[0]}"
-if [[ ! "$source" ]]; then
-  source="${(%):-%N}"
-fi
-while [ -h "$source" ]; do # resolve $source until the file is no longer a symlink
-  dir="$( cd -P "$( dirname "$source" )" && pwd )"
-  source="$(readlink "$source")"
-  [[ $source != /* ]] && source="$dir/$source" # if $source was a relative symlink, we need to resolve it relative to the path where the symlink file was located
-done
-ROOT="$( cd -P "$( dirname "$source" )" && pwd )"
+cd "$__DIR__/.."
 
-"$ROOT/../vendor/bin/phpunit" -c "$ROOT/../phpunit.xml" --testdox "$@"
+# https://phpunit.readthedocs.io/en/9.5/textui.html#command-line-options
+./vendor/bin/phpunit -c phpunit.xml "$@"
+#./vendor/bin/phpunit -c phpunit.xml --testdox "$@"
+#export XDEBUG_MODE=coverage;./vendor/bin/phpunit -c phpunit.xml "$@" --coverage-html=./reports
+#echo ./reports/index.html

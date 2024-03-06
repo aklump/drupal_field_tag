@@ -8,6 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Entity\RevisionableInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Logger\LoggerChannelTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\field_tag\Helpers\Dedupe;
 use Drupal\field_tag\Tags;
@@ -50,7 +51,7 @@ use RuntimeException;
 class FieldTag extends ContentEntityBase implements FieldTagInterface {
 
   use EntityChangedTrait;
-  use \Drupal\Core\Logger\LoggerChannelTrait;
+  use LoggerChannelTrait;
 
   /**
    * Load FieldTag entity instance by parent entity/field/delta.
