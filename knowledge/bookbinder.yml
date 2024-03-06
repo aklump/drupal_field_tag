@@ -1,14 +1,14 @@
 -
   format: markdown
-  path: ../
+  output: ../
   special:
     - embed images
-  include:
+  pages:
     - '**/README.md'
     - '**/CHANGELOG.md'
 -
   format: website
-  path: ../docs
-  exclude:
+  output: ../docs
+  pages-ignore:
     - '**/readme*'
     - '**/drupal_project_page*'
