@@ -5,6 +5,7 @@ namespace Drupal\field_tag\Rule;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\field_tag\Helpers\CountTags;
+use Drupal\field_tag\Helpers\ExplodeScopeObject;
 
 class CheckConditions {
 
@@ -20,12 +21,15 @@ class CheckConditions {
    *   True if all set conditions are met.
    */
   public function __invoke(Rule $rule, object $scope_object): bool {
-    list($entity, $field_item_list) = (new \Drupal\field_tag\Helpers\ExplodeScopeObject())($scope_object);
+    list($entity, $field_item_list) = (new ExplodeScopeObject())($scope_object);
     $conditions = $rule->jsonSerialize()[Rule::CONDITION] ?? [];
 
     // Check for tag match.
     foreach ($conditions as $criterion => $condition) {
       switch ($criterion) {
+        case Rule::CALLABLE:
+          return (bool) $condition['value'][0]($entity, $field_item_list);
+
         case Rule::TAG_VALUE:
         case Rule::TAG_REGEX:
           $usage_count = (new GetUsageCountByRuleMatch($rule))($scope_object);

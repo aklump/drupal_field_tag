@@ -14,3 +14,21 @@ The rules are implemented as [entity and field constraints](https://www.drupal.o
 ## Explained
 
 Each rule consists of two parts: 1) the conditions to be met to apply the rule and 2) the requirements that must be met if the rule is applied.
+
+## Callback Explained
+
+The trump condition is the `Drupal\field_tag\Rule\Rule::CALLABLE`. Here's how you might use that. Notice the arguments may be `NULL`.  If you do not return a value, `FALSE` is assumed and the condition is considered unmet, and the rule skipped.
+
+```php
+$callable = function (
+  ?\Drupal\Core\Entity\EntityInterface $entity,
+  ?\Drupal\Core\Field\FieldItemListInterface $item_list
+): bool {
+  // Do something that returns a bool.
+};
+
+$rule = (new Drupal\field_tag\Rule\Rule())
+  ->condition(Drupal\field_tag\Rule\Rule::CALLABLE, $callable)
+  ->require(Drupal\field_tag\Rule\Rule::TAG_VALUE, 'foo')
+  ->require(Drupal\field_tag\Rule\Rule::TAG_MIN_PER_ENTITY, 1);
+```

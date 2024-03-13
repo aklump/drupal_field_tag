@@ -10,6 +10,39 @@ use PHPUnit\Framework\TestCase;
  */
 class RuleTest extends TestCase {
 
+  public function dataFortestNonNumericThrowsForCertainConditionsProvider() {
+    $tests = [];
+    $tests[] = [
+      Rule::TAG_MIN_PER_ENTITY,
+    ];
+    $tests[] = [
+      Rule::TAG_MIN_PER_FIELD,
+    ];
+    $tests[] = [
+      Rule::TAG_MIN_PER_ITEM,
+    ];
+    $tests[] = [
+      Rule::TAG_MAX_PER_ENTITY,
+    ];
+    $tests[] = [
+      Rule::TAG_MAX_PER_FIELD,
+    ];
+    $tests[] = [
+      Rule::TAG_MAX_PER_ITEM,
+    ];
+
+    return $tests;
+  }
+
+  /**
+   * @dataProvider dataFortestNonNumericThrowsForCertainConditionsProvider
+   */
+  public function testNonNumericThrowsForCertainConditions(string $numeric_value_criterion) {
+    $this->expectException(\InvalidArgumentException::class);
+    $this->expectExceptionMessageMatches('#' . $numeric_value_criterion . '.+foo#');
+    (new Rule())->require($numeric_value_criterion, 'foo');
+  }
+
   public function testGetTagReturnsExpected() {
     $tags = (new Rule())->condition(Rule::TAG_VALUE, 'alpha')->getTags();
     $this->assertSame('alpha', (string) $tags);

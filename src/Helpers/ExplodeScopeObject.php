@@ -8,6 +8,14 @@ use Drupal\Core\Field\FieldItemListInterface;
 
 class ExplodeScopeObject {
 
+  /**
+   * @param object|null $scope_object
+   *
+   * @return array
+   *   - 0 ?\Drupal\Core\Entity\EntityInterface
+   *   - 1 ?\Drupal\Core\Field\FieldItemListInterface
+   *   - 2 ?\Drupal\Core\Field\FieldItemInterface
+   */
   public function __invoke(?object $scope_object): array {
     if (NULL === $scope_object) {
       return [NULL, NULL, NULL];

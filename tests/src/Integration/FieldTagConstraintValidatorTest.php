@@ -2,8 +2,7 @@
 
 namespace Drupal\Tests\field_tag\Integration;
 
-use Drupal\Core\DependencyInjection\ContainerBuilder;
-use Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraint;
+use AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 use Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraintValidator;
 use Drupal\field_tag\Rule\Rule;
 use PHPUnit\Framework\TestCase;
@@ -14,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 final class FieldTagConstraintValidatorTest extends TestCase {
 
   use RuleTestTrait;
-  use \AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
+  use MockDrupalEntityTrait;
 
   public function testRequireCorrectEntityWorksWithTagConditionAndMultipleBundlesAndFields() {
     $rule = (new Rule())

@@ -19,6 +19,8 @@ class Rule implements \JsonSerializable {
 
   const ENTITY = 'entity';
 
+  const CALLABLE = 'callable';
+
   const BUNDLE = 'bundle';
 
   const HAS_FIELD = 'field_name';
@@ -75,6 +77,7 @@ class Rule implements \JsonSerializable {
       self::ENTITY,
       self::BUNDLE,
       self::HAS_FIELD,
+      self::CALLABLE,
     ];
     $this->validateCriterion($valid_criteria, $criterion);
     $this->conditions[$criterion] = [$criterion, $value, $operator];
@@ -159,6 +162,7 @@ class Rule implements \JsonSerializable {
       self::TAG_MAX_PER_ITEM,
     ];
     $this->validateCriterion($valid_criteria, $criterion);
+    $this->validateNumericValuesAsAppropriate($criterion, $value);
     $this->requirements[$criterion] = [$criterion, $value, $operator];
 
     return $this;
@@ -254,5 +258,19 @@ class Rule implements \JsonSerializable {
    */
   public function getHash(): string {
     return md5(json_encode($this));
+  }
+
+  private function validateNumericValuesAsAppropriate($criterion, $value) {
+    $numeric_only_value_criteria = [
+      Rule::TAG_MIN_PER_ENTITY,
+      Rule::TAG_MIN_PER_FIELD,
+      Rule::TAG_MIN_PER_ITEM,
+      Rule::TAG_MAX_PER_ENTITY,
+      Rule::TAG_MAX_PER_FIELD,
+      Rule::TAG_MAX_PER_ITEM,
+    ];
+    if (in_array($criterion, $numeric_only_value_criteria) && !is_numeric($value)) {
+      throw new \InvalidArgumentException(sprintf('Criterion "%s" only allows numeric values.  "%s" is invalid.', $criterion, $value));
+    }
   }
 }
