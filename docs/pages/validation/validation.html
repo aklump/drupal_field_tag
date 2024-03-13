@@ -4,9 +4,9 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.5.1">
-      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/style.css?ver=0.5.1">
-      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.5.1">
+      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.6.0">
+      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/style.css?ver=0.6.0">
+      <link rel="stylesheet" href="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.6.0">
     <title>Tag Validation Rules | Field Tags Module</title>
 </head>
 <body class="my-5">
@@ -51,6 +51,20 @@
 <p>The rules are implemented as <a href="https://www.drupal.org/docs/drupal-apis/entity-api/entity-validation-api/entity-validation-api-overview">entity and field constraints</a>. @see <code>\Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraint</code>.</p>
 <h2>Explained</h2>
 <p>Each rule consists of two parts: 1) the conditions to be met to apply the rule and 2) the requirements that must be met if the rule is applied.</p>
+<h2>Callback Explained</h2>
+<p>The trump condition is the <code>Drupal\field_tag\Rule\Rule::CALLABLE</code>. Here's how you might use that. Notice the arguments may be <code>NULL</code>.  If you do not return a value, <code>FALSE</code> is assumed and the condition is considered unmet, and the rule skipped.</p>
+<pre><code class="php">$callable = function (
+  ?\Drupal\Core\Entity\EntityInterface $entity,
+  ?\Drupal\Core\Field\FieldItemListInterface $item_list
+): bool {
+  // Do something that returns a bool.
+};
+
+$rule = (new Drupal\field_tag\Rule\Rule())
+  -&gt;condition(Drupal\field_tag\Rule\Rule::CALLABLE, $callable)
+  -&gt;require(Drupal\field_tag\Rule\Rule::TAG_VALUE, 'foo')
+  -&gt;require(Drupal\field_tag\Rule\Rule::TAG_MIN_PER_ENTITY, 1);
+</code></pre>
     </article>
   </div>
 </main>
@@ -58,9 +72,9 @@
   <footer class="footer d-flex justify-content-center">
     <div class="flex-column justify-content-center">
                   Version:
-          <strong>0.5.1</strong>
+          <strong>0.6.0</strong>
           &bull;
-                Last Update: <strong>3/6/2024</strong>
+                Last Update: <strong>3/13/2024</strong>
     </div>
   </footer>
 
@@ -331,9 +345,9 @@
   </div>
 </div>
 
-  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.5.1"></script>
-  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/lunr.js?ver=0.5.1"></script>
-  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/knowledge.min.js?ver=0.5.1"></script>
+  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.6.0"></script>
+  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/lunr.js?ver=0.6.0"></script>
+  <script src="/Users/aklump/Code/Packages/d8/field_tag/docs/dist/knowledge.min.js?ver=0.6.0"></script>
 
 </body>
 </html>
