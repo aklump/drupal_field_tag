@@ -37,7 +37,7 @@
         bg-primary">API</span>
   </div>
       <div class="header__page-numbers flex-shrink-1">11
-        / 14</div>
+        / 13</div>
     </div>
   </div>
 </header>
@@ -51,8 +51,16 @@
 <p>The rules are implemented as <a href="https://www.drupal.org/docs/drupal-apis/entity-api/entity-validation-api/entity-validation-api-overview">entity and field constraints</a>. @see <code>\Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraint</code>.</p>
 <h2>Explained</h2>
 <p>Each rule consists of two parts: 1) the conditions to be met to apply the rule and 2) the requirements that must be met if the rule is applied.</p>
-<h2>Callback Explained</h2>
-<p>The trump condition is the <code>Drupal\field_tag\Rule\Rule::CALLABLE</code>. Here's how you might use that. Notice the arguments may be <code>NULL</code>.  If you do not return a value, <code>FALSE</code> is assumed and the condition is considered unmet, and the rule skipped.</p>
+<h2>When are Rules Applied?</h2>
+<p>When the entity is saved.</p>
+<h2>When Does a Rule Apply</h2>
+<p>When all the <code>condition</code> statements are <code>TRUE</code>.</p>
+<h2>Must All <code>condition</code> clauses be <code>TRUE</code></h2>
+<p>Yes, or the rule is skipped.</p>
+<h2>Must All <code>require</code> clauses be <code>TRUE</code></h2>
+<p>Yes, or the rule is in violation.</p>
+<h2>Callable Condition Explained</h2>
+<p>The trump condition is the <code>Drupal\field_tag\Rule\Rule::CALLABLE</code>. Here's how you might use that. Notice the arguments may be <code>NULL</code>.  If you do not return a value, <code>FALSE</code> is assumed and the condition is considered unmet, and the rule skipped.  <strong>Each rule may have only one callable condition.</strong></p>
 <pre><code class="php">$callable = function (
   ?\Drupal\Core\Entity\EntityInterface $entity,
   ?\Drupal\Core\Field\FieldItemListInterface $item_list
@@ -74,7 +82,7 @@ $rule = (new Drupal\field_tag\Rule\Rule())
                   Version:
           <strong>0.6.0</strong>
           &bull;
-                Last Update: <strong>3/13/2024</strong>
+                Last Update: <strong>3/14/2024</strong>
     </div>
   </footer>
 
@@ -210,14 +218,7 @@ $rule = (new Drupal\field_tag\Rule\Rule())
               bg-info rounded-pill badge-sm"></span></a>&nbsp;[Validation]
     </li>
   
-                                    <li data-page="overview" value="13">
-      <a class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/overview.html">How Validation Works<span
-              class="js-search-score
-              badge
-              bg-info rounded-pill badge-sm"></span></a>&nbsp;[Validation]
-    </li>
-  
-                                    <li data-page="required_tags" value="14">
+                                    <li data-page="required_tags" value="13">
       <a class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/required_tags.html">Required Tags<span
               class="js-search-score
               badge
@@ -284,11 +285,7 @@ $rule = (new Drupal\field_tag\Rule\Rule())
       <a class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/retroactive.html">Retroactive Validation</a>&nbsp;[Validation]
     </li>
   
-                                <li data-page="overview" value="13">
-      <a class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/overview.html">How Validation Works</a>&nbsp;[Validation]
-    </li>
-  
-                                <li data-page="required_tags" value="14">
+                                <li data-page="required_tags" value="13">
       <a class="js-page-link" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/required_tags.html">Required Tags</a>&nbsp;[Validation]
     </li>
   
@@ -335,8 +332,6 @@ $rule = (new Drupal\field_tag\Rule\Rule())
                  data-tags="[&quot;API&quot;]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/validation.html">Tag Validation Rules</a>
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/retroactive.html">Retroactive Validation</a>
-                                                <a class="list-group-item list-group-item-action"
-                 data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/overview.html">How Validation Works</a>
                                                 <a class="list-group-item list-group-item-action"
                  data-tags="[]" href="/Users/aklump/Code/Packages/d8/field_tag/docs/pages/validation/required_tags.html">Required Tags</a>
                               </ul>
