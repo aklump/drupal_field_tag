@@ -329,7 +329,7 @@ function field_tag_field_storage_config_delete(EntityInterface $entity) {
   // entities by developers if they so desire.
   Drupal::database()->update('field_tag')
     ->fields(['deleted' => TRUE])
-    ->condition('parent_entity', $entity->get('entity_type'))
+    ->condition('parent_entity', $entity->getEntityTypeId())
     ->condition('field_name', $entity->getName())
     ->execute();
 }
