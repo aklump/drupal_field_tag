@@ -10,13 +10,20 @@
             "role": "Maintainer"
         }
     ],
+    "require": {
+        "php": "^7.4 || ^8.0"
+    },
     "require-dev": {
         "aklump/manual-test": "^1.2",
         "phpunit/phpunit": "^9.5"
     },
     "autoload": {
         "psr-4": {
-            "Drupal\\field_tag\\": "src",
+            "Drupal\\field_tag\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "Drupal\\Tests\\field_tag\\Integration\\": "tests/src/Integration",
             "Drupal\\Tests\\field_tag\\Unit\\": "tests/src/Unit"
         }

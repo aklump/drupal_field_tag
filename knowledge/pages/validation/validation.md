@@ -15,9 +15,25 @@ The rules are implemented as [entity and field constraints](https://www.drupal.o
 
 Each rule consists of two parts: 1) the conditions to be met to apply the rule and 2) the requirements that must be met if the rule is applied.
 
-## Callback Explained
+## When are Rules Applied?
 
-The trump condition is the `Drupal\field_tag\Rule\Rule::CALLABLE`. Here's how you might use that. Notice the arguments may be `NULL`.  If you do not return a value, `FALSE` is assumed and the condition is considered unmet, and the rule skipped.
+When the entity is saved.
+
+## When Does a Rule Apply
+
+When all the `condition` statements are `TRUE`.
+
+## Must All `condition` clauses be `TRUE`
+
+Yes, or the rule is skipped.
+
+## Must All `require` clauses be `TRUE`
+
+Yes, or the rule is in violation.
+
+## Callable Condition Explained
+
+The trump condition is the `Drupal\field_tag\Rule\Rule::CALLABLE`. Here's how you might use that. Notice the arguments may be `NULL`.  If you do not return a value, `FALSE` is assumed and the condition is considered unmet, and the rule skipped.  **Each rule may have only one callable condition.**
 
 ```php
 $callable = function (

@@ -1,19 +1,22 @@
 <?php
 
-namespace Drupal\Tests\field_tag\Integration;
+namespace Drupal\Tests\field_tag\Integration\TestTraits;
 
-use Drupal\field_tag\Helpers\FormatUsageValue;
+use AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 use Drupal\Core\DependencyInjection\ContainerBuilder;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\field_tag\FieldTagService;
+use Drupal\field_tag\Helpers\FormatUsageValue;
 use Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraint;
 use Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraintValidator;
 use Drupal\field_tag\Service\LabelService;
-use Drupal\field_tag\Tags;
 use Drupal\field_tag\Service\ValidationService;
+use Drupal\field_tag\Tags;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 trait RuleTestTrait {
+
+  use MockDrupalEntityTrait;
 
   /** @var array */
   protected $rules;
@@ -151,7 +154,7 @@ trait RuleTestTrait {
     }
 
     // Assert correct number of violations.
-    $this->assertCount(count($scope_counts), $violations);
+    $this->assertCount(\count($scope_counts), $violations);
 
     // Assert the expected full messages.
     foreach ($scope_counts as $scope => $scope_count) {

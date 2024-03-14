@@ -6,6 +6,7 @@ use AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait
 use Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraintValidator;
 use Drupal\field_tag\Rule\Rule;
 use PHPUnit\Framework\TestCase;
+use Drupal\Tests\field_tag\Integration\TestTraits\RuleTestTrait;
 
 
 /**

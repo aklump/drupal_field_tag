@@ -2,11 +2,10 @@
 
 namespace Drupal\Tests\field_tag\Integration;
 
-use Drupal\Core\DependencyInjection\ContainerBuilder;
-use Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraint;
 use Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraintValidator;
 use Drupal\field_tag\Rule\Rule;
 use PHPUnit\Framework\TestCase;
+use Drupal\Tests\field_tag\Integration\TestTraits\RuleTestTrait;
 
 /**
  * @covers FieldTagConstraintValidator

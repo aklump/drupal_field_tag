@@ -2,7 +2,7 @@
 
 namespace Drupal\Tests\field_tag\Integration;
 
-use Drupal\Core\Entity\ContentEntityBase;
+use AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\field_tag\Helpers\CountTags;
 use PHPUnit\Framework\TestCase;
@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  */
 final class CountTagsTest extends TestCase {
 
-  use \AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
+  use MockDrupalEntityTrait;
 
   protected $counter;
 

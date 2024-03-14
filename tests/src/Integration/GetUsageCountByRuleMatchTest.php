@@ -4,6 +4,7 @@ namespace Drupal\Tests\field_tag\Integration;
 
 use Drupal\field_tag\Rule\GetUsageCountByRuleMatch;
 use Drupal\field_tag\Rule\Rule;
+use Drupal\Tests\field_tag\Integration\TestTraits\RuleTestTrait;
 
 class GetUsageCountByRuleMatchTest extends \PHPUnit\Framework\TestCase {
 

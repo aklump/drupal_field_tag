@@ -5,8 +5,9 @@ namespace Drupal\Tests\field_tag\Integration;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\field_tag\Helpers\Dedupe;
 use Drupal\paragraphs\ParagraphInterface;
+use PHPUnit\Framework\TestCase;
 
-class DedupeTest extends \PHPUnit\Framework\TestCase {
+final class DedupeTest extends TestCase {
 
   public function testInvokeRemovesAllButMostRecentFieldTag() {
     $basis = [

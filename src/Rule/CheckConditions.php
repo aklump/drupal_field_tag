@@ -2,19 +2,9 @@
 
 namespace Drupal\field_tag\Rule;
 
-use Drupal\field_tag\FieldTagService;
 use Drupal\field_tag\Helpers\ExplodeScopeObject;
 
 class CheckConditions {
-
-  /**
-   * @var \Drupal\field_tag\FieldTagService
-   */
-  private $fieldTagService;
-
-  public function __construct(FieldTagService $field_tag_service) {
-    $this->fieldTagService = $field_tag_service;
-  }
 
   /**
    * @param \Drupal\field_tag\Rule\Rule $rule
@@ -31,7 +21,11 @@ class CheckConditions {
     foreach ($conditions as $criterion => $condition) {
       switch ($criterion) {
         case Rule::CALLABLE:
-          return (bool) $condition['value'][0]($entity, $field_item_list);
+          $result = (bool) $condition['value'][0]($entity, $field_item_list);
+          if (!$result) {
+            return FALSE;
+          }
+          break;
 
         case Rule::TAG_VALUE:
         case Rule::TAG_REGEX:

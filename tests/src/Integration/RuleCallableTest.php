@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\field_tag\Rule\Rule;
 use PHPUnit\Framework\TestCase;
+use Drupal\Tests\field_tag\Integration\TestTraits\RuleTestTrait;
 
 class RuleCallableTest extends TestCase {
 

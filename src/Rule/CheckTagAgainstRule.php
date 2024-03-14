@@ -4,11 +4,16 @@ namespace Drupal\field_tag\Rule;
 
 class CheckTagAgainstRule {
 
+  /**
+   * @var \Drupal\field_tag\Rule\Rule
+   */
+  private Rule $rule;
+
   public function __construct(Rule $rule) {
     $this->rule = $rule;
   }
 
-  public function __invoke(string $some_tag_value) {
+  public function __invoke(string $some_tag_value): bool {
     $data = $this->rule->jsonSerialize();
     foreach ([Rule::CONDITION, Rule::REQUIRE] as $type) {
       if (isset($data[$type][Rule::TAG_VALUE]['value'])
@@ -23,6 +28,8 @@ class CheckTagAgainstRule {
         }
       }
     }
+
+    return FALSE;
   }
 
 }
