@@ -6,7 +6,6 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\field_tag\FieldTagService;
-use Drupal\field_tag\Helpers\CountTags;
 use Drupal\field_tag\Helpers\ExplodeScopeObject;
 use Drupal\field_tag\Helpers\FormatUsageValue;
 use Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraint;
@@ -98,7 +97,6 @@ class CheckRequirements {
     if (empty($criteria)) {
       return;
     }
-    $rule_hash = $this->rule->getHash();
     $labels = $this->labelService->scope($entity);
 
     $usage_count = (new GetUsageCountByRuleMatch($this->rule))($entity);

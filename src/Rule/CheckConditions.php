@@ -2,14 +2,17 @@
 
 namespace Drupal\field_tag\Rule;
 
-use Drupal\Core\Entity\EntityInterface;
-use Drupal\Core\Field\FieldItemListInterface;
-use Drupal\field_tag\Helpers\CountTags;
+use Drupal\field_tag\FieldTagService;
 use Drupal\field_tag\Helpers\ExplodeScopeObject;
 
 class CheckConditions {
 
-  public function __construct(\Drupal\field_tag\FieldTagService $field_tag_service) {
+  /**
+   * @var \Drupal\field_tag\FieldTagService
+   */
+  private $fieldTagService;
+
+  public function __construct(FieldTagService $field_tag_service) {
     $this->fieldTagService = $field_tag_service;
   }
 
