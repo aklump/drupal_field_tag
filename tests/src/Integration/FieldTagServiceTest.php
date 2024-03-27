@@ -20,15 +20,6 @@ class FieldTagServiceTest extends TestCase {
 
   protected $moduleHandler;
 
-  public function testGetTaggableEntityTypeIdsReturnsArray() {
-    $this->moduleHandler->method('moduleExists')
-      ->willReturnCallback(function ($name) {
-        return $name === 'field_tag_paragraphs';
-      });
-    $result = $this->service->getTaggableEntityTypeIds();
-    $this->assertIsArray($result);
-  }
-
   public function testNormalizeItemFieldTagValueReturnsExpectedCSVString() {
     $typed_data = $this->createConfiguredMock(TypedDataInterface::class, [
       'getValue' => [

@@ -304,13 +304,12 @@ class FieldTagService {
   public function getTaggableEntityTypeIds(): array {
     static $taggable_ids;
     if (!isset($taggable_ids)) {
-      $taggable_ids = ['node'];
-      if ($this->moduleHandler->moduleExists('block')) {
-        $taggable_ids[] = 'block_content';
-      }
-      if ($this->moduleHandler->moduleExists('field_tag_paragraphs')) {
-        $taggable_ids[] = 'paragraph';
-      }
+      /** @var array $supported_entity_type_ids These have been tested to work. */
+      $supported_entity_type_ids = ['node', 'block_content', 'paragraph'];
+      $existing_entity_type_ids = \Drupal::entityTypeManager()
+        ->getDefinitions();
+      $existing_entity_type_ids = array_keys($existing_entity_type_ids);
+      $taggable_ids = array_intersect($supported_entity_type_ids, $existing_entity_type_ids);
     }
 
     return $taggable_ids;
