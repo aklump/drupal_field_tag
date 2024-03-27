@@ -295,10 +295,9 @@ class FieldTagService {
   }
 
   /**
-   * Get info about entity fields enableed with tagging.
+   * Get all entity type ids that can be tagged.
    *
    * @return array
-   *   An array of entity_type_ids that allow tagging.
    *
    * @see field_tag_entity_type_build()
    */
@@ -306,6 +305,9 @@ class FieldTagService {
     static $taggable_ids;
     if (!isset($taggable_ids)) {
       $taggable_ids = ['node'];
+      if ($this->moduleHandler->moduleExists('block')) {
+        $taggable_ids[] = 'block_content';
+      }
       if ($this->moduleHandler->moduleExists('field_tag_paragraphs')) {
         $taggable_ids[] = 'paragraph';
       }
