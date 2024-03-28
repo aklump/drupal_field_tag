@@ -21,3 +21,23 @@ function field_tag_update_8001() {
 
   return t('FieldTag: `deleted` field was installed.');
 }
+
+/**
+ * Add new 'changed' field to field_tags.
+ */
+function field_tag_update_8002() {
+  $definition = BaseFieldDefinition::create('changed')
+    ->setLabel(t('Changed'))
+    ->setDescription(t('The time that the field_tag was last edited.'));
+
+  Drupal::service('entity.definition_update_manager')
+    ->installFieldStorageDefinition('changed', 'field_tag', 'field_tag', $definition);
+
+  // Set all values to 0, which means nothing is deleted.
+  \Drupal::database()
+    ->update('field_tag')
+    ->fields(['changed' => time()])
+    ->execute();
+
+  return t('FieldTag: `changed` field was installed.');
+}

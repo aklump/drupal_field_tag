@@ -258,6 +258,10 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
       ->setDefaultValue(FALSE)
       ->setLabel(t('Deleted'));
 
+    $fields['changed'] = BaseFieldDefinition::create('changed')
+      ->setLabel(t('Changed'))
+      ->setDescription(t('The time that the field_tag was last edited.'));
+
     return $fields;
   }
 
