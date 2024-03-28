@@ -3,13 +3,14 @@
 namespace Drupal\field_tag\Rule;
 
 use Drupal\field_tag\Tags;
+use JsonSerializable;
 
 /**
  * Represents a Field Tag Rule to be used in validation.
  *
  * @see \Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraintValidator
  */
-class Rule implements \JsonSerializable {
+class Rule implements JsonSerializable {
 
   const WAS_VIOLATED = 1;
 
@@ -232,6 +233,10 @@ class Rule implements \JsonSerializable {
     ];
   }
 
+  /**
+   * {@inheritdoc}
+   */
+  #[\ReturnTypeWillChange]
   public function jsonSerialize() {
     $data = [];
     ksort($this->conditions);

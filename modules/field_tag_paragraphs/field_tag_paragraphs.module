@@ -7,17 +7,17 @@ use Drupal\field\Entity\FieldConfig;
  * Implements hook_entity_presave().
  */
 function field_tag_paragraphs_entity_presave(EntityInterface $entity) {
-  if (!\Drupal::service('field_tag')->getTaggedFieldDefinitionsByEntity($entity)) {
+  if (!Drupal::service('field_tag')->getTaggedFieldDefinitionsByEntity($entity)) {
     return;
   }
 
   // We know the entity uses field tagging, now we need to iterate on those
   // fields that use field tagging, which are paragraph references and process.
-  $field_definitions = \Drupal::service('entity_field.manager')
+  $field_definitions = Drupal::service('entity_field.manager')
     ->getFieldDefinitions($entity->getEntityTypeId(), $entity->bundle());
 
   /** @var \Drupal\field_tag_paragraphs\FieldTagParagraphs $service */
-  $service = \Drupal::service('field_tag_paragraphs');
+  $service = Drupal::service('field_tag_paragraphs');
   foreach ($field_definitions as $field_definition) {
     if (!$field_definition instanceof FieldConfig) {
       continue;

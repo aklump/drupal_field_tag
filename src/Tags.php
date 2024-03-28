@@ -46,7 +46,7 @@ final class Tags implements Countable {
   public function __construct(?string ...$tags) {
     // Normally tags may not contain self::SEPARATOR, but for our constructor we
     // allow passing a separated string.  This prevents exceptions.
-    if (func_num_args() === 1) {
+    if (func_num_args() === 1 && is_string($tags[0])) {
       $tags = explode(self::SEPARATOR, $tags[0]);
     }
     $this->setTags($tags);
@@ -188,13 +188,13 @@ final class Tags implements Countable {
   private function setTags(array $tags) {
     // Sniffs out tags with commas, which is not allowed.
     foreach ($tags as $tag) {
-      if (strstr($tag, self::SEPARATOR) !== FALSE) {
+      if (is_string($tag) && strstr($tag, self::SEPARATOR) !== FALSE) {
         throw new \InvalidArgumentException(sprintf('A single tag may not contain a "%s"; "%s" is an invalid tag.', self::SEPARATOR, $tag));
       }
     }
     $this->tags = $tags;
     $this->tags = array_map(function ($tag) {
-      return trim($tag, ' ' . self::SEPARATOR);
+      return !is_string($tag) ? $tag : trim($tag, ' ' . self::SEPARATOR);
     }, $this->tags);
     $this->tags = array_filter(array_unique($this->tags));
   }
