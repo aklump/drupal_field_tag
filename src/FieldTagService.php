@@ -302,17 +302,22 @@ class FieldTagService {
    * @see field_tag_entity_type_build()
    */
   public function getTaggableEntityTypeIds(): array {
-    static $taggable_ids;
-    if (!isset($taggable_ids)) {
-      /** @var array $supported_entity_type_ids These have been tested to work. */
-      $supported_entity_type_ids = ['node', 'block_content', 'paragraph'];
-      $existing_entity_type_ids = \Drupal::entityTypeManager()
-        ->getDefinitions();
-      $existing_entity_type_ids = array_keys($existing_entity_type_ids);
-      $taggable_ids = array_intersect($supported_entity_type_ids, $existing_entity_type_ids);
+    static $taggable_entity_type_ids;
+    if (!isset($taggable_entity_type_ids)) {
+      $taggable_entity_type_ids = [
+        'node' => 'node',
+        'block_content' => 'block_content',
+        'paragraphs' => 'paragraph',
+      ];
+      foreach (array_keys($taggable_entity_type_ids) as $module) {
+        if (!$this->moduleHandler->moduleExists($module)) {
+          unset($taggable_entity_type_ids[$module]);
+        }
+      }
+      $taggable_entity_type_ids = array_values($taggable_entity_type_ids);
     }
 
-    return $taggable_ids;
+    return $taggable_entity_type_ids;
   }
 
   public function getTaggableFieldNamesByEntity(EntityInterface $entity): array {
