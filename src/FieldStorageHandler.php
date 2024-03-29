@@ -2,12 +2,14 @@
 
 namespace Drupal\field_tag;
 
-use Drupal\Core\Field\FieldItemListInterface;
+use Drupal;
+use Drupal\Core\Entity\FieldableEntityInterface;
 use Drupal\field_tag\Entity\FieldTag;
+use Drupal\field_tag\Entity\FieldTagInterface;
 use Drupal\field_tag\Event\FieldTagEvents;
+use Drupal\field_tag\Helpers\Dedupe;
 
 class FieldStorageHandler {
-
 
   const ACTION_NONE = 0;
 
@@ -18,8 +20,8 @@ class FieldStorageHandler {
   /** @var \Drupal\field_tag\FieldTagService */
   private $fieldTagService;
 
-  public function __construct() {
-    $this->fieldTagService = \Drupal::service('field_tag');
+  public function __construct(FieldTagService $field_tag_service) {
+    $this->fieldTagService = $field_tag_service;
   }
 
   /**
@@ -39,17 +41,20 @@ class FieldStorageHandler {
    * @see \Drupal\field_tag\Event\FieldTagEvents::TAG_ADDED
    */
   public function getStorageActions(FieldItemListInterface $list): array {
+    if ($list->count() < 1) {
+      return [];
+    }
     $this->list = $list;
     $parent = $this->list->getEntity();
     $field_name = $this->list->getFieldDefinition()->getName();
 
-    $stored_field_tags = $this->fieldTagService->getAllFieldTagsByParent($parent, $field_name);
-    $in_storage = array_map(function (FieldTag $field_tag) {
+    $stored_field_tags = $this->getTagsByEntity($parent, $field_name);
+    $in_storage = array_map(function (FieldTagInterface $field_tag) {
       $target_entity = $field_tag->getTargetEntity() ?? NULL;
 
       return [
         [
-          'delta' => $field_tag->delta->value,
+          'delta' => $field_tag->getDelta(),
           'target_id' => $target_entity ? $target_entity->id() : NULL,
           'tags' => Tags::create($field_tag->getValue()),
         ],
@@ -93,10 +98,11 @@ class FieldStorageHandler {
       $only_in_memory = array_slice($in_memory, count($in_storage));
       foreach ($only_in_memory as $datum) {
         $correct_action = $this->determineCorrectAction(NULL, $datum);
-        $correct_action['fieldTag'] = FieldTag::createFromTags($datum['tags'], $parent, $field_name, $datum['delta']);
+        $correct_action['fieldTag'] = $this->datumToEntity($datum, $parent, $field_name);
         $result[] = $correct_action;
       }
     }
+    $this->deduplicateResults($result);
 
     return $result;
   }
@@ -120,7 +126,6 @@ class FieldStorageHandler {
       $action['action'] = self::ACTION_DELETE;
     }
     else {
-
       // If the storage and memory don't match then the field_tag entity storage
       // must be updated to reflect memory changes ... however we don't yet know
       // if an event should be fired or not... stay tuned...
@@ -160,22 +165,44 @@ class FieldStorageHandler {
     if ($unique_tags_in_storage->count()) {
       $action['events'][FieldTagEvents::TAG_REMOVED] = $unique_tags_in_storage;
     }
-    //    if ($unique_tags_in_memory->count() || $unique_tags_in_storage->count()) {
-    //
-    //
-    //
-    //      // Compare using target id...
-    //      if (!empty($in_storage['target_id']) && !empty($in_memory['target_id'])) {
-    //      }
-    //
-    //      // ... or delta, if not target_id
-    //      else {
-    //
-    //      }
-    //    }
-
 
     return $action;
+  }
+
+  /**
+   * Finds duplicates and marks their action as "delete".
+   *
+   * @param array[] $result
+   *
+   * @return void
+   */
+  private function deduplicateResults(array &$result): void {
+    $entities = array_map(fn(array $item) => $item['fieldTag'], $result);
+    $deduped_entities = (new Dedupe())($entities);
+    if (count($deduped_entities) < count($entities)) {
+      $retained_ids = array_map(fn(FieldTagInterface $field_tag) => $field_tag->id(), $deduped_entities);
+      foreach ($result as &$item) {
+        $id = $item['fieldTag']->id();
+        if ($id && !in_array($id, $retained_ids)) {
+          $item['action'] = self::ACTION_DELETE;
+        }
+      }
+      unset($item);
+    }
+  }
+
+  protected function datumToEntity($datum, FieldableEntityInterface $parent, string $field_name) {
+    return FieldTag::createFromTags($datum['tags'], $parent, $field_name, $datum['delta']);
+  }
+
+  /**
+   * @param \Drupal\Core\Entity\FieldableEntityInterface $parent
+   * @param string $field_name
+   *
+   * @return \Drupal\field_tag\Entity\FieldTagInterface[]
+   */
+  protected function getTagsByEntity(FieldableEntityInterface $parent, string $field_name): array {
+    return $this->fieldTagService->getAllFieldTagsByParent($parent, $field_name);
   }
 
 }
