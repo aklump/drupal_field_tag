@@ -48,7 +48,7 @@ use RuntimeException;
  *   },
  * )
  */
-class FieldTag extends ContentEntityBase implements FieldTagInterface {
+class FieldTag extends ContentEntityBase implements FieldTagInterface, \JsonSerializable {
 
   use EntityChangedTrait;
   use LoggerChannelTrait;
@@ -319,6 +319,24 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface {
    */
   public function getDelta(): int {
     return $this->delta->value ?? 0;
+  }
+
+  #[\ReturnTypeWillChange]
+  public function jsonSerialize() {
+    $numeric = function ($value) {
+      if (is_numeric($value)) {
+        return $value * 1;
+      }
+    };
+
+    return [
+      'delta' => $this->getDelta(),
+      'value' => $this->getValue(),
+      'id' => $numeric($this->id()),
+      'parent_type' => $this->getParentEntity()->getEntityTypeId(),
+      'parent_id' => $numeric($this->getParentEntity()->id()),
+      'field_name' => $this->getFieldName(),
+    ];
   }
 
 }
