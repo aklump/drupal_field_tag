@@ -4,6 +4,7 @@ namespace Drupal\field_tag;
 
 use Drupal;
 use Drupal\Core\Entity\FieldableEntityInterface;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\field_tag\Entity\FieldTag;
 use Drupal\field_tag\Entity\FieldTagInterface;
 use Drupal\field_tag\Event\FieldTagEvents;

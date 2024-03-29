@@ -13,6 +13,7 @@ class GetStorageActionsTest extends TestCase {
   use FieldTagMockTrait;
 
   public function dataFortestFooProvider() {
+    $data = [];
     $it = glob(__DIR__ . '/../test_case_data/active/*.json');
     foreach ($it as $item) {
       $datum = json_decode(file_get_contents($item), TRUE);
