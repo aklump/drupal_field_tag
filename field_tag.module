@@ -9,7 +9,7 @@ use Drupal\field\FieldConfigInterface;
 use Drupal\field_tag\Entity\FieldTagInterface;
 use Drupal\field_tag\Event\FieldTagEvents;
 use Drupal\field_tag\Event\TagEvent;
-use Drupal\field_tag\FieldStorageHandler;
+use Drupal\field_tag\Helpers\EntityUpdate;
 use Drupal\field_tag\Plugin\migrate\source\FieldTagContentEntity;
 use Drupal\field_tag\Tags;
 use Drupal\field_tag\WidgetHandler;
@@ -228,68 +228,14 @@ function field_tag_field_widget_complete_form_alter(&$field_widget_complete_form
  * Implements hook_entity_insert().
  */
 function field_tag_entity_insert(EntityInterface $entity) {
-  field_tag_entity_update($entity);
+  (new EntityUpdate())($entity);
 }
 
 /**
  * Implements hook_entity_update().
  */
-function field_tag_entity_update(EntityInterface $parent) {
-  if ('field_tag' === $parent->getEntityTypeId()) {
-    return;
-  }
-
-  /** @var \Drupal\field_tag\FieldTagService $field_tag_service */
-  $field_tag_service = Drupal::service('field_tag');
-  if (!in_array($parent->getEntityTypeId(), $field_tag_service->getTaggableEntityTypeIds())) {
-    return;
-  }
-
-
-  $fields = $field_tag_service->getTaggedFieldDefinitionsByEntity($parent);
-  if (count($fields) === 0) {
-    return;
-  }
-
-  $dispatcher = Drupal::service('event_dispatcher');
-  $storage_handler = new FieldStorageHandler();
-
-  foreach ($fields as $field) {
-    $list = $parent->get($field->getName());
-    if (!$list instanceof FieldItemListInterface) {
-      continue;
-    }
-    $pending_actions = $storage_handler->getStorageActions($list);
-    foreach ($pending_actions as $pending_action) {
-      switch ($pending_action['action']) {
-        case FieldStorageHandler::ACTION_DELETE:
-          $pending_action['fieldTag']->delete();
-          break;
-
-        case FieldStorageHandler::ACTION_SAVE:
-          $pending_action['fieldTag']->save();
-          break;
-      }
-
-      foreach ($pending_action['events'] as $type => $tags) {
-        $context = clone $pending_action['fieldTag'];
-        $context->setValue($tags);
-        $dispatcher->dispatch($type, new TagEvent($context));
-      }
-
-    }
-
-    $field_tag_service->attachTags($parent);
-
-    // fieldTag instances get detached from the parent entities during the CRUD
-    // operations.  They will not always be present, but this will ensure
-    // normalization.
-    // @see \Drupal\field_tag\FieldTagService::attachTags()
-    foreach ($list as $item) {
-      unset($item->fieldTag);
-    }
-    unset($parent->field_tag_attached);
-  }
+function field_tag_entity_update(EntityInterface $entity) {
+  (new EntityUpdate())($entity);
 }
 
 /**
