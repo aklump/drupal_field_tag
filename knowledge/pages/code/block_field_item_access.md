@@ -1,3 +1,8 @@
+<!--
+id: block_field_item_access
+tags: ''
+-->
+
 # Block Field Item Access by Tags
 
 This examples uses tags `survey` and `no survey` to hide and show field items on a block based on the presence of an active survey.
