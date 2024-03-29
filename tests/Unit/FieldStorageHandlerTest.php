@@ -9,9 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Drupal\field_tag\Tags;
 
 /**
- * @group extensions
- * @group field_tag
- * @covers \Drupal\field_tag\Tags
+ * @covers \Drupal\field_tag\FieldStorageHandler
+ * @uses \Drupal\field_tag\Tags
  */
 final class FieldStorageHandlerTest extends TestCase {
 

@@ -6,7 +6,8 @@ use Drupal\field_tag\Rule\Rule;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Drupal\field_tag\Rule
+ * @covers \Drupal\field_tag\Rule\Rule
+ * @uses \Drupal\field_tag\Tags
  */
 class RuleTest extends TestCase {
 

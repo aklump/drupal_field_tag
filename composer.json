@@ -24,8 +24,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Drupal\\Tests\\field_tag\\Integration\\": "tests/src/Integration",
-            "Drupal\\Tests\\field_tag\\Unit\\": "tests/src/Unit"
+            "Drupal\\Tests\\field_tag\\": "tests"
         }
     }
 }

@@ -3,3 +3,5 @@ documentation/README.md
 vendor/
 composer.lock
 .idea/
+reports/
+tests/test_case_data/
