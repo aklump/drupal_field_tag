@@ -72,7 +72,7 @@ class EntityUpdate {
     /**
      * Keep this here as it can be used to generate test cases.
      */
-        $export = (new ExportTestData())($list, $pending_actions);
+//    $export = (new ExportTestData())($list, $pending_actions);
 
     foreach ($pending_actions as $pending_action) {
       $this->doAction($pending_action);
