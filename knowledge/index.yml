@@ -12,3 +12,4 @@ page_order:
   - retroactive
   - overview
   - required_tags
+  - block_field_item_access

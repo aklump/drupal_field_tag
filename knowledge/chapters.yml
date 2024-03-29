@@ -2,6 +2,7 @@ chapter_order:
   - general
   - developing
   - validation
+  - code
 chapter_info:
   -
     id: general
@@ -12,3 +13,6 @@ chapter_info:
   -
     id: validation
     title: Validation
+  -
+    id: code
+    title: Code
