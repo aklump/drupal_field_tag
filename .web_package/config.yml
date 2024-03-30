@@ -1,0 +1,9 @@
+master: "8.x-1.x"
+remote: origin
+create_tags: patch
+push_tags: auto
+push_master: auto
+patch_prefix: .
+preserve_patch_zero: true
+git_root: .
+version_file: field_tag.info.yml
