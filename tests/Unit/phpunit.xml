@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
+         bootstrap="../../vendor/autoload.php"
          executionOrder="depends,defects"
          forceCoversAnnotation="true"
          beStrictAboutCoversAnnotation="true"
@@ -11,18 +11,18 @@
          failOnWarning="true"
          verbose="true">
     <testsuites>
-        <testsuite name="default">
-            <directory suffix="Test.php">tests/Unit</directory>
+        <testsuite name="unit">
+            <directory suffix="Test.php">.</directory>
         </testsuite>
     </testsuites>
     <coverage processUncoveredFiles="true">
         <include>
-            <directory suffix=".php">src</directory>
+            <directory suffix=".php">../../src</directory>
         </include>
         <exclude>
-            <directory suffix=".php">src/Entity</directory>
-            <directory suffix=".php">src/Event</directory>
-            <directory suffix=".php">src/Plugin</directory>
+            <directory suffix=".php">../../src/Entity</directory>
+            <directory suffix=".php">../../src/Event</directory>
+            <directory suffix=".php">../../src/Plugin</directory>
         </exclude>
     </coverage>
 </phpunit>

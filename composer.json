@@ -14,8 +14,8 @@
         "php": "^7.4 || ^8.0"
     },
     "require-dev": {
-        "aklump/manual-test": "^1.2",
-        "phpunit/phpunit": "^9.5"
+        "phpunit/phpunit": "^9.5",
+        "aklump/phpswap": "^0.0.7"
     },
     "autoload": {
         "psr-4": {
