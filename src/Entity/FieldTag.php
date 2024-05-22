@@ -329,14 +329,21 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface, \JsonSeri
       }
     };
 
-    return [
+    $data = [
       'delta' => $this->getDelta(),
       'value' => $this->getValue(),
       'id' => $numeric($this->id()),
-      'parent_type' => $this->getParentEntity()->getEntityTypeId(),
-      'parent_id' => $numeric($this->getParentEntity()->id()),
+      'parent_type' => NULL,
+      'parent_id' => NULL,
       'field_name' => $this->getFieldName(),
     ];
+    $parent = $this->getParentEntity();
+    if ($parent) {
+      $data['parent_type'] = $parent->getEntityTypeId();
+      $data['parent_id'] = $numeric($parent->id());
+    }
+
+    return $data;
   }
 
 }
