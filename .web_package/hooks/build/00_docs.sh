@@ -1,2 +1,5 @@
 #!/usr/bin/env bash
-php ./knowledge/vendor/aklump/knowledge/bin/book.php bind ./knowledge
+
+# @file Compile documentation using Knowledge
+
+bin/bind_book.sh

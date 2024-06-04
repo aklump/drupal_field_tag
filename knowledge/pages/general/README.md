@@ -5,14 +5,13 @@ tags: ''
 
 # {{ book.title }}
 
-
 ![Implementation](../../images/implementation.jpg)
 
 ## Summary
 
-Provides a means to attach a tag-style input box to any entity field, which allows content managers to tag the field content.  Developers may take advantage of this additional metadata when manipulating fields.
+Provides a means to attach a tag-style input box to any entity field, which allows content managers to tag the field content. Developers may take advantage of this additional metadata when manipulating fields.
 
-The use case for which this was written is this.  Allow the tagging of images on an multiple value image field to indicate which image is the `hero` image, which image is the `thumb` image, and untagged images are just that.  It allows the content managers to indicate the role the image is playing for that given entity.
+The use case for which this was written is this. Allow the tagging of images on an multiple value image field to indicate which image is the `hero` image, which image is the `thumb` image, and untagged images are just that. It allows the content managers to indicate the role the image is playing for that given entity.
 
 **Visit <https://aklump.github.io/field_tag> for full documentation.**
 
@@ -22,6 +21,8 @@ The use case for which this was written is this.  Allow the tagging of images on
 * Tags are not case-sensitive.
 * Tags may contain spaces.
 * Tags must be unique; duplicates will be removed.
+
+{{ composer.install|raw }}
 
 ## Configuration
 
@@ -34,7 +35,7 @@ The use case for which this was written is this.  Allow the tagging of images on
 
 ### What Happens When a Field is Deleted
 
-The field tags themselves exist as `FieldTag` entity instances.  When a field which is _field tag enabled_ on an entity type is deleted, all field tags that are associated with that entity type/field are marked with a `1` in the `deleted` column in the `field_tag` table.  They still exist in the database but are not going to load via the normal field tag API, attach methods, etc.  You can still load them using `FieldTag::load()` if necessary, or access them via the database for reference.
+The field tags themselves exist as `FieldTag` entity instances. When a field which is _field tag enabled_ on an entity type is deleted, all field tags that are associated with that entity type/field are marked with a `1` in the `deleted` column in the `field_tag` table. They still exist in the database but are not going to load via the normal field tag API, attach methods, etc. You can still load them using `FieldTag::load()` if necessary, or access them via the database for reference.
 
 ## Manage form display
 

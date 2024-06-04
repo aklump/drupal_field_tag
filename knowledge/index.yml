@@ -1,15 +1,18 @@
 page_order:
-  - readme
-  - relationships
-  - developers
-  - testing
-  - validation
-  - events
-  - in_code
-  - drupal_migrations
-  - issues
-  - changelog
-  - retroactive
-  - overview
-  - required_tags
-  - block_field_item_access
+  general:
+    - readme
+    - relationships
+    - issues
+    - changelog
+  developing:
+    - developers
+    - testing
+    - events
+    - in_code
+    - drupal_migrations
+  validation:
+    - validation
+    - retroactive
+    - required_tags
+  code:
+    - block_field_item_access

@@ -3,12 +3,11 @@
 namespace Drupal\Tests\field_tag\Integration;
 
 use Drupal\field_tag\Entity\FieldTag;
+use PHPUnit\Framework\TestCase;
 
-class FieldTagTest extends \PHPUnit\Framework\TestCase {
+final class FieldTagTest extends TestCase {
 
-  use \Drupal\Tests\field_tag\Integration\TestTraits\FieldTagMockTrait;
-
-  public function testJsonSerialize() {
+  public function testJsonSerializeCanHandleNoParentEntity() {
     $field_tag = $this->createPartialMock(FieldTag::class, [
       'getParentEntity',
       'getDelta',
