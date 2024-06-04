@@ -2,7 +2,7 @@
   format: markdown
   output: ../
   special:
-    - embed images
+    - copy images
   pages:
     - '**/README.md'
     - '**/CHANGELOG.md'
