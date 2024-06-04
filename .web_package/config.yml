@@ -1,4 +1,4 @@
-master: "8.x-1.x"
+master: main
 remote: origin
 create_tags: patch
 push_tags: auto
