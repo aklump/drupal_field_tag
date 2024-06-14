@@ -17,9 +17,7 @@ The use case for which this was written is this. Allow the tagging of images on 
 * Tags may contain spaces.
 * Tags must be unique; duplicates will be removed.
 
-##   Install with Composer
-
-1. Because this is an unpublished package, you must define it's repository in
+## Install with Composer1. Because this is an unpublished package, you must define it's repository in
    your project's _composer.json_ file. Add the following to _composer.json_ in
    the `repositories` array:
    
@@ -32,7 +30,7 @@ The use case for which this was written is this. Allow the tagging of images on 
 1. Require this package:
    
     ```
-    composer require drupal/field_tag:^0.6
+    composer require drupal/field_tag:^0.7
     ```
 1. Add the installed directory to _.gitignore_
    
