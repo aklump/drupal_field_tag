@@ -78,6 +78,7 @@ class FieldTag extends ContentEntityBase implements FieldTagInterface, \JsonSeri
         $query = \Drupal::entityTypeManager()
           ->getStorage('field_tag')
           ->getQuery()
+          ->accessCheck(FALSE)
           ->condition('deleted', 0)
           ->condition('parent_entity', $parent->getEntityTypeId())
           ->condition('parent_id', $parent->id())

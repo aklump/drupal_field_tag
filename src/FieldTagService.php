@@ -70,6 +70,7 @@ class FieldTagService {
       $storage = $this->entityTypeManager->getStorage('field_tag');
       $query = $storage
         ->getQuery()
+        ->accessCheck(FALSE)
         ->condition('deleted', 0)
         ->condition('parent_entity', $parent->getEntityTypeId())
         ->condition('parent_id', $parent->id());
