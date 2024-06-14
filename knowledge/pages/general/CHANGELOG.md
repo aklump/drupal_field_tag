@@ -14,11 +14,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 - When field_tag_paragraph processes an item, redirect to the node edit form to immediately begin editing.
 - Replace the need for attachTags with a hook like: hook_entity_storage_load() or hook_entity_field_values_init()
 
+## [0.7.0] - 2024-06-13
+
+### Added
+
+- Support for Drupal 10
+
 ## [0.6.3] - 2024-03-27
 
 ### Fixed
 
-- Tagging of block_content has been fixed. It broke somewhere along the way and there is no test coverage yet.
+- Tagging of block_content has been fixed. It broke somewhere along the way and there is no test coverage yet.  Still no test coverage.
 
 ## [0.6.0] - 2024-03-13
 

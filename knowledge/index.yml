@@ -8,11 +8,11 @@ page_order:
     - developers
     - testing
     - events
-    - in_code
     - drupal_migrations
+  code:
+    - in_code
+    - block_field_item_access
   validation:
     - validation
     - retroactive
     - required_tags
-  code:
-    - block_field_item_access

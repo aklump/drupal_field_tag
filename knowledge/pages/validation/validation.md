@@ -15,19 +15,19 @@ The rules are implemented as [entity and field constraints](https://www.drupal.o
 
 Each rule consists of two parts: 1) the conditions to be met to apply the rule and 2) the requirements that must be met if the rule is applied.
 
-## When are Rules Applied?
+## When Are Rules Applied?
 
 When the entity is saved.
 
-## When Does a Rule Apply
+## When Does a Rule Apply?
 
 When all the `condition` statements are `TRUE`.
 
-## Must All `condition` clauses be `TRUE`
+## Must All Condition Clauses Be True?
 
 Yes, or the rule is skipped.
 
-## Must All `require` clauses be `TRUE`
+## Must All Require Clauses Be True?
 
 Yes, or the rule is in violation.
 
