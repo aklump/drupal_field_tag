@@ -3,6 +3,7 @@
 namespace Drupal\Tests\field_tag\Integration;
 
 use AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
+use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\field_tag\FieldTagService;
 use PHPUnit\Framework\TestCase;
 use Drupal\Tests\field_tag\Integration\TestTraits\FieldTagMockTrait;
@@ -12,9 +13,14 @@ class GetStorageActionsTest extends TestCase {
   use MockDrupalEntityTrait;
   use FieldTagMockTrait;
 
+  const TEST_DATA_DIR = __DIR__ . '/../test_case_data/active/*.json';
+
   public function dataFortestFooProvider() {
     $data = [];
-    $it = glob(__DIR__ . '/../test_case_data/active/*.json');
+    $it = glob(self::TEST_DATA_DIR);
+    if (empty($it)) {
+      return [[NULL, NULL, NULL]];
+    }
     foreach ($it as $item) {
       $datum = json_decode(file_get_contents($item), TRUE);
 
@@ -45,7 +51,17 @@ class GetStorageActionsTest extends TestCase {
   /**
    * @dataProvider dataFortestFooProvider
    */
-  public function testFoo($db, \Drupal\Core\Field\FieldItemListInterface $items, $expected) {
+  public function testAssertTestDataWorksAsExpected($db, $items, $expected) {
+
+    // This will happen if there is no test data in the directory.  The test
+    // data is for developing and troubleshooting, as is this test, so in
+    // general this test will not do anything long term.
+    if (NULL === $db) {
+      $this->assertTrue(TRUE, sprintf('No test data at %s, this test passes.', self::TEST_DATA_DIR));
+
+      return;
+    }
+
     $field_tag_service = $this->createMock(FieldTagService::class);
     $field_tag_service->method('getAllFieldTagsByParent')->willReturn([]);
 
