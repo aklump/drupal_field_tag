@@ -5,7 +5,9 @@ namespace Drupal\Tests\field_tag\Integration;
 use AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 use Drupal\Core\Field\FieldItemInterface;
 use Drupal\field_tag\Helpers\CountTags;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 /**
  * @covers \Drupal\field_tag\Helpers\CountTags
@@ -107,11 +109,11 @@ final class CountTagsTest extends TestCase {
   }
 
   public function testInvalidTaggedObjectThrows() {
-    $this->expectException(\InvalidArgumentException::class);
-    $this->counter->__invoke(new \stdClass());
+    $this->expectException(InvalidArgumentException::class);
+    $this->counter->__invoke(new stdClass());
   }
 
-  public function setUp() {
+  public function setUp(): void {
     $this->counter = new CountTags();
   }
 

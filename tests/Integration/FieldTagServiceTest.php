@@ -141,7 +141,7 @@ class FieldTagServiceTest extends TestCase {
     $this->assertArrayHasKey(2, $items);
   }
 
-  public function setUp() {
+  public function setUp(): void {
     $this->entityTypeManager = $this->createConfiguredMock(EntityTypeManagerInterface::class, []);
     $this->entityFieldManager = $this->createConfiguredMock(EntityFieldManagerInterface::class, []);
     $this->moduleHandler = $this->createConfiguredMock(ModuleHandlerInterface::class, []);
