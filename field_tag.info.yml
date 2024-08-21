@@ -3,7 +3,7 @@ description: 'Allows arbitrary tagging of entity field content instances.'
 package: Fields
 type: module
 core_version_requirement: ^8 || ^9 || ^10
-version: 0.7.1
+version: 0.7.2
 php: 7.1
 dependencies:
   - 'drupal:field'
