@@ -1,2 +1,32 @@
 title: 'Field Tags Module'
 uuid: 6ec2bd0c-f453-455e-b6da-0fb280b31066
+chapters:
+  -
+    id: general
+    title: General
+    pages:
+      - readme
+      - relationships
+      - issues
+      - changelog
+  -
+    id: validation
+    title: Validation
+    pages:
+      - validation
+      - retroactive
+      - required_tags
+  -
+    id: code
+    title: Code
+    pages:
+      - in_code
+      - block_field_item_access
+  -
+    id: developing
+    title: Developing
+    pages:
+      - developers
+      - testing
+      - events
+      - drupal_migrations
