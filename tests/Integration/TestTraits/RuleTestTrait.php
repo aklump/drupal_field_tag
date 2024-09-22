@@ -26,6 +26,8 @@ trait RuleTestTrait {
    */
   protected $drupalEntity;
 
+  protected $container;
+
   /**
    * @param \Drupal\Core\Entity\EntityInterface $entity
    *

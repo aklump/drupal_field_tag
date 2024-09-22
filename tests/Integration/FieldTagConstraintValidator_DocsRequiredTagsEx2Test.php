@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\field_tag\Integration;
 
+use AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 use Drupal\field_tag\Plugin\Validation\Constraint\FieldTagConstraintValidator;
 use Drupal\field_tag\Rule\Rule;
 use PHPUnit\Framework\TestCase;
@@ -13,7 +14,7 @@ use Drupal\Tests\field_tag\Integration\TestTraits\RuleTestTrait;
 final class FieldTagConstraintValidator_DocsRequiredTagsEx2Test extends TestCase {
 
   use RuleTestTrait;
-  use \AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
+  use MockDrupalEntityTrait;
 
   public function testComparisonOfTaggedFieldVsHasField() {
     $entity = $this->createDrupalEntity('user', 'user', [

@@ -2,14 +2,16 @@
 
 namespace Drupal\Tests\field_tag\Integration;
 
+use AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
 use Drupal\field_tag\Rule\GetUsageCountByRuleMatch;
 use Drupal\field_tag\Rule\Rule;
 use Drupal\Tests\field_tag\Integration\TestTraits\RuleTestTrait;
+use PHPUnit\Framework\TestCase;
 
-class GetUsageCountByRuleMatchTest extends \PHPUnit\Framework\TestCase {
+class GetUsageCountByRuleMatchTest extends TestCase {
 
   use RuleTestTrait;
-  use \AKlump\Drupal\PHPUnit\Integration\Framework\MockObject\MockDrupalEntityTrait;
+  use MockDrupalEntityTrait;
 
   public function dataEntityProvider() {
     $tests = [];

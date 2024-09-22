@@ -45,6 +45,11 @@ class FieldTagConstraintValidator extends ConstraintValidator implements Contain
   private $labelService;
 
   /**
+   * @var \Symfony\Component\Validator\Constraint
+   */
+  private Constraint $constraint;
+
+  /**
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *
    * @return static
@@ -66,7 +71,7 @@ class FieldTagConstraintValidator extends ConstraintValidator implements Contain
     $this->entity = $value;
     $this->rules = $this->validationService->getAllValidationRules();
     $field_names = $this->fieldTagService->getTaggableFieldNamesByEntity($this->entity);
-    $check_conditions = new CheckConditions($this->fieldTagService);
+    $check_conditions = new CheckConditions();
     $check_requirements = new CheckRequirements($this->fieldTagService, $this->labelService, $this->context);
 
     // It is important to keep the correct order when checking violations.

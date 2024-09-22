@@ -16,9 +16,23 @@ class FieldTagServiceTest extends TestCase {
 
   use MockDrupalEntityTrait;
 
+  /** @var \Drupal\field_tag\FieldTagService */
   protected $service;
 
+  /**
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
   protected $moduleHandler;
+
+  /**
+   * @var \Drupal\Core\Entity\EntityTypeManagerInterface
+   */
+  protected $entityTypeManager;
+
+  /**
+   * @var \Drupal\Core\Entity\EntityFieldManagerInterface
+   */
+  protected $entityFieldManager;
 
   public function testNormalizeItemFieldTagValueReturnsExpectedCSVString() {
     $typed_data = $this->createConfiguredMock(TypedDataInterface::class, [
