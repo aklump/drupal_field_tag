@@ -33,6 +33,11 @@ final class WidgetHandler {
    */
   private $fieldName;
 
+  /**
+   * @var \Drupal\Core\Form\FormStateInterface
+   */
+  private FormStateInterface $formState;
+
   public function __construct(FormStateInterface $form_state, array $context, AccountInterface $account) {
     $this->formState = $form_state;
     $this->itemList = $context['items'];
