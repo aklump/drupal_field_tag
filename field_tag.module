@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
@@ -248,8 +249,16 @@ function field_tag_entity_delete(EntityInterface $entity) {
   $field_tag_service = Drupal::service('field_tag');
 
   if ($entity instanceof FieldTagInterface) {
-    Drupal::service('event_dispatcher')
-      ->dispatch(FieldTagEvents::TAG_REMOVED, new TagEvent($entity));
+    // https://www.drupal.org/node/3159012
+    DeprecationHelper::backwardsCompatibleCall(Drupal::VERSION, '9.1.0', function () use ($entity) {
+      Drupal::service('event_dispatcher')
+        ->dispatch(new TagEvent($entity), FieldTagEvents::TAG_REMOVED);
+    }, function () use ($entity) {
+      Drupal::service('event_dispatcher')
+        ->dispatch(FieldTagEvents::TAG_REMOVED, new TagEvent($entity));
+    });
+
+
   }
 
   elseif ($field_tag_service->getTaggedFieldDefinitionsByEntity($entity)) {

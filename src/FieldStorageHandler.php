@@ -21,6 +21,11 @@ class FieldStorageHandler {
   /** @var \Drupal\field_tag\FieldTagService */
   private $fieldTagService;
 
+  /**
+   * @var \Drupal\Core\Field\FieldItemListInterface
+   */
+  private FieldItemListInterface $list;
+
   public function __construct(FieldTagService $field_tag_service) {
     $this->fieldTagService = $field_tag_service;
   }
