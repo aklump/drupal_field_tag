@@ -3,7 +3,6 @@
 namespace Drupal\field_tag\Helpers;
 
 use Drupal;
-use Drupal\Component\Utility\DeprecationHelper;
 use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Field\FieldItemListInterface;
 use Drupal\field\FieldConfigInterface;
@@ -104,13 +103,13 @@ class EntityUpdate {
     foreach ($pending_action['events'] as $type => $tags) {
       $context = clone $pending_action['fieldTag'];
       $context->setValue($tags);
-
-      https://www.drupal.org/node/3159012
-      DeprecationHelper::backwardsCompatibleCall(Drupal::VERSION, '9.1.0', function () use ($type, $context) {
+      // https://www.drupal.org/node/3159012
+      if (version_compare(\Drupal::VERSION, '9.1.0', '>=')) {
         $this->dispatcher->dispatch(new TagEvent($context), $type);
-      }, function () use ($type, $context) {
+      }
+      else {
         $this->dispatcher->dispatch($type, new TagEvent($context));
-      });
+      }
     }
   }
 
