@@ -19,26 +19,59 @@ The use case for which this was written is this. Allow the tagging of images on 
 
 ## Install with Composer
 
-1. Because this is an unpublished package, you must define it's repository in
-   your project's _composer.json_ file. Add the following to _composer.json_ in
-   the `repositories` array:
-   
+Because this is an unpublished, custom Drupal module, the way you install and depend on it is a little different than published, contributed modules.
+
+* Add the following to the **root-level** _composer.json_ in the `repositories` array:
     ```json
     {
      "type": "github",
      "url": "https://github.com/aklump/drupal_field_tag"
     }
     ```
-1. Require this package:
-   
-    ```
-    composer require drupal/field_tag:^0.7
-    ```
-1. Add the installed directory to _.gitignore_
-   
+* Add the installed directory to **root-level** _.gitignore_
+  
    ```php
    /web/modules/custom/field_tag/
    ```
+* Proceed to either A or B, but not both.
+---
+### A. Install Standalone
+* Require _field_tag_ at the **root-level**.
+    ```
+    composer require drupal/field_tag:^0.7
+    ```
+---
+### B. Depend on This Module
+
+(_Replace `my_module` below with your module (or theme's) real name._)
+
+* Add the following to _my_module/composer.json_ in the `repositories` array. (_Yes, this is done both here and at the root-level._)
+    ```json
+    {
+     "type": "github",
+     "url": "https://github.com/aklump/drupal_field_tag"
+    }
+    ```
+* From the depending module (or theme) directory run:
+    ```
+    composer require drupal/field_tag:^0.7 --no-update
+    ```
+
+* Add the following to _my_module.info.yml_ in the `dependencies` array:
+    ```yaml
+    drupal:field_tag
+    ```
+* Back at the **root-level** run `composer update vendor/my_module`
+
+
+---
+### Enable This Module
+
+* Re-build Drupal caches, if necessary.
+* Enable this module, e.g.,
+  ```shell
+  drush pm-enable field_tag
+  ```
 
 ## Configuration
 
