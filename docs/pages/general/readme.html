@@ -4,9 +4,9 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.7.5">
-      <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.7.5">
-      <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.7.5">
+      <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.7.6">
+      <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.7.6">
+      <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.7.6">
     <title>Field Tags Module | Field Tags Module</title>
 </head>
 <body class="my-5">
@@ -55,25 +55,56 @@
 <li>Tags must be unique; duplicates will be removed.</li>
 </ul>
 <h2>Install with Composer</h2>
-<ol>
-<li><p>Because this is an unpublished package, you must define it's repository in
-your project's <em>composer.json</em> file. Add the following to <em>composer.json</em> in
-the <code>repositories</code> array:</p>
-<pre><code class="json"> {
-  "type": "github",
-  "url": "https://github.com/aklump/drupal_field_tag"
- }
+<p>Because this is an unpublished, custom Drupal module, the way you install and depend on it is a little different than published, contributed modules.</p>
+<ul>
+<li>Add the following to the <strong>root-level</strong> <em>composer.json</em> in the <code>repositories</code> array:<pre><code class="json">  {
+   "type": "github",
+   "url": "https://github.com/aklump/drupal_field_tag"
+  }
 </code></pre>
 </li>
-<li><p>Require this package:</p>
-<pre><code> composer require drupal/field_tag:^0.7
+<li><p>Add the installed directory to <strong>root-level</strong> <em>.gitignore</em></p>
+<pre><code class="php"> /web/modules/custom/field_tag/
 </code></pre>
 </li>
-<li><p>Add the installed directory to <em>.gitignore</em></p>
-<pre><code class="php">/web/modules/custom/field_tag/
+<li>Proceed to either A or B, but not both.</li>
+</ul>
+<hr />
+<h3>A. Install Standalone</h3>
+<ul>
+<li>Require _field<em>tag</em> at the <strong>root-level</strong>.<pre><code>  composer require drupal/field_tag:^0.7
 </code></pre>
 </li>
-</ol>
+</ul>
+<hr />
+<h3>B. Depend on This Module</h3>
+<p>(_Replace <code>my_module</code> below with your module (or theme's) real name._)</p>
+<ul>
+<li>Add the following to _my<em>module/composer.json</em> in the <code>repositories</code> array. (<em>Yes, this is done both here and at the root-level.</em>)<pre><code class="json">  {
+   "type": "github",
+   "url": "https://github.com/aklump/drupal_field_tag"
+  }
+</code></pre>
+</li>
+<li><p>From the depending module (or theme) directory run:
+  <code>  composer require drupal/field_tag:^0.7 --no-update
+ </code></p>
+</li>
+<li><p>Add the following to _my<em>module.info.yml</em> in the <code>dependencies</code> array:
+  <code>`</code>yaml
+  drupal:field_tag
+  <code>`</code></p>
+</li>
+<li>Back at the <strong>root-level</strong> run <code>composer update vendor/my_module</code></li>
+</ul>
+<hr />
+<h3>Enable This Module</h3>
+<ul>
+<li>Re-build Drupal caches, if necessary.</li>
+<li>Enable this module, e.g.,<pre><code class="shell">drush pm-enable field_tag
+</code></pre>
+</li>
+</ul>
 <h2>Configuration</h2>
 <ol>
 <li>Enable this module.</li>
@@ -109,9 +140,9 @@ the <code>repositories</code> array:</p>
   <footer class="footer d-flex justify-content-center">
     <div class="flex-column justify-content-center">
               Version:
-        <strong>0.7.5</strong>
+        <strong>0.7.6</strong>
         &bull;
-                    Last Update: <strong>11/26/2024</strong>
+                    Last Update: <strong>10/20/2025</strong>
           </div>
   </footer>
 
@@ -386,9 +417,9 @@ the <code>repositories</code> array:</p>
   </div>
 </div>
 
-  <script src="../../dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.7.5"></script>
-  <script src="../../dist/lunr.js?ver=0.7.5"></script>
-  <script src="../../dist/knowledge.min.js?ver=0.7.5"></script>
+  <script src="../../dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.7.6"></script>
+  <script src="../../dist/lunr.js?ver=0.7.6"></script>
+  <script src="../../dist/knowledge.min.js?ver=0.7.6"></script>
 
 </body>
 </html>
