@@ -4,11 +4,11 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.7.6">
-      <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.7.6">
-      <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.7.6">
-    <title>Code Examples | Field Tags Module</title>
-</head>
+      <link rel="stylesheet" href="../../dist/node_modules/bootstrap/dist/css/bootstrap.css?ver=0.7.7">
+      <link rel="stylesheet" href="../../dist/dist/bootstrap_theme.css?ver=0.7.7">
+      <link rel="stylesheet" href="../../dist/node_modules/bootstrap-icons/font/bootstrap-icons.min.css?ver=0.7.7">
+        <title>Code Examples | Field Tags Module</title>
+  </head>
 <body class="my-5">
 
 <header class="header bg-light fixed-top p-2 pt-1">
@@ -202,9 +202,10 @@ $field_tag_entities = $this-&gt;service('field_tag')
   -&gt;getFieldTagsByParagraph($paragraph);
 
 // Then merge them into a single array of single tag strings.
-$tags = array_flatten(array_map(function ($field_tag) {
-  return $field_tag-&gt;all();
-}, $field_tag_entities));
+$tags = [];
+foreach ($field_tag_entities as $field_tag) {
+  $tags = array_merge($tags, $field_tag-&gt;all());
+}
 
 // Now we want to get the first tag that begins with '#', so we can use that to
 // render an id attribute.
@@ -303,9 +304,9 @@ function hook_field_tag_validation_rules(): array {
   <footer class="footer d-flex justify-content-center">
     <div class="flex-column justify-content-center">
               Version:
-        <strong>0.7.6</strong>
+        <strong>0.7.7</strong>
         &bull;
-                    Last Update: <strong>10/20/2025</strong>
+                    Last Update: <strong>8/7/2026</strong>
           </div>
   </footer>
 
@@ -581,9 +582,9 @@ function hook_field_tag_validation_rules(): array {
   </div>
 </div>
 
-  <script src="../../dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.7.6"></script>
-  <script src="../../dist/lunr.js?ver=0.7.6"></script>
-  <script src="../../dist/knowledge.min.js?ver=0.7.6"></script>
+  <script src="../../dist/node_modules/bootstrap/dist/js/bootstrap.min.js?ver=0.7.7"></script>
+  <script src="../../dist/lunr.js?ver=0.7.7"></script>
+  <script src="../../dist/knowledge.min.js?ver=0.7.7"></script>
 
 </body>
 </html>
