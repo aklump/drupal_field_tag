@@ -147,9 +147,10 @@ $field_tag_entities = $this->service('field_tag')
   ->getFieldTagsByParagraph($paragraph);
 
 // Then merge them into a single array of single tag strings.
-$tags = array_flatten(array_map(function ($field_tag) {
-  return $field_tag->all();
-}, $field_tag_entities));
+$tags = [];
+foreach ($field_tag_entities as $field_tag) {
+  $tags = array_merge($tags, $field_tag->all());
+}
 
 // Now we want to get the first tag that begins with '#', so we can use that to
 // render an id attribute.
