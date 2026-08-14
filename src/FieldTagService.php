@@ -65,7 +65,7 @@ class FieldTagService {
    * @return \Drupal\field_tag\Entity\FieldTag[]
    *   An array of field_tag entities attached to $parent.  Keys are irrelevant.
    */
-  public function getAllFieldTagsByParent(EntityInterface $parent, string $field_name = NULL): array {
+  public function getAllFieldTagsByParent(EntityInterface $parent, ?string $field_name = NULL): array {
     try {
       $storage = $this->entityTypeManager->getStorage('field_tag');
       $query = $storage
@@ -172,7 +172,7 @@ class FieldTagService {
    *   The items in $field_name tagged by $tag or [].  The keys are going to
    *   match the item list delta.
    */
-  public function getItemsTaggedBy(string $tag, string $field_name, EntityInterface $entity = NULL): array {
+  public function getItemsTaggedBy(string $tag, string $field_name, ?EntityInterface $entity = NULL): array {
     $entity = $entity ?? $this->entity ?? NULL;
     if (is_null($entity)) {
       throw new RuntimeException("Missing $entity; did you call ::attachTags() first?");

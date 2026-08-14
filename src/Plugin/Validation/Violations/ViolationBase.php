@@ -6,6 +6,8 @@ use Drupal\Core\Entity\EntityInterface;
 
 abstract class ViolationBase {
 
+  protected array $params;
+
   private $data;
 
   /**

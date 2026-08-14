@@ -9,7 +9,7 @@ use Drupal\field_tag\FieldStorageHandler;
 
 trait FieldTagMockTrait {
 
-  public function createFieldTagMock(EntityInterface $parent, string $field_name, $delta, string $tags, int $id = NULL) {
+  public function createFieldTagMock(EntityInterface $parent, string $field_name, $delta, string $tags, ?int $id = NULL) {
     static $default_id = 0;
     $field_tag = $this->createConfiguredMock(FieldTagInterface::class, [
       'id' => $id ?? ++$default_id,
